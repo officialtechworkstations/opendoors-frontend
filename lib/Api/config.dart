@@ -2,7 +2,6 @@
 
 class Config {
 
-  // static const String baseurl = 'http://15.207.11.52/restate/';
   static const String baseurl = 'https://property.cscodetech.cloud/';
   static const String notificationUrl = 'https://fcm.googleapis.com/fcm/send';
 
