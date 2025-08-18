@@ -3,15 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/signup_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/signup_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -56,7 +56,7 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return WillPopScope(
       onWillPop: () async {
-        return false;
+        return true;
       },
       child: Scaffold(
         backgroundColor: notifire.getbgcolor,
@@ -65,10 +65,7 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
           elevation: 0,
           leading: IconButton(
             onPressed: () {
-              homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0").then((value) {
-                homePageController.catCurrentIndex = 0;
                 Get.back();
-              },);
             },
             icon: Icon(
               Icons.arrow_back,
@@ -121,10 +118,6 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
                                 },
                                 image:
                                 "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img ?? ""}",
-                                color:
-                               ourCurrentIndex == index
-                                    ? WhiteColor
-                                    : blueColor,
                                 placeholder:  "assets/images/ezgif.com-crop.gif",
                               ),
                               SizedBox(
@@ -174,6 +167,12 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
                                 itemBuilder: (context, index1) {
                                   return InkWell(
                                     onTap: () async {
+                                      Get.toNamed(
+                                        Routes.viewDataScreen,
+                                        arguments: {
+                                          "id" : homePageController.catWiseInfo?.propertyCat![index1].id
+                                        }
+                                      );
                                       setState(() {
                                         homePageController.rate =
                                             homePageController.catWiseInfo
@@ -181,14 +180,6 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
                                                 "";
                                       });
                                       homePageController.chnageObjectIndex(index1);
-                                      await homePageController
-                                          .getPropertyDetailsApi(
-                                        id: homePageController
-                                            .catWiseInfo?.propertyCat![index1].id,
-                                      );
-                                      Get.toNamed(
-                                        Routes.viewDataScreen,
-                                      );
                                     },
                                     child: Container(
                                       height: 250,
@@ -429,7 +420,7 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
                                   SizedBox(height: Get.height * 0.10),
                                   Image(
                                     image: AssetImage(
-                                      "assets/images/searchDataEmpty.png",
+                                      "assets/images/Door Icon.png",
                                     ),
                                     height: 110,
                                     width: 110,
@@ -438,7 +429,7 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
                                     child: SizedBox(
                                       width: Get.width * 0.80,
                                       child: Text(
-                                        "Sorry, there is no any nearby \n category or data not found"
+                                        "Nothing here yet,\n but your next move could change that"
                                             .tr,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
@@ -454,12 +445,12 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
                     )
                   : Expanded(
                       child: Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(color: Darkblue,),
                       ),
                     ),
             ],
           );
-        }) : CircularProgressIndicator(),
+        }) : CircularProgressIndicator(color: Darkblue,),
       ),
     );
   }

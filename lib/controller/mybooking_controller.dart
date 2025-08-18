@@ -3,10 +3,10 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/model/ststuswisebook_info.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/model/ststuswisebook_info.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:http/http.dart' as http;
 
 class MyBookingController extends GetxController implements GetxService {

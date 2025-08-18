@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/dashboard_controller.dart';
-import 'package:goproperti/controller/payout_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/dashboard_controller.dart';
+import 'package:opendoors/controller/payout_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -70,6 +70,7 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
         ),
       ),
       body: RefreshIndicator(
+        color: Darkblue,
         onRefresh: () {
           return Future.delayed(
             Duration(seconds: 2),
@@ -509,7 +510,7 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                                   Padding(
                                     padding: const EdgeInsets.only(left: 30),
                                     child: Image.asset(
-                                      "assets/images/bookingEmpty.png",
+                                      "assets/images/Door Icon.png",
                                       height: 110,
                                       width: 100,
                                     ),
@@ -528,7 +529,7 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                               ),
                             )
                       : Center(
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(color: Darkblue,),
                         );
                 }),
               ),

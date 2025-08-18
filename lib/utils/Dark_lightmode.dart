@@ -1,7 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:goproperti/utils/Colors.dart';
+import 'package:opendoors/utils/Colors.dart';
 
 class ColorNotifire with ChangeNotifier {
   bool isDark = false;

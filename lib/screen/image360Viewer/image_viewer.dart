@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:panorama_viewer/panorama_viewer.dart';
 // import 'package:panorama/panorama.dart';
 import 'package:provider/provider.dart';

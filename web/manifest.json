@@ -1,6 +1,6 @@
 {
-    "name": "goproperti",
-    "short_name": "goproperti",
+    "name": "opendoors",
+    "short_name": "opendoors",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

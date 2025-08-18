@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/search_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/search_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -88,7 +88,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                           textInputAction: TextInputAction.search,
                           style: TextStyle(
                             fontSize: 18,
-                            color:  notifire.getwhiteblackcolor,
+                            color: notifire.getwhiteblackcolor,
                             fontFamily: FontFamily.gilroyMedium,
                           ),
                           onSubmitted: (value) {
@@ -108,7 +108,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                             });
                           },
                           decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
                             border: InputBorder.none,
                             hintText: "Search...".tr,
                             hintStyle: TextStyle(
@@ -116,8 +117,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                               color: notifire.getlightblack,
                             ),
                             suffixIcon: Padding(
-                                padding: const EdgeInsets.all(14),
-                                child: Image.asset(
+                              padding: const EdgeInsets.all(14),
+                              child: Image.asset(
                                 "assets/images/SearchHomescreen.png",
                                 height: 10,
                                 width: 10,
@@ -151,27 +152,29 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
               ),
               searchController.searchText != ""
                   ? searchController.isLoading
-                      ? searchController.homesearchData!.searchPropety!.isNotEmpty
+                      ? searchController
+                              .homesearchData!.searchPropety!.isNotEmpty
                           ? Expanded(
                               child: ListView.builder(
-                                itemCount: searchController.homesearchData!.searchPropety!.length,
+                                itemCount: searchController
+                                    .homesearchData!.searchPropety!.length,
                                 itemBuilder: (context, index) {
                                   return InkWell(
                                     onTap: () async {
                                       setState(() {
                                         homePageController.rate =
-                                            searchController
-                                                .homesearchData!.searchPropety![index].rate!;
+                                            searchController.homesearchData!
+                                                .searchPropety![index].rate!;
                                       });
                                       homePageController
                                           .chnageObjectIndex(index);
-                                      await homePageController
-                                          .getPropertyDetailsApi(
-                                              id: searchController
-                                                  .homesearchData!.searchPropety![index].id);
-                                      Get.toNamed(
-                                        Routes.viewDataScreen,
-                                      );
+                                      Get.toNamed(Routes.viewDataScreen,
+                                          arguments: {
+                                            "id": searchController
+                                                .homesearchData!
+                                                .searchPropety![index]
+                                                .id
+                                          });
                                     },
                                     child: Container(
                                       height: 140,
@@ -194,9 +197,16 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                                     placeholder:
                                                         "assets/images/ezgif.com-crop.gif",
                                                     height: 140,
-                                                        imageErrorBuilder: (context, error, stackTrace) {
-                                                        return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
-                                                        },
+                                                    imageErrorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Center(
+                                                        child: Image.asset(
+                                                          "assets/images/emty.gif",
+                                                          fit: BoxFit.cover,
+                                                          height: Get.height,
+                                                        ),
+                                                      );
+                                                    },
                                                     image:
                                                         "${Config.imageUrl}${searchController.homesearchData!.searchPropety![index].image}",
                                                     fit: BoxFit.cover,
@@ -207,7 +217,9 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                                       BorderRadius.circular(15),
                                                 ),
                                               ),
-                                              searchController.homesearchData!.searchPropety![index]
+                                              searchController
+                                                          .homesearchData!
+                                                          .searchPropety![index]
                                                           .buyorrent ==
                                                       "1"
                                                   ? Positioned(
@@ -222,9 +234,13 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                                                   .center,
                                                           children: [
                                                             Container(
-                                                              margin: const EdgeInsets
+                                                              margin:
+                                                                  const EdgeInsets
                                                                       .fromLTRB(
-                                                                  0, 0, 3, 0),
+                                                                      0,
+                                                                      0,
+                                                                      3,
+                                                                      0),
                                                               child:
                                                                   Image.asset(
                                                                 "assets/images/Rating.png",
@@ -289,23 +305,23 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 Row(
                                                   children: [
                                                     Expanded(
-                                                      child: Text("${searchController.homesearchData!.searchPropety![index].title}",
+                                                      child: Text(
+                                                        "${searchController.homesearchData!.searchPropety![index].title}",
                                                         maxLines: 2,
                                                         style: TextStyle(
                                                           fontSize: 17,
-                                                          fontFamily:
-                                                              FontFamily
-                                                                  .gilroyBold,
+                                                          fontFamily: FontFamily
+                                                              .gilroyBold,
                                                           color: notifire
                                                               .getwhiteblackcolor,
-                                                          overflow:
-                                                              TextOverflow
-                                                                  .ellipsis,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                         ),
                                                       ),
                                                     ),
@@ -315,7 +331,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                                 Row(
                                                   children: [
                                                     Expanded(
-                                                      child: Text("${searchController.homesearchData!.searchPropety![index].city}",
+                                                      child: Text(
+                                                        "${searchController.homesearchData!.searchPropety![index].city}",
                                                         maxLines: 1,
                                                         style: TextStyle(
                                                           color: notifire
@@ -332,35 +349,35 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                                     ),
                                                   ],
                                                 ),
-                                                SizedBox(height: 5,),
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
                                                 Row(
                                                   children: [
                                                     Text(
                                                       "${currency}${searchController.homesearchData!.searchPropety![index].price}",
                                                       style: TextStyle(
                                                         fontSize: 17,
-                                                        fontFamily:
-                                                        FontFamily
+                                                        fontFamily: FontFamily
                                                             .gilroyBold,
                                                         color: blueColor,
                                                       ),
                                                     ),
                                                     searchController
-                                                        .homesearchData!.searchPropety![
-                                                    index]
-                                                        .buyorrent ==
-                                                        "1"
+                                                                .homesearchData!
+                                                                .searchPropety![
+                                                                    index]
+                                                                .buyorrent ==
+                                                            "1"
                                                         ? Text(
-                                                      "/night".tr,
-                                                      style:
-                                                      TextStyle(
-                                                        color: notifire
-                                                            .getgreycolor,
-                                                        fontFamily:
-                                                        FontFamily
-                                                            .gilroyMedium,
-                                                      ),
-                                                    )
+                                                            "/night".tr,
+                                                            style: TextStyle(
+                                                              color: notifire
+                                                                  .getgreycolor,
+                                                              fontFamily: FontFamily
+                                                                  .gilroyMedium,
+                                                            ),
+                                                          )
                                                         : SizedBox(),
                                                   ],
                                                 ),
@@ -386,7 +403,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                   SizedBox(height: Get.height * 0.10),
                                   Image(
                                     image: AssetImage(
-                                        "assets/images/searchDataEmpty.png"),
+                                        "assets/images/Door Icon.png"),
                                     height: 110,
                                     width: 110,
                                   ),
@@ -434,10 +451,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                           "";
                     });
                     homePageController.chnageObjectIndex(index);
-                    await homePageController.getPropertyDetailsApi(
-                        id: homePageController.homeDatatInfo?.homeData
-                            !.featuredProperty![index].id);
-                    Get.toNamed(Routes.viewDataScreen);
+                    Get.toNamed(Routes.viewDataScreen, arguments: {
+                      "id": homePageController
+                          .homeDatatInfo?.homeData!.featuredProperty![index].id
+                    });
                   },
                   child: Container(
                     height: 140,
@@ -457,8 +474,15 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                   placeholder:
                                       "assets/images/ezgif.com-crop.gif",
                                   height: 140,
-                                  imageErrorBuilder: (context, error, stackTrace) {
-                                  return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                                  imageErrorBuilder:
+                                      (context, error, stackTrace) {
+                                    return Center(
+                                      child: Image.asset(
+                                        "assets/images/emty.gif",
+                                        fit: BoxFit.cover,
+                                        height: Get.height,
+                                      ),
+                                    );
                                   },
                                   image:
                                       "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.featuredProperty![index].image ?? ""}",
@@ -469,8 +493,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                             ),
-                            homePageController.homeDatatInfo?.homeData
-                                        !.featuredProperty![index].buyorrent ==
+                            homePageController.homeDatatInfo?.homeData!
+                                        .featuredProperty![index].buyorrent ==
                                     "1"
                                 ? Positioned(
                                     top: 15,
@@ -494,8 +518,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                           Text(
                                             homePageController
                                                     .homeDatatInfo
-                                                    ?.homeData
-                                                    !.featuredProperty![index]
+                                                    ?.homeData!
+                                                    .featuredProperty![index]
                                                     .rate ??
                                                 "",
                                             style: TextStyle(
@@ -547,8 +571,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                     child: Text(
                                       homePageController
                                               .homeDatatInfo
-                                              ?.homeData
-                                              !.featuredProperty![index]
+                                              ?.homeData!
+                                              .featuredProperty![index]
                                               .title ??
                                           "",
                                       maxLines: 2,
@@ -570,8 +594,11 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      homePageController.homeDatatInfo?.homeData
-                                              !.featuredProperty![index].city ??
+                                      homePageController
+                                              .homeDatatInfo
+                                              ?.homeData!
+                                              .featuredProperty![index]
+                                              .city ??
                                           "",
                                       maxLines: 1,
                                       style: TextStyle(
@@ -626,7 +653,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                   SizedBox(height: Get.height * 0.10),
                   Image(
                     image: AssetImage(
-                      "assets/images/searchDataEmpty.png",
+                      "assets/images/Door Icon.png",
                     ),
                     height: 110,
                     width: 110,
@@ -635,7 +662,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                     child: SizedBox(
                       width: Get.width * 0.80,
                       child: Text(
-                        "Sorry, there is no any nearby \n category or data not found"
+                        "Nothing here yet,\n but your next move could change that"
                             .tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(

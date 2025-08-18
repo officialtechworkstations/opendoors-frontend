@@ -2,12 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/extraimage_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/extraimage_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -83,7 +83,7 @@ class _ExtraImageScreenState extends State<ExtraImageScreen> {
                   color: WhiteColor,
                 ),
                 decoration: BoxDecoration(
-                  color: Color(0xff3D5BF6),
+                  color: Darkblue,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -232,7 +232,7 @@ class _ExtraImageScreenState extends State<ExtraImageScreen> {
                                               "assets/images/Pen (1).png"),
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: Color(0xff3D5BF6),
+                                            color: Darkblue,
                                           ),
                                         ),
                                       ),
@@ -241,40 +241,44 @@ class _ExtraImageScreenState extends State<ExtraImageScreen> {
                                 );
                               },
                             )
-                          : Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 5),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: Get.height * 0.10),
-                                    Image(
-                                      image: AssetImage(
-                                        "assets/images/searchDataEmpty.png",
-                                      ),
-                                      height: 110,
-                                      width: 110,
-                                    ),
-                                    Center(
-                                      child: SizedBox(
-                                        width: Get.width * 0.80,
-                                        child: Text(
-                                          "Sorry, there is no any nearby \n category or data not found"
-                                              .tr,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: notifire.getgreycolor,
-                                            fontFamily: FontFamily.gilroyBold,
+                          : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 5),
+                                    child: Column(
+                                      children: [
+                                        Image(
+                                          image: AssetImage(
+                                            "assets/images/Door Icon.png",
+                                          ),
+                                          height: 110,
+                                          width: 110,
+                                        ),
+                                        SizedBox(height: 10,),
+                                        Center(
+                                          child: SizedBox(
+                                            child: Text(
+                                              "Nothing here yet,\n but your next move could change that"
+                                                  .tr,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: notifire.getgreycolor,
+                                                fontFamily: FontFamily.gilroyBold,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            )
+                            ],
+                          )
                       : Center(
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(color: Darkblue,),
                         ),
                   decoration: BoxDecoration(
                     color: notifire.getblackwhitecolor,

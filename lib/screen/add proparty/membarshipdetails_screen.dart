@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/dashboard_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/dashboard_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -110,7 +110,7 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                                         Text(
                                           "${dashBoardController.subDetailsInfo?.subscribedetails![0].planTitle ?? ""} Plan",
                                           style: TextStyle(
-                                            color: Color(0xff3D5BF6),
+                                            color: Darkblue,
                                             fontFamily: FontFamily.gilroyBold,
                                             fontSize: 16,
                                           ),
@@ -175,7 +175,7 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                                           style: TextStyle(
                                             fontSize: 30,
                                             fontFamily: FontFamily.gilroyBold,
-                                            color: Color(0xff3D5BF6),
+                                            color: Darkblue,
                                           ),
                                         ),
                                         Container(
@@ -187,7 +187,7 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontFamily: FontFamily.gilroyBold,
-                                              color: Color(0xff3D5BF6),
+                                              color: Darkblue,
                                             ),
                                           ),
                                         )
@@ -199,7 +199,7 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                                   ],
                                 ),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Color(0xff3D5BF6)),
+                                  border: Border.all(color: Darkblue),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
@@ -220,7 +220,7 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                                   ),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(15),
-                                    color: Color(0xff3D5BF6),
+                                    color: Darkblue,
                                   ),
                                 ),
                               ),
@@ -315,7 +315,7 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                               SizedBox(height: Get.height * 0.10),
                               Image(
                                 image: AssetImage(
-                                  "assets/images/searchDataEmpty.png",
+                                  "assets/images/Door Icon.png",
                                 ),
                                 height: 110,
                                 width: 110,
@@ -324,7 +324,7 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                                 child: SizedBox(
                                   width: Get.width * 0.80,
                                   child: Text(
-                                    "Sorry, there is no any nearby \n category or data not found"
+                                    "Nothing here yet,\n but your next move could change that"
                                         .tr,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -339,7 +339,7 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                         ),
                       )
                 : Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(color: Darkblue,),
                   );
           }),
         ),

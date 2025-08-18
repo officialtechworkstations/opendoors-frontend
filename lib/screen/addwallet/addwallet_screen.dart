@@ -5,29 +5,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/paystack_controller.dart';
-import 'package:goproperti/controller/reviewsummary_controller.dart';
-import 'package:goproperti/controller/wallet_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/screen/payment/2checkout.dart';
-import 'package:goproperti/screen/payment/FlutterWave.dart';
-import 'package:goproperti/screen/payment/InputFormater.dart';
-import 'package:goproperti/screen/payment/PaymentCard.dart';
-import 'package:goproperti/screen/payment/Paytm.dart';
-import 'package:goproperti/screen/payment/StripeWeb.dart';
-import 'package:goproperti/screen/payment/khalti.dart';
-import 'package:goproperti/screen/payment/mercadopago.dart';
-import 'package:goproperti/screen/payment/midtrans.dart';
-import 'package:goproperti/screen/payment/payfast.dart';
-import 'package:goproperti/screen/payment/senangpay.dart';
-import 'package:goproperti/screen/paypal/flutter_paypal.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/paystack_controller.dart';
+import 'package:opendoors/controller/reviewsummary_controller.dart';
+import 'package:opendoors/controller/wallet_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/screen/payment/2checkout.dart';
+import 'package:opendoors/screen/payment/FlutterWave.dart';
+import 'package:opendoors/screen/payment/InputFormater.dart';
+import 'package:opendoors/screen/payment/PaymentCard.dart';
+import 'package:opendoors/screen/payment/Paytm.dart';
+import 'package:opendoors/screen/payment/StripeWeb.dart';
+import 'package:opendoors/screen/payment/khalti.dart';
+import 'package:opendoors/screen/payment/mercadopago.dart';
+import 'package:opendoors/screen/payment/midtrans.dart';
+import 'package:opendoors/screen/payment/payfast.dart';
+import 'package:opendoors/screen/payment/senangpay.dart';
+import 'package:opendoors/screen/paypal/flutter_paypal.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -570,7 +570,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: Darkblue,),
                           );
                   }),
                 ),
@@ -609,8 +609,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         stripePayment();
                       } else if (paymenttital == "PayStack") {
 
-                        print(">>>>>>>>>>>>>>>> URL >>>>>>>>>>>>>>>>> >>>>>>>>>>>>>>>>> >>>>>${paystackController.paystackData!.data!.authorizationUrl}");
                         paystackController.paystack(walletController.amount.text).then((value) {
+                        print(">>>>>>>>>>>>>>>> URL >>>>>>>>>>>>>>>>> >>>>>>>>>>>>>>>>> >>>>>${paystackController.paystackData!.data!.authorizationUrl}");
                           Get.to(() => Paystackweb(url: paystackController.paystackData!.data!.authorizationUrl, skID: paystackID,))!.then((value) {
                                 if (verifyPaystack == 1) {
                               walletController.getWalletUpdateData();
@@ -635,6 +635,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                             walletController.getWalletUpdateData();
                             // homePageController.getHomeDataApi();
                             walletController.amount.text = "";
+                            Get.back();
                             showToastMessage("Payment Successfully");
                           } else {
                             Get.back();

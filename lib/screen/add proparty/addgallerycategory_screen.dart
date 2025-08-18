@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/controller/dashboard_controller.dart';
-import 'package:goproperti/controller/gallerycategory_controller.dart';
-import 'package:goproperti/controller/listofproperti_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/controller/dashboard_controller.dart';
+import 'package:opendoors/controller/gallerycategory_controller.dart';
+import 'package:opendoors/controller/listofproperti_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

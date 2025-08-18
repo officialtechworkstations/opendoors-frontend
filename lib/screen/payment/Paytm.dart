@@ -2,11 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+
+import '../../utils/Colors.dart';
 
 class PayTmPayment extends StatefulWidget {
   final String? uid;
@@ -112,7 +114,7 @@ class _PayTmPaymentState extends State<PayTmPayment> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: Darkblue,),
                           ),
                           SizedBox(height: Get.height * 0.02),
                           SizedBox(
@@ -150,7 +152,7 @@ class _PayTmPaymentState extends State<PayTmPayment> {
         ),
         body: Center(
           child: Container(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: Darkblue,),
           ),
         ),
       );

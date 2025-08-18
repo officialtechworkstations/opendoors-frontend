@@ -1,3 +1,10 @@
+plugins {
+    id "com.android.application"
+    id 'com.google.gms.google-services'
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -21,14 +28,14 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'kotlin-android'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+//apply plugin: 'com.android.application'
+//apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'kotlin-android'
+//apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 
 android {
-    namespace = "com.zozo.gorealestatess"
+    namespace = "opendoorsapp.com"
     compileSdk 34
     ndkVersion flutter.ndkVersion
 
@@ -45,7 +52,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.zozo.gorealestatess"
+        applicationId "opendoorsapp.com"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
         minSdk = 23
@@ -85,7 +92,7 @@ dependencies {
 //}
 //
 //android {
-//    namespace = "com.zozo.gorealestatess"
+//    namespace = "opendoorsapp.com"
 //    compileSdk = flutter.compileSdkVersion
 //    ndkVersion = flutter.ndkVersion
 //
@@ -100,7 +107,7 @@ dependencies {
 //
 //    defaultConfig {
 //        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-//        applicationId = "com.zozo.gorealestatess"
+//        applicationId = "opendoorsapp.com"
 //        // You can update the following values to match your application needs.
 //        // For more information, see: https://flutter.dev/to/review-gradle-config.
 //        minSdk = flutter.minSdkVersion

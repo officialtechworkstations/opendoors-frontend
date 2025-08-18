@@ -6,15 +6,15 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/login_controller.dart';
-import 'package:goproperti/controller/signup_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/screen/bookinformation_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/login_controller.dart';
+import 'package:opendoors/controller/signup_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/screen/bookinformation_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -393,6 +393,6 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
 
 Future<dynamic> editProfile(String uid, String name) async {
   CollectionReference collectionReference =
-      FirebaseFirestore.instance.collection('users');
+      FirebaseFirestore.instance.collection('opendoors_users');
   collectionReference.doc(uid).update({"name": name});
 }

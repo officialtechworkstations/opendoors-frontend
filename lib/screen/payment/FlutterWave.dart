@@ -1,11 +1,13 @@
 // ignore_for_file: prefer_final_fields, unused_field, prefer_typing_uninitialized_variables, use_key_in_widget_constructors, prefer_interpolation_to_compose_strings, unnecessary_string_interpolations, await_only_futures, avoid_print, prefer_const_constructors, avoid_unnecessary_containers, file_names
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+
+import '../../utils/Colors.dart';
 
 class FlutterWave extends StatefulWidget {
   final String? email;
@@ -53,11 +55,11 @@ class _FlutterWaveState extends State<FlutterWave> {
             });
           },
           onProgress: (val) {
-            progress = val;
-            setState(() {});
+
           },
           onNavigationRequest: (NavigationRequest request) async {
             final uri = Uri.parse(request.url);
+            print("URL LAUNCH $uri");
             if (uri.queryParameters["status"] == null) {
               accessToken = uri.queryParameters["token"];
             } else {
@@ -65,7 +67,7 @@ class _FlutterWaveState extends State<FlutterWave> {
                 payerID = await uri.queryParameters["transaction_id"];
                 Get.back(result: payerID);
               } else {
-                Get.back();
+                Get.back(result: uri.queryParameters["transaction_id"]);
                 showToastMessage("${uri.queryParameters["status"]}");
               }
             }
@@ -109,7 +111,7 @@ class _FlutterWaveState extends State<FlutterWave> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: Darkblue,),
                           ),
                           SizedBox(height: Get.height * 0.02),
                           SizedBox(
@@ -148,7 +150,7 @@ class _FlutterWaveState extends State<FlutterWave> {
         ),
         body: Center(
           child: Container(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: Darkblue,),
           ),
         ),
       );

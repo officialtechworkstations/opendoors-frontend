@@ -3,9 +3,9 @@
 import 'dart:convert';
 
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/model/faq_info.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/model/faq_info.dart';
 import 'package:http/http.dart' as http;
 
 class FaqController extends GetxController implements GetxService {

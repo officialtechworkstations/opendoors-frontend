@@ -2,15 +2,17 @@
 
 class Config {
 
-  static const String baseurl = 'https://property.cscodetech.cloud/';
+  static const String baseurl = 'https://admin.opendoorsapp.com/';
+  // static const String baseurl = 'https://property.cscodetech.cloud/';
   static const String notificationUrl = 'https://fcm.googleapis.com/fcm/send';
 
-  static  String? firebaseKey ;
-  static String? projectID = "studio-67236";
+  static  String? firebaseKey;
+  static  String leagacyKey = "BM5cTva4nvwRBevdqGG3sXhozCjsX8TlggXrlmhlA5bgJBKVPx_LUTRFOYgFIsCreOMKfVDS_1DoYxSTP5uueYg";
+  static String? projectID = "open-doors-app-2025f";
 
   static const String path = baseurl + 'user_api/';
-  static const String oneSignel = "53fc4f06-3aca-4a4a-a175-8638a1c52e4e";
-  static const googleKey = "AIzaSyBZ6Kv4YWs4aJdZs0iubXpa6_jiHuKiPIk";
+  static const String oneSignel = "cdd0525b-31a1-4d16-a8ba-f823b005ae40";
+  static const googleKey = "AIzaSyBy-e28ndAtWwDlAQPyXUuCgJhwE-P2rqw";
 
   static const String imageUrl = baseurl;
 

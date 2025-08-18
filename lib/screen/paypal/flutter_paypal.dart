@@ -4,10 +4,11 @@ library flutter_paypal;
 import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:goproperti/screen/paypal/src/screens/complete_payment.dart';
+import 'package:opendoors/screen/paypal/src/screens/complete_payment.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import '../../utils/Colors.dart';
 import 'src/PaypalServices.dart';
 import 'src/errors/network_error.dart';
 
@@ -266,7 +267,7 @@ class UsePaypalScreenState extends State<UsePaypalScreen> {
                             Icons.lock_outline,
                             color: Uri.parse(navUrl).hasScheme
                                 ? Colors.green
-                                : Colors.blue,
+                                : Darkblue,
                             size: 18,
                           ),
                           const SizedBox(width: 5),

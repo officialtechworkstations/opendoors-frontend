@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/reviewsummary_controller.dart';
-import 'package:goproperti/model/paystackmodel.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/reviewsummary_controller.dart';
+import 'package:opendoors/model/paystackmodel.dart';
 import 'package:http/http.dart' as http;
 import '../Api/data_store.dart';
 
@@ -21,6 +21,8 @@ class PaystackController extends GetxController implements GetxService {
         "email": getData.read("UserLogin")["email"].toString(),
         "amount": amount
     };
+    print("BOFYYYYY $body");
+
 
     var response = await http.post(Uri.parse(Config.baseurl + Config.paystackpayment),
       body: jsonEncode(body),
@@ -29,7 +31,7 @@ class PaystackController extends GetxController implements GetxService {
 
 
     if(response.statusCode == 200){
-
+    print("object ><><><>< ${response.body}");
       var paystackDecode = jsonDecode(response.body);
 
       if(paystackDecode["status"] == true){
@@ -56,6 +58,7 @@ class PaystackController extends GetxController implements GetxService {
     var request = await http.get(Uri.parse('https://api.paystack.co/transaction/verify/$randomKey'),headers: headers);
 
     if (request.statusCode == 200) {
+      print("dasd as ${request.body}");
       return jsonDecode(request.body);
     }
     else {

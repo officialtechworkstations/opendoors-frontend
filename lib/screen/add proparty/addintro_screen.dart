@@ -1,10 +1,10 @@
 // ignore_for_file: camel_case_types, use_key_in_widget_constructors, annotate_overrides, prefer_const_literals_to_create_immutables, prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/controller/listofproperti_controller.dart';
-import 'package:goproperti/controller/subscribe_controller.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/controller/listofproperti_controller.dart';
+import 'package:opendoors/controller/subscribe_controller.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,12 +25,12 @@ class _BoardingScreenState extends State<BoardingPage> {
     _currentPage = 0;
 
     _slides = [
-      Slide("assets/images/addintro1.png", "Go Primium",
-          "List your villa and host people from around \n the world."),
-      Slide("assets/images/addintro2.png", "List any type of property",
-          "Aepartments to villas and everything in \n betwwen can be listed."),
-      Slide("assets/images/addintro3.png", "Go live",
-          "Embrace yourself to host travelers form \n across the globe."),
+      Slide("assets/images/addintro1.png", "Turn your home into a source of steady income",
+          "List your apartment, room, or entire house and earn whenever someone books, it’s that easy.."),
+      Slide("assets/images/addintro2.png", "Rent your space to verified guests",
+          "Only real people with verified profiles can book your property, giving you peace of mind every"),
+      Slide("assets/images/addintro3.png", "No agents. No middleman. Just bookings and payments.",
+          "Manage everything yourself right from the app, set your price, update availability, and get paid without stress."),
     ];
     _pageController = PageController(initialPage: _currentPage);
     super.initState();
@@ -58,8 +58,8 @@ class _BoardingScreenState extends State<BoardingPage> {
           Container(
             height: MediaQuery.of(context).size.height / 1.9,
             width: MediaQuery.of(context).size.width,
-            alignment: Alignment.topRight,
-            child: Image.asset(slide.image),
+            // alignment: Alignment.topRight,
+            child: Image.asset(slide.image, fit: BoxFit.fitWidth,),
           ),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.05,
@@ -127,85 +127,89 @@ class _BoardingScreenState extends State<BoardingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: WhiteColor,
-      body: Stack(
-        children: <Widget>[
-          PageView(
-            controller: _pageController,
-            onPageChanged: _handlingOnPageChanged,
-            physics: const BouncingScrollPhysics(),
-            children: _buildSlides(),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Column(
-              children: <Widget>[
-                _buildPageIndicator(),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height *
-                      0.06,
-                ),
-                _currentPage == 2
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: GestureDetector(
-                          onTap: () {
-                            listOfPropertiController.getPropertiList();
-                            subscribeController.getSubscribeDetailsList();
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Darkblue,
-                                borderRadius: BorderRadius.circular(50)),
-                            height: 50,
-                            width: double.infinity,
-                            child: Center(
-                              child: Text(
-                                "Get Started".tr,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: WhiteColor,
-                                    fontFamily: "Gilroy Bold"),
+      body: GetBuilder<SubscribeController>(
+        builder: (subscribeController) {
+          return Stack(
+            children: <Widget>[
+              PageView(
+                controller: _pageController,
+                onPageChanged: _handlingOnPageChanged,
+                physics: const BouncingScrollPhysics(),
+                children: _buildSlides(),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Column(
+                  children: <Widget>[
+                    _buildPageIndicator(),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height *
+                          0.06,
+                    ),
+                    _currentPage == 2
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: subscribeController.isLoading ? GestureDetector(
+                              onTap: () {
+                                listOfPropertiController.getPropertiList();
+                                subscribeController.getSubscribeDetailsList();
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Darkblue,
+                                    borderRadius: BorderRadius.circular(50)),
+                                height: 50,
+                                width: double.infinity,
+                                child: Center(
+                                  child: Text(
+                                    "Get Started".tr,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: WhiteColor,
+                                        fontFamily: "Gilroy Bold"),
+                                  ),
+                                ),
+                              ),
+                            ) : Center(child: CircularProgressIndicator(color: Darkblue,)),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: GestureDetector(
+                              onTap: () {
+                                _pageController.nextPage(
+                                    duration: const Duration(microseconds: 300),
+                                    curve: Curves.easeIn);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Darkblue,
+                                    borderRadius: BorderRadius.circular(50)),
+                                height: 50,
+                                width: double.infinity,
+                                child: Center(
+                                  child: Text(
+                                    "Next".tr,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: WhiteColor,
+                                        fontFamily: "Gilroy Bold"),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: GestureDetector(
-                          onTap: () {
-                            _pageController.nextPage(
-                                duration: const Duration(microseconds: 300),
-                                curve: Curves.easeIn);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Darkblue,
-                                borderRadius: BorderRadius.circular(50)),
-                            height: 50,
-                            width: double.infinity,
-                            child: Center(
-                              child: Text(
-                                "Next".tr,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: WhiteColor,
-                                    fontFamily: "Gilroy Bold"),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height *
-                      0.012, //indicator set screen
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height *
+                          0.012, //indicator set screen
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )
-        ],
+              )
+            ],
+          );
+        }
       ),
     );
   }

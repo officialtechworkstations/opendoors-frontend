@@ -1,7 +1,7 @@
 // ignore_for_file: file_names, constant_identifier_names
 
 import 'package:flutter/material.dart';
-import 'package:goproperti/utils/Colors.dart';
+import 'package:opendoors/utils/Colors.dart';
 
 class Strings {
   static const String appName = 'Payment Card Demo';

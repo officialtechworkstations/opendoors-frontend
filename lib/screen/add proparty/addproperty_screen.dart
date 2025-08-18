@@ -7,15 +7,15 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/addproperties_controller.dart';
-import 'package:goproperti/controller/dashboard_controller.dart';
-import 'package:goproperti/controller/enquiry_controller.dart';
-import 'package:goproperti/controller/selectcountry_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/addproperties_controller.dart';
+import 'package:opendoors/controller/dashboard_controller.dart';
+import 'package:opendoors/controller/enquiry_controller.dart';
+import 'package:opendoors/controller/selectcountry_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,7 +27,7 @@ class AddPropertyScreen extends StatefulWidget {
   State<AddPropertyScreen> createState() => _AddPropertyScreenState();
 }
 
-List<String> list = ["Buy", "Rent"];
+List<String> list = ["Rent"];
 
 List<String> propartyStatus = ["Publish", "UnPublish"];
 
@@ -53,6 +53,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
+    if(slectStatus == "Rent"){
+      addPropertiesController.pbuySell = "1";
+    }
     if (previusstate == null) {
       notifire.setIsDark = false;
     } else {
@@ -840,7 +843,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         ),
                         DottedBorder(
                           borderType: BorderType.RRect,
-                          color: Color(0xff3D5BF6),
+                          color: Darkblue,
                           radius: Radius.circular(15),
                           borderPadding: EdgeInsets.symmetric(horizontal: 20),
                           child: InkWell(
@@ -992,8 +995,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                                 onclick: () {
-                                  if (_formKey.currentState?.validate() ??
-                                      false) {
+                                  if (_formKey.currentState?.validate() ?? false) {
                                     if (selectCountry != null) {
                                       if (selectProperty != null) {
                                         if (addPropertiesController
@@ -1016,8 +1018,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                                     .editPropertyApi();
                                               }
                                             } else {
-                                              showToastMessage(
-                                                  "Please Upload Image".tr);
+                                              showToastMessage("Please Upload Image".tr);
                                             }
                                           } else {
                                             showToastMessage(

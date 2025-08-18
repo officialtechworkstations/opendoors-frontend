@@ -3,10 +3,10 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/model/pagelist_info.dart';
-import 'package:goproperti/screen/login_screen.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/model/pagelist_info.dart';
+import 'package:opendoors/screen/login_screen.dart';
 import 'package:http/http.dart' as http;
 
 class PageListController extends GetxController implements GetxService {

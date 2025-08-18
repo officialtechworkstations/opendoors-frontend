@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
 
 class ChatBubble extends StatelessWidget {
   final String message;

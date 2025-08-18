@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/controller/paystack_controller.dart';
-import 'package:goproperti/screen/payment/2checkout.dart';
-import 'package:goproperti/screen/payment/Paystackweb.dart';
-import 'package:goproperti/screen/payment/payfast.dart';
-import 'package:goproperti/screen/payment/senangpay.dart';
+import 'package:opendoors/controller/paystack_controller.dart';
+import 'package:opendoors/screen/payment/2checkout.dart';
+import 'package:opendoors/screen/payment/Paystackweb.dart';
+import 'package:opendoors/screen/payment/payfast.dart';
+import 'package:opendoors/screen/payment/senangpay.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -974,6 +974,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
   Future congratiulationDialog() {
     return Get.defaultDialog(
       backgroundColor: notifire.getblackwhitecolor,
+      barrierDismissible: false,
       title: "",
       content: WillPopScope(
         onWillPop: () async {
@@ -1065,8 +1066,6 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                   );
 
                   reviewSummaryController.cleanOtherDetails();
-
-                  Get.back();
 
                   Get.offAllNamed(Routes.bottoBarScreen);
                 },
@@ -1293,7 +1292,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: Darkblue,),
                           );
                   }),
                 ),
@@ -1331,8 +1330,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                         Get.back();
                         stripePayment();
                       } else if (paymenttital == "PayStack") {
-                        print("< > >< >< >< >< >< >< >< >< ><>>< ${paystackID}>");
                         paystackController.paystack(currentTotalprice.toString()).then((value) {
+                        print("< > >< >< >< >< >< >< >< >< ><>>< ${paystackController.paystackData!.data!.authorizationUrl}>");
                           Get.to(() => Paystackweb(url: paystackController.paystackData!.data!.authorizationUrl, skID: paystackID,))!.then((otid) {
                             if (verifyPaystack == 1) {
                               bookApiData(otid);
@@ -1607,7 +1606,15 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
       ccode: ccode,
       country: "",
       noGuest: bookrealEstateController.count.toString(),
-    );
+    ).then((value) {
+      if (value != null && value["Result"] == "true") {
+        print("ASDA $value");
+        congratiulationDialog();
+      } else {
+        print("ASDA $value");
+        showToastMessage(value == null ? "Something went wrong!" : "${value["ResponseMsg"]}");
+      }
+    },);
 
     bookrealEstateController.count = 1;
     bookrealEstateController.checkIn = '';
@@ -1616,7 +1623,6 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
     bookrealEstateController.selectedDates = [];
     bookrealEstateController.selectedDatees = '';
 
-    congratiulationDialog();
     showToastMessage("Payment Successfully");
   }
 
@@ -1768,7 +1774,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                     Flexible(
                                       flex: 4,
                                       child: TextFormField(
-                                        style: TextStyle(color: Colors.grey),
+                                        style: TextStyle(color: BlackColor),
                                         inputFormatters: [
                                           FilteringTextInputFormatter
                                               .digitsOnly,
@@ -1898,7 +1904,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                       color: buttonColor,
                                       child: Text(
                                         "Pay ${currency}${(price * bookrealEstateController.days.length + tex)}",
-                                        style: TextStyle(fontSize: 17.0),
+                                        style: TextStyle(fontSize: 17.0, color: WhiteColor, fontFamily: FontFamily.gilroyBold),
                                       ),
                                     ),
                                   ),

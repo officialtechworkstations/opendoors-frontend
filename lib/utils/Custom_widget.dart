@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:goproperti/utils/Colors.dart';
+import 'package:opendoors/utils/Colors.dart';
 
 Button(
     {String? buttontext,

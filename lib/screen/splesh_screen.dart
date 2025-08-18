@@ -5,13 +5,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/screen/bottombar_screen.dart';
-import 'package:goproperti/screen/login_screen.dart';
-import 'package:goproperti/screen/onbording_screen.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/screen/bottombar_screen.dart';
+import 'package:opendoors/screen/login_screen.dart';
+import 'package:opendoors/screen/onbording_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'add proparty/membarship_screen.dart';
@@ -62,6 +63,7 @@ class _SpleshScreenState extends State<SpleshScreen> {
 
   setScreen() async {
     final prefs = await SharedPreferences.getInstance();
+    print("OPERN DOOORS ###");
     Timer(
         const Duration(seconds: 3),
         () => prefs.getBool('Firstuser') != true
@@ -79,47 +81,9 @@ class _SpleshScreenState extends State<SpleshScreen> {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
       backgroundColor: notifire.getbgcolor,
-      body: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: Get.height * 0.1),
-
-              Center(
-                  child: Image.asset("assets/images/applogo.png", height: 50)),
-
-              SizedBox(height: Get.height * 0.03),
-
-              Text(
-                "GoProperty".tr,
-                style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.blue,
-                    fontFamily: FontFamily.gilroyBold),
-              ),
-
-              SizedBox(height: Get.height * 0.03),
-
-              Text(
-                "Manage your properties with ease and \nget instant alert about responses"
-                    .tr,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    fontFamily: FontFamily.gilroyMedium),
-              ),
-            ],
-          ),
-          Positioned(
-              bottom: 0,
-              child: Image.asset(
-                "assets/images/spleshimage.png",
-                height: Get.height * 0.5,
-              ))
-        ],
-      ),
+      body: SizedBox(
+       width: double.infinity,
+          child: Image.asset("assets/OpenDoor Splash Screen 1A.png", fit: BoxFit.fitWidth,)),
     );
   }
 }

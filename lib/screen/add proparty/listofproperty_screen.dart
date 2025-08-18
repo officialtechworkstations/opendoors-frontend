@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/addproperties_controller.dart';
-import 'package:goproperti/controller/listofproperti_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/addproperties_controller.dart';
+import 'package:opendoors/controller/listofproperti_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -85,7 +85,7 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                   color: WhiteColor,
                 ),
                 decoration: BoxDecoration(
-                  color: Color(0xff3D5BF6),
+                  color: Darkblue,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -532,7 +532,7 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                                       "assets/images/Pen (1).png"),
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
-                                                    color: Color(0xff3D5BF6),
+                                                    color: Darkblue,
                                                   ),
                                                 ),
                                               ),
@@ -543,16 +543,17 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                 );
                               },
                             )
-                          : Center(
-                              child: Padding(
+                          : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 14, vertical: 5),
                                 child: Column(
                                   children: [
-                                    SizedBox(height: Get.height * 0.10),
                                     Image(
                                       image: AssetImage(
-                                        "assets/images/searchDataEmpty.png",
+                                        "assets/images/Door Icon.png",
                                       ),
                                       height: 110,
                                       width: 110,
@@ -561,7 +562,7 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                       child: SizedBox(
                                         width: Get.width * 0.80,
                                         child: Text(
-                                          "Sorry, there is no any nearby \n category or data not found"
+                                          "Nothing here yet,\n but your next move could change that"
                                               .tr,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
@@ -574,9 +575,10 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                   ],
                                 ),
                               ),
-                            )
+                            ],
+                          )
                       : Center(
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(color: Darkblue,),
                         ),
                   decoration: BoxDecoration(
                     color: notifire.getblackwhitecolor,

@@ -2,13 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/gallery_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/gallery_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../utils/Colors.dart';
 
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
@@ -137,7 +139,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   )
                 : Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(color: Darkblue,),
                   ),
           ],
         );

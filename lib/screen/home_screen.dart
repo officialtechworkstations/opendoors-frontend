@@ -12,16 +12,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/search_controller.dart';
-import 'package:goproperti/controller/signup_controller.dart';
-import 'package:goproperti/firebase/chat_screen.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/search_controller.dart';
+import 'package:opendoors/controller/signup_controller.dart';
+import 'package:opendoors/firebase/chat_screen.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -60,14 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0");
     FirebaseMessaging.onMessageOpenedApp.listen((remoteMessage) {
+      print("object");
       Get.to(ChatPage(
         proPic: remoteMessage.data["propic"],
         resiverUserId: remoteMessage.data["id"],
         resiverUseremail: remoteMessage.data["name"],
       ));
     });
+    homePageController.getHomeDataApi(countryId: getData.read("countryId"));
+    homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0");
     getdarkmodepreviousstate();
     if (getData.read("UserLogin") != null) {
       isUserOnlie(getData.read("UserLogin")["id"], false);
@@ -114,6 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future getUserLocation() async {
     setState(() {});
+
     var currentLocation = await locateUser();
     debugPrint('location: ${currentLocation.latitude}');
     lat = currentLocation.latitude;
@@ -281,6 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         body: RefreshIndicator(
+        color: Darkblue,
           onRefresh: () {
             return Future.delayed(
               Duration(seconds: 2),
@@ -295,7 +299,8 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             );
           },
-          child: GetBuilder<HomePageController>(builder: (context) {
+          child: GetBuilder<HomePageController>(
+              builder: (homePageController) {
             return SingleChildScrollView(
               physics: BouncingScrollPhysics(),
               child: homePageController.isLoading
@@ -308,31 +313,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         SizedBox(
                           height: 20,
                         ),
-
                         categoryAndSeeAllWidget("Featured".tr, "See All".tr),
                         listFeatured(),
-                        categoryAndSeeAllWidget(
-                            "Our Recommendation".tr, "See All".tr),
-
+                        categoryAndSeeAllWidget("Our Recommendation".tr, "See All".tr),
                         SizedBox(
                           height: 55,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10),
                             child: ListView.builder(
                               itemCount: homePageController
-                                  .homeDatatInfo?.homeData!.catlist!.length,
+                                  .homeDatatInfo!.homeData!.catlist!.length,
                               scrollDirection: Axis.horizontal,
                               itemBuilder: (context, index) {
                                 return InkWell(
                                   onTap: () {
-                                    homePageController
-                                        .changeCategoryIndex(index);
+                                    homePageController.changeCategoryIndex(index);
 
                                     homePageController.getCatWiseData(
-                                      cId: homePageController.homeDatatInfo
-                                          ?.homeData!.catlist![index].id,
+                                      cId: homePageController.homeDatatInfo!.homeData!.catlist![index].id,
                                       countryId: getData.read("countryId"),
                                     );
+                                    print("IMEA ${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img}");
                                   },
                                   child: Container(
                                     height: 50,
@@ -348,15 +349,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           width: 25,
                                           fit: BoxFit.cover,
                                           imageErrorBuilder: (context, error, stackTrace) {
-                                          return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                                          return Center(child: Image.asset("assets/images/ezgif.com-crop.gif",fit: BoxFit.cover,height: Get.height,),);
                                           },
-                                          image:
-                                          "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img ?? ""}",
-                                          color: homePageController
-                                              .catCurrentIndex ==
-                                              index
-                                              ? WhiteColor
-                                              : blueColor,
+                                          image: "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img ?? ""}",
                                           placeholder:  "assets/images/ezgif.com-crop.gif",
                                         ),
                                         SizedBox(
@@ -393,7 +388,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-
                         homePageController.isCatWise
                             ? homePageController
                                     .catWiseInfo!.propertyCat!.isNotEmpty
@@ -412,22 +406,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       itemBuilder: (context, index) {
                                             return InkWell(
                                               onTap: () async {
-                                                setState(() {
-                                                  homePageController.rate =
-                                                      homePageController
-                                                              .catWiseInfo
-                                                              ?.propertyCat![index]
-                                                              .rate ??
-                                                          "";
+                                                homePageController.chnageObjectIndex(index);
+                                                Get.toNamed(Routes.viewDataScreen, arguments: {
+                                                  "id" : homePageController.catWiseInfo?.propertyCat![index].id
                                                 });
-                                                homePageController
-                                                    .chnageObjectIndex(index);
-                                                await homePageController
-                                                    .getPropertyDetailsApi(
-                                                  id: homePageController.catWiseInfo
-                                                      ?.propertyCat![index].id,
-                                                );
-                                                Get.toNamed(Routes.viewDataScreen);
+                                                setState(() {
+                                                  homePageController.rate = homePageController.catWiseInfo?.propertyCat![index].rate ?? "";
+                                                });
                                               },
                                               child: Container(
                                                 height: 250,
@@ -690,7 +675,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         SizedBox(height: Get.height * 0.10),
                                         Image(
                                           image: AssetImage(
-                                            "assets/images/searchDataEmpty.png",
+                                            "assets/images/Door Icon.png",
                                           ),
                                           height: 110,
                                           width: 110,
@@ -699,7 +684,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: SizedBox(
                                             width: Get.width * 0.80,
                                             child: Text(
-                                              "Sorry, there is no any nearby \n category or data not found"
+                                              "Nothing here yet,\n but your next move could change that"
                                                   .tr,
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
@@ -714,7 +699,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   )
                             : Center(
-                                child: CircularProgressIndicator(),
+                                child: CircularProgressIndicator(color: Darkblue,),
                               )
                       ],
                     )
@@ -722,7 +707,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: Get.height,
                       width: Get.width,
                       child: Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(color: Darkblue,),
                       ),
                     ),
             );
@@ -794,18 +779,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   Get.toNamed(Routes.featuredScreen);
                 }
                 if (name == "Our Recommendation".tr) {
-                  homePageController.getCatWiseData(cId: "0",countryId: getData.read("countryId")).then((value) {
                     Get.toNamed(Routes.ourRecommendationScreen);
-                    setState(() {
-
-                    });
-                  },);
+                    homePageController.getCatWiseData(cId: "0",countryId: getData.read("countryId"));
                 }
               },
               child: Text(
                 buttonName,
                 style: TextStyle(
-                  color: Color(0xff3D5BF6),
+                  color: Darkblue,
                   fontFamily: FontFamily.gilroyBold,
                 ),
               ),
@@ -830,26 +811,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 physics: BouncingScrollPhysics(),
                 itemBuilder: (context, index1) {
-                  currency =
-                      homePageController.homeDatatInfo?.homeData!.currency ?? "";
+                  currency = homePageController.homeDatatInfo?.homeData!.currency ?? "";
                   return InkWell(
                     onTap: () async {
                       setState(() {
-                        homePageController.rate = homePageController
-                                .homeDatatInfo
-                                ?.homeData
-                                !.featuredProperty![index1]
-                                .rate ??
-                            "";
+                      Get.toNamed(
+                        Routes.viewDataScreen,
+                        arguments: {
+                          "id" : homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].id
+                        }
+                      );
+                        homePageController.rate = homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].rate ?? "";
                       });
                       print("IDDD ? >> >>> >>> >>> > ${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].id}");
                       homePageController.chnageObjectIndex(index1);
-                      await homePageController.getPropertyDetailsApi(
-                          id: homePageController.homeDatatInfo?.homeData
-                              !.featuredProperty![index1].id);
-                      Get.toNamed(
-                        Routes.viewDataScreen,
-                      );
                     },
                     child: Container(
                       height: 320,
@@ -986,18 +961,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                         children: [
                                           SvgPicture.asset("assets/images/location.svg",height: 15, colorFilter: ColorFilter.mode(WhiteColor, BlendMode.srcIn),),
                                           SizedBox(width: 2),
-                                          Text(
-                                            homePageController
-                                                    .homeDatatInfo
-                                                    ?.homeData
-                                                    !.featuredProperty![index1]
-                                                    .city ??
-                                                "",
-                                            maxLines: 1,
-                                            style: TextStyle(
-                                              fontFamily: FontFamily.gilroyMedium,
-                                              color: WhiteColor,
+                                          Flexible(
+                                            child: Text(
+                                              homePageController
+                                                      .homeDatatInfo
+                                                      ?.homeData
+                                                      !.featuredProperty![index1]
+                                                      .city ??
+                                                  "",
+                                              maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontFamily: FontFamily.gilroyMedium,
+                                                color: WhiteColor,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -1083,7 +1061,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(height: Get.height * 0.10),
                     Image(
                       image: AssetImage(
-                        "assets/images/searchDataEmpty.png",
+                        "assets/images/Door Icon.png",
                       ),
                       height: 110,
                       width: 110,
@@ -1092,7 +1070,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: SizedBox(
                         width: Get.width * 0.80,
                         child: Text(
-                          "Sorry, there is no any nearby \n category or data not found"
+                          "Nothing here yet,\n but your next move could change that"
                               .tr,
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -1192,6 +1170,33 @@ Future<void> onDidReceiveLocalNotification(
           resiverUserId: data["id"],
           resiverUseremail: data["name"],
         ));
+  }
+}
+
+void handleFCMNavigation() async {
+  // Case: App terminated
+  RemoteMessage? initialMessage =
+  await FirebaseMessaging.instance.getInitialMessage();
+  if (initialMessage != null) {
+    navigateToChat(initialMessage);
+  }
+
+  // Case: App opened from background
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    navigateToChat(message);
+  });
+}
+
+void navigateToChat(RemoteMessage message) {
+  final data = message.data;
+
+  // Ensure required keys exist
+  if (data.containsKey("id") && data.containsKey("name")) {
+    Get.to(() => ChatPage(
+      proPic: data["propic"],
+      resiverUserId: data["id"],
+      resiverUseremail: data["name"],
+    ));
   }
 }
 

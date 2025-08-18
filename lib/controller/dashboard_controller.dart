@@ -3,12 +3,12 @@
 import 'dart:convert';
 
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/model/add%20property%20model/dashboard_info.dart';
-import 'package:goproperti/model/add%20property%20model/facility_info.dart';
-import 'package:goproperti/model/add%20property%20model/protype_info.dart';
-import 'package:goproperti/model/add%20property%20model/subdetails_info.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/model/add%20property%20model/dashboard_info.dart';
+import 'package:opendoors/model/add%20property%20model/facility_info.dart';
+import 'package:opendoors/model/add%20property%20model/protype_info.dart';
+import 'package:opendoors/model/add%20property%20model/subdetails_info.dart';
 import 'package:http/http.dart' as http;
 
 class DashBoardController extends GetxController implements GetxService {
@@ -35,7 +35,6 @@ class DashBoardController extends GetxController implements GetxService {
     try {
       isLoading = false;
       update();
-      print("USERID<> < > < >< > < > < > < >? < >${getData.read("UserLogin")["id"]}");
       Map map = {
         "uid": getData.read("UserLogin")["id"],
       };
@@ -58,13 +57,16 @@ class DashBoardController extends GetxController implements GetxService {
             payOut = element["report_data"].toString();
           }
         }
-
+         Future.delayed(Duration(seconds: 3),).then((value) {
+           isLoading = true;
+           update();
+         },);
         dashBoardInfo = DashBoardInfo.fromJson(result);
         print("USEWRLOGIN OR NOT > <> <> <> <> <> <> <> <> <> ${dashBoardInfo}");
       }
+    } catch (e) {
       isLoading = true;
       update();
-    } catch (e) {
       print(e.toString());
     }
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/controller/reviewlist_controller.dart';
+import 'package:opendoors/controller/reviewlist_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/fontfamily_model.dart';

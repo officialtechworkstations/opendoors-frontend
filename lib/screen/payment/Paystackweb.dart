@@ -3,13 +3,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/controller/paystack_controller.dart';
-import 'package:goproperti/controller/reviewsummary_controller.dart';
+import 'package:opendoors/controller/paystack_controller.dart';
+import 'package:opendoors/controller/reviewsummary_controller.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import '../../controller/wallet_controller.dart';
+import '../../utils/Colors.dart';
 import '../../utils/Custom_widget.dart';
 
 int verifyPaystack = -1;
@@ -57,16 +58,7 @@ class _PaystackwebState extends State<Paystackweb> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageFinished: (finish) {
-            print(" > <> <> <> <> <> <> <>? <> <> <> <> <> <> <> ${widget.skID}");
-            paystackController.paystackCheck(skKey: widget.skID).then((value) {
-              print("PAYMENT STATUS Response: >>>>>>>>>>>>>>>> ${value["status"]}");
-              if(value["status"] == true){
-                verifyPaystack = 1;
-                Get.back();
-              } else {
-                verifyPaystack = 0;
-              }
-            },);
+
           },
           onProgress: (val) {
             progress = val;
@@ -75,6 +67,16 @@ class _PaystackwebState extends State<Paystackweb> {
           onNavigationRequest: (NavigationRequest request) async {
             final uri = Uri.parse(request.url);
             print("PAYMENT STATUS: >>>>>>>>>>>>>>>> $uri");
+            paystackController.paystackCheck(skKey: widget.skID).then((value) {
+            print(" > <> <> <> <> <> <> <>? <> <> <> <> <> <> <> ${widget.skID} - ${value["data"]["id"]}");
+              print("PAYMENT STATUS Response: >>>>>>>>>>>>>>>> ${value["status"]}");
+              if(value["status"] == true){
+                  verifyPaystack = 1;
+                Get.back(result: value["data"]["id"].toString());
+              } else {
+                  verifyPaystack = 0;
+              }
+            },);
             return NavigationDecision.navigate;
           },
         ),
@@ -125,7 +127,7 @@ class _PaystackwebState extends State<Paystackweb> {
         ),
         body: Center(
           child: Container(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: Darkblue,),
           ),
         ),
       );

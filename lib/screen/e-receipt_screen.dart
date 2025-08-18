@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/bookingdetails_controller.dart';
-import 'package:goproperti/controller/bookrealestate_controller.dart';
-import 'package:goproperti/controller/mybooking_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/bookingdetails_controller.dart';
+import 'package:opendoors/controller/bookrealestate_controller.dart';
+import 'package:opendoors/controller/mybooking_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -938,7 +938,7 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                 ),
               )
             : Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: Darkblue,),
               );
       }),
     );

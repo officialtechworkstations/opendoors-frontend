@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/wallet_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/wallet_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -195,15 +195,13 @@ class _WalletScreenState extends State<WalletScreen> {
                                       ? TextButton(
                                           onPressed: () {},
                                           child: Text(
-                                              "${walletController.walletInfo?.walletitem![index].amt ?? ""}${currency} +"),
+                                              "${walletController.walletInfo?.walletitem![index].amt ?? ""}${currency} +", style: TextStyle(color: Colors.green, fontFamily: FontFamily.gilroyMedium, overflow: TextOverflow.ellipsis,),),
                                         )
                                       : TextButton(
                                           onPressed: () {},
                                           child: Text(
                                             "${walletController.walletInfo?.walletitem![index].amt ?? ""}${currency} -",
-                                            style: TextStyle(
-                                              color: Colors.orange.shade300,
-                                            ),
+                                            style: TextStyle(color: Darkblue, fontFamily: FontFamily.gilroyMedium, overflow: TextOverflow.ellipsis,),
                                           ),
                                         ),
                                 ),
@@ -222,7 +220,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 Padding(
                                   padding: const EdgeInsets.only(left: 30),
                                   child: Image.asset(
-                                    "assets/images/bookingEmpty.png",
+                                    "assets/images/Door Icon.png",
                                     height: 110,
                                     width: 100,
                                   ),
@@ -241,7 +239,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             ),
                           )
                     : Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(color: Darkblue,),
                       );
               }),
             ),

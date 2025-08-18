@@ -7,13 +7,13 @@ import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/firebase/chat_bubble.dart';
-import 'package:goproperti/firebase/chat_service.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/firebase/chat_bubble.dart';
+import 'package:opendoors/firebase/chat_service.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -43,18 +43,18 @@ class _ChatPageState extends State<ChatPage> {
       ScrollController(initialScrollOffset: 50.0);
 
   void sendMessage() async {
-    CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection('users');
+    CollectionReference collectionReference = FirebaseFirestore.instance.collection('opendoors_users');
 
+    print("AFA <F ${widget.resiverUserId}");
     if (controller.text.isNotEmpty) {
       collectionReference.doc(widget.resiverUserId).get().then((value) async {
         var fields;
 
+        print("FIELDS ${value.data()}");
         fields = value.data();
 
         if (fields["isOnline"] == false) {
-          sendPushMessage(
-              controller.text, getData.read("UserLogin")["name"], fmctoken);
+          sendPushMessage(controller.text, getData.read("UserLogin")["name"], fmctoken);
         } else {
           print("user online");
         }
@@ -71,12 +71,11 @@ class _ChatPageState extends State<ChatPage> {
 
   String fmctoken = "";
   Future<dynamic> isMeassageAvalable(String uid) async {
-    CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection('users');
+    CollectionReference collectionReference = FirebaseFirestore.instance.collection('opendoors_users');
     collectionReference.doc(uid).get().then((value) {
       var fields;
       fields = value.data();
-
+      print("TOKEN HERE ${fields["token"]}");
       setState(() {
         fmctoken = fields["token"];
         print("TOKEN ID > <> <> <> <> ${fmctoken}");
@@ -134,7 +133,7 @@ class _ChatPageState extends State<ChatPage> {
       ),
       title: StreamBuilder(
           stream: FirebaseFirestore.instance
-              .collection("users")
+              .collection("opendoors_users")
               .doc(widget.resiverUserId)
               .snapshots(),
           builder: (context, snapshot) {
@@ -148,7 +147,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               );
             } else {
-              Map data = snapshot.data!.data() as Map;
+              Map data = snapshot.data!.data() as Map<dynamic, dynamic>;
               return Row(
                 children: [
                   widget.proPic == "null"
@@ -386,6 +385,6 @@ void requestPermission() async {
 
 Future<dynamic> isUserOnlie(String uid, bool isonline) async {
   // CollectionReference collectionReference =
-  //     FirebaseFirestore.instance.collection('users');
+  //     FirebaseFirestore.instance.collection('opendoors_users');
   // collectionReference.doc(uid).update({"isOnline": isonline});
 }

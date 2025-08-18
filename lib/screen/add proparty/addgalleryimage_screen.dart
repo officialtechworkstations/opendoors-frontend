@@ -6,13 +6,13 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/galleryimage_controller.dart';
-import 'package:goproperti/controller/listofproperti_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/galleryimage_controller.dart';
+import 'package:opendoors/controller/listofproperti_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -280,7 +280,7 @@ class _AddGalleryImageScreenState extends State<AddGalleryImageScreen> {
                     ),
                     DottedBorder(
                       borderType: BorderType.RRect,
-                      color: Color(0xff3D5BF6),
+                      color: Darkblue,
                       radius: Radius.circular(15),
                       borderPadding: EdgeInsets.symmetric(horizontal: 20),
                       child: InkWell(

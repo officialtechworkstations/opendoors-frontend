@@ -3,15 +3,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/login_controller.dart';
-import 'package:goproperti/controller/selectcountry_controller.dart';
-import 'package:goproperti/controller/signup_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/login_controller.dart';
+import 'package:opendoors/controller/selectcountry_controller.dart';
+import 'package:opendoors/controller/signup_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +32,6 @@ class _OtpScreenState extends State<OtpScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getCountryData();
   }
 
   TextEditingController pinPutController = TextEditingController();
@@ -67,224 +66,255 @@ class _OtpScreenState extends State<OtpScreen> {
 
   Future getCountryData() async{
     selectCountryController.getCountryApi().then((value){
+      print("COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}");
       for(int a = 0; a < selectCountryController.countryInfo!.countryData!.length; a++){
         if(selectCountryController.countryInfo?.countryData![a].dCon == "1"){
           setState(() {
             countrySelected = a;
+            print("COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}");
+            setState(() {
+              save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
+              save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
+            });
           });
+        } else {
+          save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
+          save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
         }
       }
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
   int countrySelected = 0;
 
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
       backgroundColor: notifire.getbgcolor,
-      body: SafeArea(
-        child: SizedBox(
-          height: Get.size.height,
-          width: Get.size.width,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                onTap: () {
-                  Get.back();
-                },
-                child: Container(
-                  height: 50,
-                  width: 50,
-                  alignment: Alignment.center,
-                  margin: EdgeInsets.only(left: 10),
-                  padding: EdgeInsets.all(15),
-                  child: Image.asset(
-                    'assets/images/back.png',
-                    color: notifire.getwhiteblackcolor,
-                  ),
-                  decoration: BoxDecoration(
-                    color: notifire.getboxcolor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 15),
-                child: Text(
-                  "Verification Code".tr,
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontFamily: FontFamily.gilroyBold,
-                    color: notifire.getwhiteblackcolor,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 15),
-                child: Text(
-                  "${"We have sent the code verification to".tr}\n${countryCode} ${phoneNumber}",
-                  maxLines: 2,
-                  style: TextStyle(
-                    overflow: TextOverflow.ellipsis,
-                    fontFamily: FontFamily.gilroyMedium,
-                    color: notifire.getgreycolor,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              Container(
-                alignment: Alignment.center,
-                child: Pinput(
-                    length: 6,
-                    keyboardType: TextInputType.number,
-                    obscureText: false,
-                    defaultPinTheme: PinTheme(
-                      width: 52,
-                      height: 52,
-                      textStyle: TextStyle(
-                        fontSize: 20,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SizedBox(
+              height: Get.size.height,
+              width: Get.size.width,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Get.back();
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.only(left: 10),
+                      padding: EdgeInsets.all(15),
+                      child: Image.asset(
+                        'assets/images/back.png',
                         color: notifire.getwhiteblackcolor,
-                        fontWeight: FontWeight.w700,
                       ),
                       decoration: BoxDecoration(
-                        border: Border.all(color: notifire.getborderColor),
-                        borderRadius: BorderRadius.circular(12),
+                        color: notifire.getboxcolor,
+                        shape: BoxShape.circle,
                       ),
                     ),
-                    pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-                    showCursor: true,
-                    controller: pinPutController,
-                    autofillHints: const [AutofillHints.oneTimeCode],
-                    onCompleted: (pin) => print(pin),
-                    onChanged: (value) {
-                      code = value;
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your otp'.tr;
-                      }
-                      return null;
-                    }),
-              ),
-              SizedBox(
-                height: 40,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Didn't receive code?".tr,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15),
+                    child: Text(
+                      "Verification Code".tr,
                       style: TextStyle(
+                        fontSize: 25,
+                        fontFamily: FontFamily.gilroyBold,
+                        color: notifire.getwhiteblackcolor,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15),
+                    child: Text(
+                      "${"We have sent the code verification to".tr}\n${countryCode} ${phoneNumber}",
+                      maxLines: 2,
+                      style: TextStyle(
+                        overflow: TextOverflow.ellipsis,
                         fontFamily: FontFamily.gilroyMedium,
                         color: notifire.getgreycolor,
                       ),
                     ),
-                    InkWell(
-                      onTap: () {
-
-                        signUpController.smstype().then((value) {
-                          if(value["SMS_TYPE"] == "Msg91"){
-                            signUpController.sendOtp(countryCode, phoneNumber).then((value) {
-                              setState(() {
-                                otpCode = value["otp"].toString();
-                              });
-                            },);
-                          } else if(value["SMS_TYPE"] == "Twilio") {
-                            signUpController.twilloOtp(countryCode, phoneNumber).then((value) {
-                              setState(() {
-                                otpCode = value["otp"].toString();
-                              });
-                            },);
-                          }
-                        });
-
-                        pinPutController.text = "";
-                      },
-                      child: Container(
-                        height: 30,
-                        alignment: Alignment.center,
-                        child: Text(
-                          "Resend New Code".tr,
-                          style: TextStyle(
-                            color: blueColor,
-                            fontFamily: FontFamily.gilroyBold,
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    child: Pinput(
+                        length: 6,
+                        keyboardType: TextInputType.number,
+                        obscureText: false,
+                        defaultPinTheme: PinTheme(
+                          width: 52,
+                          height: 52,
+                          textStyle: TextStyle(
+                            fontSize: 20,
+                            color: notifire.getwhiteblackcolor,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: notifire.getborderColor),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 60,
-              ),
-              GestButton(
-                Width: Get.size.width,
-                height: 50,
-                buttoncolor: blueColor,
-                margin: EdgeInsets.only(top: 15, left: 30, right: 30),
-                buttontext: "Verify".tr,
-                style: TextStyle(
-                  fontFamily: "Gilroy Bold",
-                  color: WhiteColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                onclick: () {
-                  print("OTP CODE :   $otpCode");
-                    if (otpCode == code) {
-                      if (rout == "signUpScreen") {
-                          try {
-                            signUpController.setUserApiData(countryCode).then((value) {
-                              print(">>>>>>>>>>>>>>>>> >>>>>>>>>>>> >>>>>>>>>> >>>> ${value}");
-                                if (value["Result"] == "true") {
-
-                                  setState(() {
-                                    save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
-                                    save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
-                                  });
-                                  
-                                  selectCountryController.changeCountryIndex(countrySelected);
-                                  homePageController.getHomeDataApi(countryId: getData.read("countryId"));
-                                  homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0");
-                                  searchController.getSearchData(
-                                      countryId: getData.read("countryId"));
-                                  Get.offAndToNamed(Routes.bottoBarScreen);
-                                } else {
-                                  showToastMessage(value["ResponseMsg"]);
-                                }
-
-                            },);
-                            initPlatformState();
-                            showToastMessage(signUpController.signUpMsg);
-                          } catch (e) {
-                            print("525 --- 525  --- 525 ${e}");
+                        pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+                        showCursor: true,
+                        controller: pinPutController,
+                        autofillHints: const [AutofillHints.oneTimeCode],
+                        onCompleted: (pin) => print(pin),
+                        onChanged: (value) {
+                          code = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your otp'.tr;
                           }
-                      }
-                      if (rout == "resetScreen") {
-                        forgetPasswordBottomSheet();
-                      }
-                    } else {
-                      showToastMessage("Please enter your valid OTP".tr);
-                    }
-                },
+                          return null;
+                        }),
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Didn't receive code?".tr,
+                          style: TextStyle(
+                            fontFamily: FontFamily.gilroyMedium,
+                            color: notifire.getgreycolor,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+
+                            signUpController.smstype().then((value) {
+                              if(value["SMS_TYPE"] == "Msg91"){
+                                signUpController.sendOtp(countryCode, phoneNumber).then((value) {
+                                  setState(() {
+                                    otpCode = value["otp"].toString();
+                                  });
+                                },);
+                              } else if(value["SMS_TYPE"] == "Twilio") {
+                                signUpController.twilloOtp(countryCode, phoneNumber).then((value) {
+                                  setState(() {
+                                    otpCode = value["otp"].toString();
+                                  });
+                                },);
+                              }
+                            });
+
+                            pinPutController.text = "";
+                          },
+                          child: Container(
+                            height: 30,
+                            alignment: Alignment.center,
+                            child: Text(
+                              "Resend New Code".tr,
+                              style: TextStyle(
+                                color: blueColor,
+                                fontFamily: FontFamily.gilroyBold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 60,
+                  ),
+                  GestButton(
+                    Width: Get.size.width,
+                    height: 50,
+                    buttoncolor: blueColor,
+                    margin: EdgeInsets.only(top: 15, left: 30, right: 30),
+                    buttontext: "Verify".tr,
+                    style: TextStyle(
+                      fontFamily: "Gilroy Bold",
+                      color: WhiteColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onclick: () {
+                      print("OTP CODE :   $otpCode");
+                        if (otpCode == code) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          getCountryData().then((value) {
+                              if (rout == "signUpScreen") {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                  try {
+                                    signUpController.setUserApiData(countryCode).then((value) {
+                                      print(">>>>>>>>>>>>>>>>> >>>>>>>>>>>> >>>>>>>>>> >>>> ${value}");
+                                        if (value["Result"] == "true") {
+
+                                          selectCountryController.changeCountryIndex(countrySelected);
+                                          homePageController.getHomeDataApi(countryId: getData.read("countryId"));
+                                          homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0");
+                                          searchController.getSearchData(countryId: getData.read("countryId"));
+                                          Get.offAndToNamed(Routes.bottoBarScreen);
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          showToastMessage(value["ResponseMsg"]);
+                                        }
+                                    },);
+                                    initPlatformState();
+                                    showToastMessage(signUpController.signUpMsg);
+                                  } catch (e) {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                    print("525 --- 525  --- 525 ${e}");
+                                  }
+                              }
+                              else if (rout == "resetScreen") {
+                            setState(() {
+                              isLoading = false;
+                            });
+                            forgetPasswordBottomSheet();
+                          }
+                          },);
+                        } else {
+                          showToastMessage("Please enter your valid OTP".tr);
+                        }
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          isLoading ? Center(child: CircularProgressIndicator(color: Darkblue,)) : SizedBox()
+        ],
       ),
     );
   }

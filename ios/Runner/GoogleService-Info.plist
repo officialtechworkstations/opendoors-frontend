@@ -2,20 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>324152946798-0np1mt98982bvl1e7878q3e789g0e88h.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyCQ78DiE452hwx4vXsfEmnDCkEBGzQAnV0</string>
+	<string>AIzaSyDcuOO3h15jw-oc4J36BeWPHM6qO-YSCag</string>
 	<key>GCM_SENDER_ID</key>
-	<string>324152946798</string>
+	<string>26275977783</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.zozo.gorealestatess</string>
+	<string>opendoorsapp.com</string>
 	<key>PROJECT_ID</key>
-	<string>studio-67236</string>
+	<string>open-doors-app-2025f</string>
 	<key>STORAGE_BUCKET</key>
-	<string>studio-67236.appspot.com</string>
+	<string>open-doors-app-2025f.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -27,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:324152946798:ios:496b42f787c549d015f67f</string>
+	<string>1:26275977783:ios:b5f84611f4f4b67e9a7db2</string>
 </dict>
 </plist>

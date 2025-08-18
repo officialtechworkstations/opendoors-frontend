@@ -3,16 +3,16 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/selectcountry_controller.dart';
-import 'package:goproperti/model/appbaner_model.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/login_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/selectcountry_controller.dart';
+import 'package:opendoors/model/appbaner_model.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/login_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -86,164 +86,156 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
     return Scaffold(
       backgroundColor: notifire.getbgcolor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: SizedBox(
-            height: Get.size.height,
-            width: Get.size.width,
-            child: Column(
+        child: Column(
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: PageView.builder(
+                      itemCount: appbaner.length,
+                      physics: BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            image: DecorationImage(
+                              image: AssetImage(appbaner[index].image),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      },
+                      onPageChanged: (value) {
+                        setState(() {
+                          selectIndex = value;
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 25,
+                    width: Get.size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ...List.generate(appbaner.length, (index) {
+                          return Indicator(
+                            isActive: selectIndex == index ? true : false,
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: PageView.builder(
-                          itemCount: appbaner.length,
-                          physics: BouncingScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return Container(
-                              margin: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                image: DecorationImage(
-                                  image: AssetImage(appbaner[index].image),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            );
-                          },
-                          onPageChanged: (value) {
-                            setState(() {
-                              selectIndex = value;
-                            });
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: 25,
-                        width: Get.size.width,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ...List.generate(appbaner.length, (index) {
-                              return Indicator(
-                                isActive: selectIndex == index ? true : false,
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                    ],
+                Text(
+                  "The Perfect choice for".tr,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontFamily: FontFamily.gilroyBold,
+                    color: notifire.getwhiteblackcolor,
                   ),
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "The Perfect choice for".tr,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontFamily: FontFamily.gilroyBold,
-                          color: notifire.getwhiteblackcolor,
-                        ),
-                      ),
-                      Text(
-                        "your future".tr,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontFamily: FontFamily.gilroyBold,
-                          color: notifire.getwhiteblackcolor,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Button(
-                        Width: Get.size.width,
-                        buttoncolor: Darkblue,
-                        buttontext: "Login With Phone Number".tr,
-                        onclick: () {
-                          Get.to(LoginScreen());
-                          save('isLoginBack', false);
-                        },
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "OR".tr,
-                        style: TextStyle(
-                          fontFamily: FontFamily.gilroyMedium,
-                          color: notifire.getwhiteblackcolor,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      GestButton(
-                        Width: Get.size.width,
-                        height: 50,
-                        buttoncolor: notifire.getboxcolor,
-                        margin: EdgeInsets.only(top: 15, left: 30, right: 30),
-                        buttontext: "Continue as a Guest".tr,
-                        onclick: () {
-                          setState(() {
-                            save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
-                            save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
-                          });
-                            selectCountryController.changeCountryIndex(countrySelected);
-                            homePageController.getHomeDataApi(
-                                countryId: getData.read("countryId"));
-
-                            searchController.getSearchData(
-                                countryId: getData.read("countryId"));
-                              homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0").then((value) {
-                                Get.offAndToNamed(Routes.bottoBarScreen);
-                              },);
-                            save('isLoginBack', true);
-                        },
-                        style: TextStyle(
-                          fontFamily: FontFamily.gilroyBold,
-                          color: notifire.getwhiteblackcolor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Don't have an account?".tr,
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyMedium,
-                              color: notifire.getgreycolor,
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Get.toNamed(Routes.signUpScreen);
-                            },
-                            child: Text(
-                              " Sign Up".tr,
-                              style: TextStyle(
-                                color: blueColor,
-                                fontFamily: FontFamily.gilroyBold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
+                Text(
+                  "your future".tr,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontFamily: FontFamily.gilroyBold,
+                    color: notifire.getwhiteblackcolor,
                   ),
-                )
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Button(
+                  Width: Get.size.width,
+                  buttoncolor: Darkblue,
+                  buttontext: "Login With Phone Number".tr,
+                  onclick: () {
+                    Get.to(LoginScreen());
+                    save('isLoginBack', false);
+                  },
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "OR".tr,
+                  style: TextStyle(
+                    fontFamily: FontFamily.gilroyMedium,
+                    color: notifire.getwhiteblackcolor,
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                GestButton(
+                  Width: Get.size.width,
+                  height: 50,
+                  buttoncolor: notifire.getboxcolor,
+                  margin: EdgeInsets.only(top: 15, left: 30, right: 30),
+                  buttontext: "Continue as a Guest".tr,
+                  onclick: () {
+                    setState(() {
+                      save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
+                      save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
+                    });
+                      selectCountryController.changeCountryIndex(countrySelected);
+                      homePageController.getHomeDataApi(
+                          countryId: getData.read("countryId"));
+
+                      searchController.getSearchData(
+                          countryId: getData.read("countryId"));
+                        homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0").then((value) {
+                          Get.offAndToNamed(Routes.bottoBarScreen);
+                        },);
+                      save('isLoginBack', true);
+                  },
+                  style: TextStyle(
+                    fontFamily: FontFamily.gilroyBold,
+                    color: notifire.getwhiteblackcolor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account?".tr,
+                      style: TextStyle(
+                        fontFamily: FontFamily.gilroyMedium,
+                        color: notifire.getgreycolor,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(Routes.signUpScreen);
+                      },
+                      child: Text(
+                        " Sign Up".tr,
+                        style: TextStyle(
+                          color: blueColor,
+                          fontFamily: FontFamily.gilroyBold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20,),
               ],
-            ),
-          ),
+            )
+          ],
         ),
       ),
     );
@@ -262,7 +254,7 @@ class Indicator extends StatelessWidget {
         height: 10,
         width: 10,
         decoration: BoxDecoration(
-          color: isActive ? Colors.blue : Colors.grey,
+          color: isActive ? Darkblue : Colors.grey,
           borderRadius: BorderRadius.circular(8),
         ),
       ),

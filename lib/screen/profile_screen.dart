@@ -6,21 +6,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/faq_controller.dart';
-import 'package:goproperti/controller/login_controller.dart';
-import 'package:goproperti/controller/mybooking_controller.dart';
-import 'package:goproperti/controller/pagelist_controller.dart';
-import 'package:goproperti/controller/selectcountry_controller.dart';
-import 'package:goproperti/controller/signup_controller.dart';
-import 'package:goproperti/controller/wallet_controller.dart';
-import 'package:goproperti/firebase/chats_list.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/login_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/faq_controller.dart';
+import 'package:opendoors/controller/login_controller.dart';
+import 'package:opendoors/controller/mybooking_controller.dart';
+import 'package:opendoors/controller/pagelist_controller.dart';
+import 'package:opendoors/controller/selectcountry_controller.dart';
+import 'package:opendoors/controller/signup_controller.dart';
+import 'package:opendoors/controller/wallet_controller.dart';
+import 'package:opendoors/firebase/chats_list.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/login_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -96,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<dynamic> isUserLogOut(String uid) async {
     CollectionReference collectionReference =
-    FirebaseFirestore.instance.collection('users');
+    FirebaseFirestore.instance.collection('opendoors_users');
     collectionReference.doc(uid).update({"token": ""});
   }
 
@@ -113,11 +113,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: notifire.getbgcolor,
           elevation: 0,
           leading: Padding(
-            padding: const EdgeInsets.only(top: 15, left: 14, bottom: 15),
+            padding: const EdgeInsets.only(left: 5,),
             child: Image.asset(
-              "assets/images/applogo.png",
-              height: 10,
-              width: 10,
+              notifire.isDark ? "assets/images/applogo 1b.png" : "assets/images/applogo.png",
+              height: 20,
+              width: 20,
             ),
           ),
           title: Text(
@@ -287,7 +287,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: Get.size.width,
                     child: InkWell(
                       onTap: () {
-                        selectCountryController.getCountryApi().then((value) =>  Get.toNamed(Routes.selectCountryScreen),);
+                        Get.toNamed(Routes.selectCountryScreen);
+                        selectCountryController.getCountryApi();
                       },
                       child: Row(
                         children: [
@@ -313,9 +314,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           Spacer(),
                           Text(
-                            getData.read("countryName") == ""
-                                ? ""
-                                : getData.read("countryName"),
+                              getData.read("countryName") == null || getData.read("countryName") == "" ? "" : getData.read("countryName"),
                             style: TextStyle(
                               fontFamily: FontFamily.gilroyMedium,
                               fontSize: 16,
@@ -432,7 +431,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: Darkblue,),
                           );
                   }),
                   settingWidget(
@@ -553,7 +552,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<dynamic> tokenemty() async {
     CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection('users');
+        FirebaseFirestore.instance.collection('opendoors_users');
     collectionReference
         .doc(getData.read("UserLogin")["id"])
         .update({"token": ""});

@@ -55,7 +55,7 @@ class LocaleString extends Translations {
           "Account": "खाता",
           "BUY": "खरीदना",
           "Sorry, Search Data Not Found": "क्षमा करें, खोज डेटा नहीं मिला",
-          "Sorry, there is no any nearby \n category or data not found":
+          "Nothing here yet,\n but your next move could change that":
               "क्षमा करें, आस-पास कोई \n श्रेणी नहीं है या डेटा नहीं मिला है",
           "Apply": "आवेदन करना",
           "Available coupons": "उपलब्ध कूपन",
@@ -156,7 +156,7 @@ class LocaleString extends Translations {
           "Terms and Condition": "नियम व शर्तें",
           "Please select Terms and Condition": "कृपया नियम और शर्त चुनें",
           "Already have an account?": "क्या आपके पास पहले से एक खाता मौजूद है?",
-          "GoProperty": "गोप्रॉपर्टी",
+
           "Manage your properties with ease and \nget instant alert about responses":
               "अपनी संपत्तियों को आसानी से प्रबंधित करें और \nप्रतिक्रियाओं के बारे में तत्काल अलर्ट प्राप्त करें",
           "Listing Agent": "लिस्टिंग एजेंट",
@@ -386,7 +386,7 @@ class LocaleString extends Translations {
           "BUY": "يشتري",
           "Sorry, Search Data Not Found":
               "عذرا ، لم يتم العثور على بيانات البحث",
-          "Sorry, there is no any nearby \n category or data not found":
+          "Nothing here yet,\n but your next move could change that":
               "معذرةً ، لا توجد أية فئة قريبة \n أو بيانات غير موجودة",
           "Apply": "يتقدم",
           "Available coupons": "القسائم المتاحة",
@@ -711,7 +711,7 @@ class LocaleString extends Translations {
           "BUY": "ACHETER",
           "Sorry, Search Data Not Found":
               "Désolé, données de recherche introuvables",
-          "Sorry, there is no any nearby \n category or data not found":
+          "Nothing here yet,\n but your next move could change that":
               "Désolé, il n'y a pas de catégorie \n à proximité ou de données introuvables",
           "Apply": "Appliquer",
           "Available coupons": "Coupons disponibles",
@@ -1060,7 +1060,7 @@ class LocaleString extends Translations {
           "BUY": "BESORGEN",
           "Sorry, Search Data Not Found":
               "Entschuldigung, Suchdaten nicht gefunden",
-          "Sorry, there is no any nearby \n category or data not found":
+          "Nothing here yet,\n but your next move could change that":
               "Entschuldigung, es gibt keine Kategorie in der Nähe \n oder es wurden keine Daten gefunden",
           "Apply": "Anwenden",
           "Available coupons": "Verfügbare Gutscheine",
@@ -1403,7 +1403,7 @@ class LocaleString extends Translations {
           "BUY": "MEMBELI",
           "Sorry, Search Data Not Found":
               "Maaf, Data Pencarian Tidak Ditemukan",
-          "Sorry, there is no any nearby \n category or data not found":
+          "Nothing here yet,\n but your next move could change that":
               "Maaf, tidak ada \n kategori atau data terdekat yang tidak ditemukan",
           "Apply": "Menerapkan",
           "Available coupons": "Kupon yang tersedia",
@@ -1739,7 +1739,7 @@ class LocaleString extends Translations {
           "BUY": "COMPRAR",
           "Sorry, Search Data Not Found":
               "Desculpe, dados de pesquisa não encontrados",
-          "Sorry, there is no any nearby \n category or data not found":
+          "Nothing here yet,\n but your next move could change that":
               "Desculpe, não há nenhuma categoria \n próxima ou dados não encontrados",
           "Apply": "Aplicar",
           "Available coupons": "cupons disponíveis",
@@ -2077,7 +2077,7 @@ class LocaleString extends Translations {
           "Account": "Rekening",
           "BUY": "KOOP",
           "Sorry, Search Data Not Found": "Jammer, soekdata nie gevind nie",
-          "Sorry, there is no any nearby \n category or data not found":
+          "Nothing here yet,\n but your next move could change that":
               "Jammer, daar is geen nabygeleë \n kategorie of data nie gevind nie",
           "Apply": "Doen aansoek",
           "Available coupons": "Beskikbare koepons",
@@ -2416,7 +2416,7 @@ class LocaleString extends Translations {
           "BUY": "COMPRAR",
           "Sorry, Search Data Not Found":
               "Lo sentimos, datos de búsqueda no encontrados",
-          "Sorry, there is no any nearby \n category or data not found":
+          "Nothing here yet,\n but your next move could change that":
               "Lo sentimos, no hay ninguna categoría \n cercana o datos no encontrados",
           "Apply": "Aplicar",
           "Available coupons": "cupones disponibles",
@@ -2758,7 +2758,7 @@ class LocaleString extends Translations {
           "Account": "Hesap",
           "BUY": "SATIN ALMAK",
           "Sorry, Search Data Not Found": "Üzgünüz, Arama Verisi Bulunamadı",
-          "Sorry, there is no any nearby \n category or data not found":
+          "Nothing here yet,\n but your next move could change that":
               "Üzgünüz, yakınlarda herhangi bir \n kategori veya veri bulunamadı",
           "Apply": "Uygula",
           "Available coupons": "Mevcut kuponlar",

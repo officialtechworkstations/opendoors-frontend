@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/macos2/development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/macos2/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Volumes/Data/urva/opendoors/opendoors/android/app/.cxx/RelWithDebInfo/5d366s5u/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/macos2/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Volumes/Data/urva/opendoors/opendoors/android/app/.cxx/RelWithDebInfo/5d366s5u/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

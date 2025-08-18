@@ -8,23 +8,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/paystack_controller.dart';
-import 'package:goproperti/controller/reviewsummary_controller.dart';
-import 'package:goproperti/controller/subscribe_controller.dart';
-import 'package:goproperti/controller/wallet_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/screen/payment/FlutterWave.dart';
-import 'package:goproperti/screen/payment/InputFormater.dart';
-import 'package:goproperti/screen/payment/PaymentCard.dart';
-import 'package:goproperti/screen/payment/Paytm.dart';
-import 'package:goproperti/screen/payment/StripeWeb.dart';
-import 'package:goproperti/screen/paypal/flutter_paypal.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/paystack_controller.dart';
+import 'package:opendoors/controller/reviewsummary_controller.dart';
+import 'package:opendoors/controller/subscribe_controller.dart';
+import 'package:opendoors/controller/wallet_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/screen/payment/FlutterWave.dart';
+import 'package:opendoors/screen/payment/InputFormater.dart';
+import 'package:opendoors/screen/payment/PaymentCard.dart';
+import 'package:opendoors/screen/payment/Paytm.dart';
+import 'package:opendoors/screen/payment/StripeWeb.dart';
+import 'package:opendoors/screen/paypal/flutter_paypal.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,8 +78,10 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
   @override
   void initState() {
     super.initState();
+    subscribeController.currentIndex = null;
     getdarkmodepreviousstate();
     walletController.getWalletReportData();
+    print("PLAN DATA ${subscribeController.subscribeInfo?.packageData!}");
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -108,10 +110,12 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
               color: notifire.getwhiteblackcolor),
         ),
       ),
-      body: SafeArea(
-        child: Stack(
+      body: subscribeController.isPlanLoading ? Center(
+        child: CircularProgressIndicator(color: Darkblue,),
+      ) : SafeArea(
+       child: Stack(
           children: [
-            SizedBox(
+             SizedBox(
               height: Get.size.height,
               width: Get.size.width,
               child: Column(
@@ -145,129 +149,138 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                                     width: Get.size.width,
                                     margin: EdgeInsets.all(10),
                                     child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        subscribeController.currentIndex ==
-                                                index
-                                            ? Image.asset(
-                                                "assets/images/Shape (1).png",
-                                                height: 17,
-                                                width: 17,
-                                              )
-                                            : Image.asset(
-                                                "assets/images/Shape.png",
-                                                height: 17,
-                                                width: 17,
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 10,
                                               ),
-                                        SizedBox(
-                                          width: 15,
-                                        ),
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "${subscribeController.subscribeInfo?.packageData![index].title ?? ""} ${"Plan".tr}",
-                                              style: TextStyle(
-                                                color: Color(0xff3D5BF6),
-                                                fontFamily:
-                                                    FontFamily.gilroyBold,
-                                                fontSize: 16,
+                                              subscribeController.currentIndex ==
+                                                      index
+                                                  ? Image.asset(
+                                                      "assets/images/Shape (1).png",
+                                                      height: 17,
+                                                      width: 17,
+                                                color: Darkblue,
+                                                    )
+                                                  : Image.asset(
+                                                      "assets/images/Shape.png",
+                                                      height: 17,
+                                                      width: 17,
+                                                    ),
+                                              SizedBox(
+                                                width: 15,
                                               ),
-                                            ),
-                                            SizedBox(
-                                              height: 3,
-                                            ),
-                                            Text(
-                                              "${subscribeController.subscribeInfo?.packageData![index].day ?? ""} ${"days".tr}",
-                                              style: TextStyle(
-                                                color: Colors.grey.shade400,
-                                                fontFamily:
-                                                    FontFamily.gilroyBold,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 3,
-                                            ),
-                                            InkWell(
-                                              onTap: () {
-                                                knowMoreSheet(
-                                                  discription:
-                                                      subscribeController
-                                                              .subscribeInfo
-                                                              ?.packageData![
-                                                                  index]
-                                                              .description ??
-                                                          "",
-                                                  day: subscribeController
-                                                          .subscribeInfo
-                                                          ?.packageData![index]
-                                                          .day ??
-                                                      "",
-                                                  image: subscribeController
-                                                          .subscribeInfo
-                                                          ?.packageData![index]
-                                                          .image ??
-                                                      "",
-                                                );
-                                              },
-                                              child: Text(
-                                                "Know More".tr,
-                                                style: TextStyle(
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                  fontFamily:
-                                                      FontFamily.gilroyMedium,
-                                                  fontSize: 13,
-                                                  color: Color(0xFFFACC15),
+                                              Flexible(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      "${subscribeController.subscribeInfo?.packageData![index].title ?? ""} ${"Plan".tr}",
+                                                      style: TextStyle(
+                                                        color: notifire.getwhiteblackcolor,
+                                                        fontFamily:
+                                                            FontFamily.gilroyBold,
+                                                        fontSize: 16,
+                                                      ),
+                                                      maxLines: 2,
+                                                    ),
+                                                    SizedBox(
+                                                      height: 3,
+                                                    ),
+                                                    Text(
+                                                      "${subscribeController.subscribeInfo?.packageData![index].day ?? ""} ${"days".tr}",
+                                                      style: TextStyle(
+                                                        color: Colors.grey.shade400,
+                                                        fontFamily:
+                                                            FontFamily.gilroyBold,
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 3,
+                                                    ),
+                                                    InkWell(
+                                                      onTap: () {
+                                                        knowMoreSheet(
+                                                          discription:
+                                                              subscribeController
+                                                                      .subscribeInfo
+                                                                      ?.packageData![
+                                                                          index]
+                                                                      .description ??
+                                                                  "",
+                                                          day: subscribeController
+                                                                  .subscribeInfo
+                                                                  ?.packageData![index]
+                                                                  .day ??
+                                                              "",
+                                                          image: subscribeController
+                                                                  .subscribeInfo
+                                                                  ?.packageData![index]
+                                                                  .image ??
+                                                              "",
+                                                        );
+                                                      },
+                                                      child: Text(
+                                                        "Know More".tr,
+                                                        style: TextStyle(
+                                                          decoration:
+                                                              TextDecoration.underline,
+                                                          fontFamily:
+                                                              FontFamily.gilroyMedium,
+                                                          fontSize: 13,
+                                                          color: notifire.getwhiteblackcolor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                        Spacer(),
                                         Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
+                                            SizedBox(
+                                              width: 10,
+                                            ),
                                             Text(
                                               "${subscribeController.subscribeInfo?.packageData![index].price}",
                                               style: TextStyle(
                                                 fontSize: 30,
                                                 fontFamily:
                                                     FontFamily.gilroyBold,
-                                                color: Color(0xff3D5BF6),
+                                                color: notifire.getwhiteblackcolor,
                                               ),
                                             ),
-                                            Container(
-                                              height: 35,
-                                              width: 20,
-                                              alignment: Alignment.bottomLeft,
-                                              child: Text(
-                                                "${currency}",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontFamily:
-                                                      FontFamily.gilroyBold,
-                                                  color: Color(0xff3D5BF6),
-                                                ),
+                                            SizedBox(width: 3,),
+                                            Text(
+                                              "${currency}",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontFamily:
+                                                    FontFamily.gilroyBold,
+                                                color: notifire.getwhiteblackcolor,
                                               ),
+                                            ),
+                                            SizedBox(
+                                              width: 10,
                                             )
                                           ],
                                         ),
-                                        SizedBox(
-                                          width: 10,
-                                        )
+
                                       ],
                                     ),
                                     decoration: BoxDecoration(
-                                      border: subscribeController
-                                                  .currentIndex ==
-                                              index
-                                          ? Border.all(color: Color(0xff3D5BF6))
+                                      border: subscribeController.currentIndex == index
+                                          ? Border.all(color: Darkblue)
                                           : Border.all(
                                               color: notifire.getborderColor),
                                       borderRadius: BorderRadius.circular(15),
@@ -277,7 +290,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                               },
                             )
                           : Center(
-                              child: CircularProgressIndicator(),
+                              child: CircularProgressIndicator(color: Darkblue,),
                             ),
                     );
                   }),
@@ -292,51 +305,51 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                 child: Row(
                   children: [
                     GetBuilder<SubscribeController>(builder: (context) {
-                      return Expanded(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20),
-                              child: Text(
-                                "Selected Plan".tr,
-                                style: TextStyle(
-                                  fontFamily: FontFamily.gilroyBold,
-                                  fontSize: 12,
-                                  color: Colors.grey.shade400,
-                                ),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: Text(
+                              "Selected Plan".tr,
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 12,
+                                color: Colors.grey.shade400,
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20),
-                              child: Text(
-                                "${currency}${subscribeController.price}",
-                                style: TextStyle(
-                                  fontFamily: FontFamily.gilroyBold,
-                                  fontSize: 20,
-                                  color: Color(0xff3D5BF6),
-                                ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: Text(
+                              "${currency} ${subscribeController.price}",
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 20,
+                                color: Darkblue,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       );
                     }),
+                    SizedBox(width: 20,),
                     Expanded(
                       flex: 2,
                       child: InkWell(
                         onTap: () {
                           setState(() {});
                           walletSwitch = false;
+                          if (subscribeController.price != "") {
                           walletMain = double.parse("${walletController.walletInfo!.wallet}");
                           totalPayment = double.parse(subscribeController.price);
-                          if (subscribeController.price != "") {
                             if (subscribeController.price != "0") {
                               paymentSheett();
                             } else {
+                               print("FAFA F ");
                               getpackagePurchase("0");
+                               subscribeController.currentIndex = null;
                               subscribeController.price = "";
                             }
                           } else {
@@ -348,7 +361,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                           margin: EdgeInsets.all(10),
                           alignment: Alignment.center,
                           child: Text(
-                            "Subscribe Now".tr,
+                            "Continue".tr,
                             style: TextStyle(
                               fontFamily: FontFamily.gilroyBold,
                               color: WhiteColor,
@@ -356,7 +369,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                             ),
                           ),
                           decoration: BoxDecoration(
-                            color: Color(0xff3D5BF6),
+                            color: Darkblue,
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
@@ -381,6 +394,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
         width: Get.size.width,
         padding: EdgeInsets.all(10),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
@@ -506,7 +520,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                     children: [
                       Row(
                         children: [
-                          Image.asset("assets/images/walletIcon.png",height: 30, color: Colors.blue),
+                          Image.asset("assets/images/walletIcon.png",height: 30, color: Darkblue),
                           SizedBox(width: 5,),
                           Text("My Wallet (${currency}${walletMain})",
                               style: TextStyle(
@@ -712,7 +726,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: Darkblue,),
                           );
                   }),
                 ),
@@ -756,11 +770,11 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                         // String key = razorpaykey.split(",").first;
                         // await plugin.initialize(publicKey: key);
                         paystackController.paystack(totalPayment.toString()).then((value) {
+                          print("TOTAL PAYMENT ${paystackController.paystackData!.data!.authorizationUrl}");
                           Get.to(() => Paystackweb(url: paystackController.paystackData!.data!.authorizationUrl, skID: paystackID,))!.then((otid) {
                             if (verifyPaystack == 1) {
                               getpackagePurchase(otid);
                               // homePageController.getHomeDataApi();
-                              subscribeController.price = "";
                               showToastMessage("Payment Successfully");
                             } else {
                               Get.back();
@@ -914,7 +928,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
           children: [
             Padding(
               padding: EdgeInsets.all(20),
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Darkblue,),
             ),
           ],
         );
@@ -1406,7 +1420,6 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
       showToastMessage("Payment card is valid".tr);
     }
   }
-
 
   String _getReference() {
     var platform = (Platform.isIOS) ? 'iOS' : 'Android';

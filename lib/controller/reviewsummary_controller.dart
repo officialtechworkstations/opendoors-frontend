@@ -4,8 +4,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/model/payment_info.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/model/payment_info.dart';
 import 'package:http/http.dart' as http;
 
 class ReviewSummaryController extends GetxController implements GetxService {

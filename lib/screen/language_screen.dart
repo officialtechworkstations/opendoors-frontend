@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -115,7 +115,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                           groupValue: getData.read("lanValue") != null
                               ? getData.read("lanValue")
                               : _value,
-                          hoverColor: blueColor,
+                          activeColor: Darkblue,
+                          hoverColor: Darkblue,
                           onChanged: (value4) {
                             setState(() {});
                           },

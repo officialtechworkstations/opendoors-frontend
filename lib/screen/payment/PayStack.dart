@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:flutter_paystack/flutter_paystack.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/utils/Colors.dart';
+import 'package:opendoors/utils/Colors.dart';
 
 class PayStack extends StatefulWidget {
   final String? email;

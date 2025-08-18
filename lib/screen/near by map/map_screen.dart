@@ -8,13 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -61,6 +61,9 @@ class _MapScreenState extends State<MapScreen> {
     getdarkmodepreviousstate();
     super.initState();
     getmarkers();
+    homePageController.lattitude = double.parse(homePageController.homeDatatInfo?.homeData!.featuredProperty![0].latitude ?? "0");
+    homePageController.longtitude = double.parse(homePageController.homeDatatInfo?.homeData!.featuredProperty![0].longtitude ?? "0");
+    homePageController.getCameraposition();
   }
 
 
@@ -188,6 +191,13 @@ class _MapScreenState extends State<MapScreen> {
                       itemBuilder: (context, index) {
                         return InkWell(
                           onTap: () async {
+                            print("IJJIJIJ INDex $index");
+                            Get.toNamed(
+                              Routes.viewDataScreen,
+                              arguments: {
+                                "id" : homePageController.homeDatatInfo?.homeData!.featuredProperty![index].id
+                              }
+                            );
                             setState(() {
                               homePageController.rate = homePageController
                                       .homeDatatInfo
@@ -197,12 +207,6 @@ class _MapScreenState extends State<MapScreen> {
                                   "";
                             });
                             homePageController.chnageObjectIndex(index);
-                            await homePageController.getPropertyDetailsApi(
-                                id: homePageController.homeDatatInfo?.homeData
-                                    !.featuredProperty![index].id);
-                            Get.toNamed(
-                              Routes.viewDataScreen,
-                            );
                           },
                           child: Container(
                             height: 140,
@@ -421,37 +425,22 @@ class _MapScreenState extends State<MapScreen> {
         i < homePageController.homeDatatInfo!.homeData!.featuredProperty!.length;
         i++) {
       markers.add(Marker(
-        //add first marker
         markerId: MarkerId(i.toString()),
         position: LatLng(
-          double.parse(homePageController
-                  .homeDatatInfo?.homeData!.featuredProperty![i].latitude
-                  .toString() ??
-              "0"),
-          double.parse(homePageController
-                  .homeDatatInfo?.homeData!.featuredProperty![i].longtitude
-                  .toString() ??
-              "0"),
+          double.parse(homePageController.homeDatatInfo?.homeData!.featuredProperty![i].latitude.toString() ?? "0"),
+          double.parse(homePageController.homeDatatInfo?.homeData!.featuredProperty![i].longtitude.toString() ?? "0"),
         ),
-        icon: BitmapDescriptor.fromBytes(markIcon), //position of marker
+        icon: BitmapDescriptor.fromBytes(markIcon),
         infoWindow: InfoWindow(
-          title: homePageController
-              .homeDatatInfo?.homeData!.featuredProperty![i].title,
-          snippet: homePageController
-              .homeDatatInfo?.homeData!.featuredProperty![i].city,
+          title: homePageController.homeDatatInfo?.homeData!.featuredProperty![i].title,
+          snippet: homePageController.homeDatatInfo?.homeData!.featuredProperty![i].city,
           onTap: () async {
-            setState(() {
-              homePageController.rate = homePageController
-                      .homeDatatInfo?.homeData!.featuredProperty![i].rate ??
-                  "";
+            Get.toNamed(Routes.viewDataScreen, arguments: {
+              "id" : homePageController.homeDatatInfo?.homeData!.featuredProperty![i].id
             });
+            setState(() {
+              homePageController.rate = homePageController.homeDatatInfo?.homeData!.featuredProperty![i].rate ?? "";});
             homePageController.chnageObjectIndex(i);
-            await homePageController.getPropertyDetailsApi(
-                id: homePageController
-                    .homeDatatInfo?.homeData!.featuredProperty![i].id);
-            Get.toNamed(
-              Routes.viewDataScreen,
-            );
           },
         ),
         onTap: () {

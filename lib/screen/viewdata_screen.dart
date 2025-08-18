@@ -7,21 +7,21 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/bookrealestate_controller.dart';
-import 'package:goproperti/controller/calendar_controller.dart';
-import 'package:goproperti/controller/gallery_controller.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/reviewsummary_controller.dart';
-import 'package:goproperti/firebase/chat_Screen.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/screen/login_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/bookrealestate_controller.dart';
+import 'package:opendoors/controller/calendar_controller.dart';
+import 'package:opendoors/controller/gallery_controller.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/reviewsummary_controller.dart';
+import 'package:opendoors/firebase/chat_Screen.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/screen/login_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
@@ -55,7 +55,7 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
 
   Future<dynamic> isMeassageAvalable(String uid) async {
     CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection('users');
+        FirebaseFirestore.instance.collection('opendoors_users');
     collectionReference.doc(uid).get().then((value) {
       var fields;
       fields = value.data();
@@ -88,13 +88,22 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
 
   String useremail = '';
   String fmctoken = '';
+  String selectedId = Get.arguments["id"];
 
   @override
   void initState() {
     super.initState();
-    loadData();
-    isMeassageAvalable(
-        "${homePageController.propetydetailsInfo!.propetydetails!.userId}");
+    homePageController.getPropertyDetailsApi(id: selectedId,).then((value) {
+       loadData();
+       isMeassageAvalable("${homePageController.propetydetailsInfo!.propetydetails!.userId}");
+    },);
+  }
+
+
+  @override
+  void dispose() {
+    super.dispose();
+    homePageController.isProperty = false;
   }
 
   loadData() async {
@@ -500,16 +509,32 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                               leading: Container(
                                 height: 60,
                                 width: 60,
+                                clipBehavior: Clip.hardEdge,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                      "${Config.imageUrl}${homePageController.propetydetailsInfo?.propetydetails!.ownerImage}",
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
+                                ),
+                                child: FadeInImage.assetNetwork(
+                                  fit: BoxFit.cover,
+                                  imageErrorBuilder: (context, error, stackTrace) {
+                                    return Center(child: Image.asset("assets/images/ezgif.com-crop.gif",fit: BoxFit.cover,height: Get.height,),);
+                                  },
+                                  image: "${Config.imageUrl}${homePageController.propetydetailsInfo?.propetydetails!.ownerImage}",
+                                  placeholder:  "assets/images/ezgif.com-crop.gif",
                                 ),
                               ),
+                              // leading: Container(
+                              //   height: 60,
+                              //   width: 60,
+                              //   decoration: BoxDecoration(
+                              //     shape: BoxShape.circle,
+                              //     image: DecorationImage(
+                              //       image: NetworkImage(
+                              //         "${Config.imageUrl}${homePageController.propetydetailsInfo?.propetydetails!.ownerImage}",
+                              //       ),
+                              //       fit: BoxFit.cover,
+                              //     ),
+                              //   ),
+                              // ),
                               title: Text(
                                 homePageController.propetydetailsInfo
                                         ?.propetydetails!.ownerName ??
@@ -537,21 +562,20 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                       onTap: () async {
 
                                         final contactPermission = await Permission.phone.request();
-
-                                        if(contactPermission.isGranted){
+                                          print("F FS D FDSF 00");
                                           if (getData.read("UserLogin") != null) {
-                                            var url = Uri.parse(
-                                                "tel:${homePageController.propetydetailsInfo?.propetydetails!.mobile ?? ""}");
+                                            var url = Uri(scheme: 'tel', path: "${homePageController.propetydetailsInfo?.propetydetails!.mobile!}");
+                                              print("Phone: ${homePageController.propetydetailsInfo?.propetydetails!.mobile!}");
+                                              print("Formatted URI: $url");
+                                              print("Can launch: ${await canLaunchUrl(url)}");
                                             if (await canLaunchUrl(url)) {
-                                              await launchUrl(url);
+                                              await launchUrl(url, mode: LaunchMode.externalApplication,);
                                             } else {
                                               throw 'Could not launch $url';
                                             }
                                           } else {
                                             Get.to(() => LoginScreen());
                                           }
-                                        }
-
                                       },
                                       child: Image.asset(
                                         "assets/images/phone Icon.png",
@@ -576,11 +600,11 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                             onTap: () {
                                               if (getData.read("UserLogin") !=
                                                   null) {
+                                                print("afkkkn ${homePageController.propetydetailsInfo!.propetydetails!.userId}");
                                                 Get.to(ChatPage(
                                                   proPic: homePageController.propetydetailsInfo!.propetydetails!.ownerImage.toString(),
                                                   resiverUseremail: useremail,
-                                                  resiverUserId: homePageController.propetydetailsInfo?.propetydetails!.userId ??
-                                                          "0",
+                                                  resiverUserId: homePageController.propetydetailsInfo!.propetydetails!.userId ?? "0",
                                                 ));
                                               } else {
                                                 Get.to(() => LoginScreen());
@@ -666,7 +690,6 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                       child: FadeInImage.assetNetwork(
                                           height: 25,
                                           width: 25,
-                                          color: blueColor,
                                           placeholder: "assets/images/loading2.gif",
                                           imageErrorBuilder: (context, error, stackTrace) {
                                           return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
@@ -773,7 +796,7 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                   height: 25,
                                   width: 25,
                                   fit: BoxFit.cover,
-                                  color: Color(0xff3D5BF6),
+                                  color: Darkblue,
                                 ),
                                 SizedBox(
                                   width: 5,
@@ -972,7 +995,7 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                         Text(
                                           "${currency}${homePageController.propetydetailsInfo?.propetydetails!.price ?? ""}",
                                           style: TextStyle(
-                                            color: Color(0xFF4772ff),
+                                            color: Darkblue,
                                             fontFamily: FontFamily.gilroyBold,
                                             fontSize: 22,
                                           ),
@@ -1010,17 +1033,17 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                             ? GestButton(
                                                 Width: Get.size.width,
                                                 height: 70,
-                                                buttoncolor: Color(0xFF4772ff),
+                                                buttoncolor: Darkblue,
                                                 margin: EdgeInsets.only(
-                                                    top: 10, right: 10, bottom: 10),
+                                                top: 10, right: 10, bottom: 10),
                                                 buttontext: "Book".tr,
                                                 onclick: () {
 
+                                                  Get.toNamed(Routes.bookRealEstate);
                                                   if(getData.read("UserLogin") != null){
                                                     bookrealEstateController.cleanDate();
                                                     print(">:>:>:>:>:>:>:>:>:> PROPERTY ID : > ${homePageController.propetydetailsInfo?.propetydetails!.id}");
                                                     calendarController.calendar(homePageController.propetydetailsInfo!.propetydetails!.id).then((value) {
-                                                      Get.toNamed(Routes.bookRealEstate);
                                                     },);
                                                     reviewSummaryController.getProductObject(
                                                       pim: homePageController.propetydetailsInfo?.propetydetails!.image![0].image,
@@ -1091,7 +1114,7 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                                 : GestButton(
                                                     Width: Get.size.width,
                                                     height: 70,
-                                                    buttoncolor: Color(0xFF4772ff),
+                                                    buttoncolor: Darkblue,
                                                     margin: EdgeInsets.only(
                                                         top: 10, right: 10, bottom: 10),
                                                     buttontext: "Inquiry".tr,
@@ -1132,7 +1155,7 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                 ),
               )
             : Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: Darkblue,),
               ),
       );
     });
@@ -1222,7 +1245,7 @@ class IndicatorViewPage extends StatelessWidget {
         height: isActive ? 6 : 8,
         width: isActive ? 30 : 8,
         decoration: BoxDecoration(
-          color: isActive ? Colors.blue : Colors.grey,
+          color: isActive ? Darkblue : Colors.grey,
           borderRadius: BorderRadius.circular(8),
         ),
       ),

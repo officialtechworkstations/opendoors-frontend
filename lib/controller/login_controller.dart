@@ -6,12 +6,12 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/selectcountry_controller.dart';
-import 'package:goproperti/firebase/auth_service.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/selectcountry_controller.dart';
+import 'package:opendoors/firebase/auth_service.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -103,13 +103,11 @@ class LoginController extends GetxController implements GetxService {
           save("homeCall", true);
           save("UserLogin", result["UserLogin"]);
           save("userType", result["type"]);
+          print("LOGIMN DARTAT $result");
           OneSignal.User.addTags({"user_id": getData.read("UserLogin")["id"]});
-          setfirebaselogin(
-              email: result["UserLogin"]["name"], context: context);
+          setfirebaselogin(email: result["UserLogin"]["name"], context: context);
           save("currency", result["currency"]);
           currency = result["currency"];
-          number.text = "";
-          password.text = "";
           isChecked = false;
           update();
           return result;
@@ -126,12 +124,13 @@ class LoginController extends GetxController implements GetxService {
     final authService = Provider.of<AuthService>(context, listen: false);
 
     try {
+      print("ERROR DATATA $email");
       await authService.singInAndStoreData(
           proPicPath: getData.read("UserLogin")["pro_pic"].toString(),
           email: email,
           uid: getData.read("UserLogin")["id"]);
     } catch (e) {
-      print(e);
+      print("ERROR DATATA $e");
     }
   }
 
@@ -190,7 +189,7 @@ class LoginController extends GetxController implements GetxService {
 
   Future<dynamic> isUserOnlie(String uid, String proPic) async {
     CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection('users');
+        FirebaseFirestore.instance.collection('opendoors_users');
     collectionReference.doc(uid).update({"pro_pic": proPic});
   }
 }

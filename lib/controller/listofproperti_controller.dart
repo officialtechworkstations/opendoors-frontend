@@ -3,9 +3,9 @@
 import 'dart:convert';
 
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/model/add%20property%20model/proplist_info.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/model/add%20property%20model/proplist_info.dart';
 import 'package:http/http.dart' as http;
 
 class ListOfPropertiController extends GetxController implements GetxService {
@@ -17,11 +17,11 @@ class ListOfPropertiController extends GetxController implements GetxService {
     getPropertiList();
   }
   Future getPropertiList() async {
-    print("LIST  OF  UID > < > <> <> <> <> <> <><   ${getData.read("UserLogin")["id"]}");
     try {
       isLodding = false;
       Map map = {
-        "uid": getData.read("UserLogin")["id"],
+        "uid": getData.read("UserLogin") == null
+            ? "0" : "${getData.read("UserLogin")["id"]}",
       };
       print(".....///......." + map.toString());
       Uri uri = Uri.parse(Config.path + Config.propertyList);

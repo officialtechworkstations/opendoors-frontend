@@ -3,18 +3,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/dashboard_controller.dart';
-import 'package:goproperti/controller/extraimage_controller.dart';
-import 'package:goproperti/controller/reviewlist_controller.dart';
-import 'package:goproperti/firebase/chats_list.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/dashboard_controller.dart';
+import 'package:opendoors/controller/extraimage_controller.dart';
+import 'package:opendoors/controller/reviewlist_controller.dart';
+import 'package:opendoors/firebase/chats_list.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -124,12 +124,13 @@ class _MembershipScreenState extends State<MembershipScreen> {
           },
         ),
         title: Image.asset(
-          "assets/images/applogo.png",
-          height: 30,
-          width: 30,
+          notifire.isDark ? "assets/images/applogo 1b.png" : "assets/images/applogo.png",
+          height: 70,
+          width: 80,
         ),
       ),
       body: RefreshIndicator(
+        color: Darkblue,
         onRefresh: () {
           return Future.delayed(
             Duration(seconds: 2),
@@ -138,7 +139,8 @@ class _MembershipScreenState extends State<MembershipScreen> {
             },
           );
         },
-        child: GetBuilder<DashBoardController>(builder: (context) {
+        child: GetBuilder<DashBoardController>(
+            builder: (dashBoardController) {
           return dashBoardController.isLoading
               ? SizedBox(
                   height: Get.size.height,
@@ -156,34 +158,42 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                   Get.toNamed(Routes.memberShipDetails);
                                 },
                                 child: Container(
-                                  height: 50,
                                   margin: EdgeInsets.symmetric(horizontal: 12),
                                   // width: 295,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  padding: EdgeInsets.all(10),
+                                  child: Column(
                                     children: [
-                                      Image.asset(
-                                        "assets/images/verified_user.png",
-                                        height: 25,
-                                        width: 25,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
                                       Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Text(
-                                            dashBoardController.membershipData[0],
-                                            style: TextStyle(
-                                              fontFamily: FontFamily.gilroyBold,
-                                              fontSize: 16,
-                                              color: Color(0xff3D5BF6),
-                                            ),
+                                          Image.asset(
+                                            "assets/images/verified_user.png",
+                                            height: 25,
+                                            width: 25,
+                                            fit: BoxFit.cover,
                                           ),
                                           SizedBox(
-                                            width: 7,
+                                            width: 8,
                                           ),
+                                          Flexible(
+                                            child: Text(
+                                              "${dashBoardController.membershipData[0]}",
+                                              style: TextStyle(
+                                                fontFamily: FontFamily.gilroyBold,
+                                                fontSize: 16,
+                                                color: Darkblue,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 10,),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
                                           Text(
                                             "Membership".tr,
                                             style: TextStyle(
@@ -192,27 +202,25 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                               color: notifire.getwhiteblackcolor,
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        width: 15,
-                                      ),
-                                      Container(
-                                        height: 25,
-                                        width: 70,
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          "ACTIVE".tr,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: WhiteColor,
-                                            fontFamily: FontFamily.gilroyMedium,
+                                          SizedBox(width: 10,),
+                                          Container(
+                                            height: 25,
+                                            width: 70,
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              "ACTIVE".tr,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: WhiteColor,
+                                                fontFamily: FontFamily.gilroyMedium,
+                                              ),
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(15),
+                                              color: Darkblue,
+                                            ),
                                           ),
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(15),
-                                          color: Color(0xff3D5BF6),
-                                        ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -241,7 +249,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                   Text(
                                     dashBoardController.membershipData[1],
                                     style: TextStyle(
-                                      color: Color(0xff3D5BF6),
+                                      color: Darkblue,
                                       fontFamily: FontFamily.gilroyMedium,
                                     ),
                                   ),
@@ -328,8 +336,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                                       "${currency}${dashBoardController.dashBoardInfo?.reportData[index].reportData ?? ""}",
                                                       style: TextStyle(
                                                         fontSize: 25,
-                                                        color:
-                                                            Color(0xff3D5BF6),
+                                                        color: notifire.getwhiteblackcolor,
                                                         fontFamily: FontFamily
                                                             .gilroyExtraBold,
                                                       ),
@@ -339,8 +346,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                                           "${currency}${dashBoardController.dashBoardInfo?.reportData[index].reportData ?? ""}",
                                                           style: TextStyle(
                                                             fontSize: 25,
-                                                            color: Color(
-                                                                0xff3D5BF6),
+                                                            color: notifire.getwhiteblackcolor,
                                                             fontFamily: FontFamily
                                                                 .gilroyExtraBold,
                                                           ),
@@ -349,8 +355,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                                           "${dashBoardController.dashBoardInfo?.reportData[index].reportData ?? ""}",
                                                           style: TextStyle(
                                                             fontSize: 25,
-                                                            color: Color(
-                                                                0xff3D5BF6),
+                                                            color: notifire.getwhiteblackcolor,
                                                             fontFamily: FontFamily
                                                                 .gilroyExtraBold,
                                                           ),
@@ -369,7 +374,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                                     "",
                                                 maxLines: 1,
                                                 style: TextStyle(
-                                                  color: Color(0xff3D5BF6),
+                                                  color: notifire.getwhiteblackcolor,
                                                   fontFamily:
                                                       FontFamily.gilroyBold,
                                                   fontSize: 15,
@@ -383,22 +388,22 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                         decoration: BoxDecoration(
                                           border: Border.all(
                                               color: Colors.grey.shade200),
-                                          image: DecorationImage(
-                                            image: getData.read("lCode") ==
-                                                    "ar_IN"
-                                                ? AssetImage(
-                                                    "assets/images/Frame2.png")
-                                                : AssetImage(
-                                                    "assets/images/Frame.png"),
-                                            fit: BoxFit.cover,
-                                          ),
+                                          // image: DecorationImage(
+                                          //   image: getData.read("lCode") ==
+                                          //           "ar_IN"
+                                          //       ? AssetImage(
+                                          //           "assets/images/Frame2.png")
+                                          //       : AssetImage(
+                                          //           "assets/images/Frame.png"),
+                                          //   fit: BoxFit.cover,
+                                          // ),
                                           borderRadius:
                                               BorderRadius.circular(15),
                                         ),
                                       ),
                                       Positioned(
                                         bottom: 0.5,
-                                        right: 16.5,
+                                        right: 35,
                                         child: Container(
                                           height: 60,
                                           width: 60,
@@ -410,6 +415,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                               image: NetworkImage(
                                                 "${Config.imageUrl}${dashBoardController.dashBoardInfo?.reportData[index].url ?? ""}",
                                               ),
+                                              colorFilter: ColorFilter.mode(Darkblue, BlendMode.srcIn),
                                               fit: BoxFit.cover,
                                             ),
                                           ),
@@ -422,13 +428,12 @@ class _MembershipScreenState extends State<MembershipScreen> {
                             ),
                           ),
                         ),
-
                         Container(
                           margin: EdgeInsets.only(
                               top: 20, left: 10, right: 10, bottom: 10),
                           child: Image.asset(
-                            height: 270,
                             "assets/images/addpropartyimg.png",
+                            height: 270,
                             fit: BoxFit.fill,
                           ),
                         )
@@ -437,7 +442,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                   ),
                 )
               : Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(color: Darkblue,),
                 );
         }),
       ),
@@ -446,7 +451,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
 
   Future<dynamic> isUserLogOut(String uid) async {
     CollectionReference collectionReference =
-    FirebaseFirestore.instance.collection('users');
+    FirebaseFirestore.instance.collection('opendoors_users');
     collectionReference.doc(uid).update({"token": ""});
   }
 
@@ -533,10 +538,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                           getData.remove("currentIndex");
                           tokenemty();
 
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginScreen()));
+                          Get.offAll(LoginScreen());
                         },);
 
                       });
@@ -577,7 +579,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
 
   Future<dynamic> tokenemty() async {
     CollectionReference collectionReference =
-    FirebaseFirestore.instance.collection('users');
+    FirebaseFirestore.instance.collection('opendoors_users');
     collectionReference
         .doc(getData.read("UserLogin")["id"])
         .update({"token": ""});

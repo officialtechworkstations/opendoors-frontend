@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.zozo.gorealestatess">
+  package="opendoorsapp.com">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
     <uses-permission android:name="android.permission.CALL_PHONE"/>
    <application
-        android:label="GoProperti"
+        android:label="Opendoors"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
         android:allowBackup="false"
@@ -19,7 +19,7 @@
         
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBZ6Kv4YWs4aJdZs0iubXpa6_jiHuKiPIk"/>
+            android:value="AIzaSyBy-e28ndAtWwDlAQPyXUuCgJhwE-P2rqw"/>
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/ic_launcher"/> 
@@ -44,6 +44,7 @@
               />
             
             <intent-filter>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>

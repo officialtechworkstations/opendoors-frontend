@@ -3,13 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -78,6 +78,12 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                     itemBuilder: (context, index1) {
                       return InkWell(
                         onTap: () async {
+                          Get.toNamed(
+                            Routes.viewDataScreen,
+                            arguments: {
+                              "id" : homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].id
+                            }
+                          );
                           setState(() {
                             homePageController.rate = homePageController
                                     .homeDatatInfo
@@ -87,12 +93,6 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                                 "";
                           });
                           homePageController.chnageObjectIndex(index1);
-                          await homePageController.getPropertyDetailsApi(
-                              id: homePageController.homeDatatInfo?.homeData
-                                  !.featuredProperty![index1].id);
-                          Get.toNamed(
-                            Routes.viewDataScreen,
-                          );
                         },
                         child: Container(
                           height: 140,
@@ -313,7 +313,7 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                         SizedBox(height: Get.height * 0.10),
                         Image(
                           image: AssetImage(
-                            "assets/images/searchDataEmpty.png",
+                            "assets/images/Door Icon.png",
                           ),
                           height: 110,
                           width: 110,
@@ -322,7 +322,7 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                           child: SizedBox(
                             width: Get.width * 0.80,
                             child: Text(
-                              "Sorry, there is no any nearby \n category or data not found"
+                              "Nothing here yet,\n but your next move could change that"
                                   .tr,
                               textAlign: TextAlign.center,
                               style: TextStyle(

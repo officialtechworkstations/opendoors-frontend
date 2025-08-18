@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/firebase/chat_screen.dart';
-import 'package:goproperti/firebase/chat_service.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/firebase/chat_screen.dart';
+import 'package:opendoors/firebase/chat_service.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -177,14 +177,21 @@ class _ChatListState extends State<ChatList> {
 
   Widget _buildUserList() {
     return StreamBuilder(
-        stream: FirebaseFirestore.instance.collection("users").snapshots(),
+        stream: FirebaseFirestore.instance.collection("opendoors_users").snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Text("Error");
+            return Center(child: const Text("user not found!"));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          } else if(snapshot.data!.docs.isEmpty) {
+            return Center(child: Text("User not found!", style: TextStyle(
+              fontSize: 18,
+              color: notifire.getwhiteblackcolor,
+              fontFamily: FontFamily.gilroyBold,
+             ),),
+            );
           } else {
             return ListView(
               children: snapshot.data!.docs.map<Widget>((doc) {
@@ -206,24 +213,20 @@ class _ChatListState extends State<ChatList> {
 
     if (getData.read("UserLogin")["name"] != data["name"]) {
       return StreamBuilder(
-          stream: chatservices.getMessage(
-              userId: data["uid"], otherUserId: getData.read("UserLogin")["id"]),
+          stream: chatservices.getMessage(userId: data["uid"], otherUserId: getData.read("UserLogin")["id"]),
           builder: (context, snapshot) {
-            print("SNAPSHOT data ${snapshot.data!.docs}");
             if (snapshot.hasError) {
               return Text("Error${snapshot.error}");
             }
-
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const SizedBox();
             } else {
               return snapshot.data!.docs.isEmpty
-                  ? const SizedBox()
-                  : _buildMessageiteam(snapshot.data!.docs.last, data["name"],
-                      data["uid"], data["pro_pic"].toString(), legth, snapshot);
+                ? const SizedBox()
+                : _buildMessageiteam(snapshot.data!.docs.last, data["name"],
+                    data["uid"], data["pro_pic"].toString(), legth, snapshot);
             }
           });
-
     } else {
       return Container();
     }
@@ -290,7 +293,7 @@ class _ChatListState extends State<ChatList> {
 
   Future<dynamic> isMeassageAvalable(String chatroom) async {
     CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection('chat_rooms');
+        FirebaseFirestore.instance.collection('opendoors_chats');
 
     var data0 =
         await collectionReference.doc(chatroom).collection("message").get();

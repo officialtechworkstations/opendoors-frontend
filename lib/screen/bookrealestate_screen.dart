@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/controller/bookrealestate_controller.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/reviewsummary_controller.dart';
-import 'package:goproperti/controller/wallet_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/controller/bookrealestate_controller.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/reviewsummary_controller.dart';
+import 'package:opendoors/controller/wallet_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -92,10 +92,10 @@ class _BookRealEstateState extends State<BookRealEstate> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: GetBuilder<BookrealEstateController>(builder: (context) {
-          return Column(
+      body: GetBuilder<BookrealEstateController>(builder: (context) {
+        return bookrealEstateController.checkDate ? SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
@@ -508,9 +508,9 @@ class _BookRealEstateState extends State<BookRealEstate> {
                 height: 20,
               ),
             ],
-          );
-        }),
-      ),
+          ),
+        ) : Center(child: CircularProgressIndicator(color: Darkblue,));
+      }),
     );
   }
 }

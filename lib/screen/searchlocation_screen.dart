@@ -8,12 +8,12 @@ import 'package:flutter_google_places_hoc081098/google_maps_webservice_places.da
 import 'package:get/get.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -62,11 +62,8 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
 
     _markers.add(
       Marker(
-
         markerId: MarkerId(startLocation.toString()),
-
         icon: BitmapDescriptor.fromBytes(markIcons),
-
         position: newlatlang,
         infoWindow: InfoWindow(),
       ),
@@ -93,10 +90,8 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
         child: Stack(
           children: [
             GoogleMap(
-
               zoomGesturesEnabled: true,
               initialCameraPosition: CameraPosition(
-
                 target: startLocation,
                 zoom: 14.0,
               ),

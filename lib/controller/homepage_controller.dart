@@ -8,15 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/model/catwise_info.dart';
-import 'package:goproperti/model/favourite_info.dart';
-import 'package:goproperti/model/homedata_info.dart';
-import 'package:goproperti/model/map_info.dart';
-import 'package:goproperti/model/propetydetails_Info.dart';
-// import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/model/catwise_info.dart';
+import 'package:opendoors/model/favourite_info.dart';
+import 'package:opendoors/model/homedata_info.dart';
+import 'package:opendoors/model/map_info.dart';
+import 'package:opendoors/model/propetydetails_Info.dart';
+// import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:http/http.dart' as http;
 
 import '../screen/home_screen.dart';
@@ -48,6 +48,16 @@ class HomePageController extends GetxController implements GetxService {
   String fevResult = "";
   String fevMsg = "";
   String enquiry = "";
+
+  var lattitude;
+  var longtitude;
+
+  void getCameraposition() {
+    kGoogle = CameraPosition(
+      target: LatLng(lattitude, longtitude),
+      zoom: 12,
+    );
+  }
 
   PageController pageController = PageController();
 
@@ -126,6 +136,7 @@ class HomePageController extends GetxController implements GetxService {
         homeDatatInfo = HomeDatatInfo.fromJson(result);
         addProp = homeDatatInfo?.homeData!.showAddProperty ?? "";
         print("ADDDPORP >>>>>>>>>>>>>>>>>> ${addProp}");
+        print("CAT PROP >>>>>>>>>>>>>>>>>> ${result["HomeData"]["Catlist"]}");
         var maplist = mapInfo.reversed.toList();
         currency = homeDatatInfo?.homeData!.currency ?? "";
         update();
@@ -137,10 +148,8 @@ class HomePageController extends GetxController implements GetxService {
     }
   }
 
-  getPropertyDetailsApi({String? id}) async {
+  Future getPropertyDetailsApi({String? id}) async {
     try {
-      isProperty = false;
-      update();
       Map map = {
         "pro_id": id,
         "uid": getData.read("UserLogin") == null
@@ -168,7 +177,7 @@ class HomePageController extends GetxController implements GetxService {
       isProperty = true;
       update();
     } catch (e) {
-      print(e.toString());
+      print("IPL 2025 ${e.toString()}");
     }
   }
 

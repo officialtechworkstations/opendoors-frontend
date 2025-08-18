@@ -6,28 +6,31 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:goproperti/firebase/auth_service.dart';
-import 'package:goproperti/firebase/chat_screen.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/screen/splesh_screen.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
-import 'package:goproperti/utils/localstring.dart';
+import 'package:opendoors/firebase/auth_service.dart';
+import 'package:opendoors/firebase/chat_screen.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/screen/splesh_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/localstring.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'helpar/get_di.dart' as di;
 
 void main() async {
+  requestPermission();
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await requestStoragePermission();
+  handleFCMNavigation();
   await Permission.phone.request();
-  await Permission.notification.request();
+  await requestStoragePermission();
+  // await Permission.notification.request();
   await getLocation();
-  requestPermission();
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   listenFCM();
   loadFCM();
@@ -55,7 +58,7 @@ class MyApp extends StatelessWidget {
             hoverColor: Colors.transparent,
             highlightColor: Colors.transparent,
             dividerColor: Colors.transparent,
-            primaryColor: const Color(0xff3D5BF6),
+            primaryColor: Darkblue,
             useMaterial3: false,
             fontFamily: "Gilroy"),
         initialRoute: Routes.initial,

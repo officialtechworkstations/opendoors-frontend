@@ -4,10 +4,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/model/homesearchmodel.dart';
-import 'package:goproperti/model/search_info.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/model/homesearchmodel.dart';
+import 'package:opendoors/model/search_info.dart';
 import 'package:http/http.dart' as http;
 
 class SearchPropertyController extends GetxController implements GetxService {

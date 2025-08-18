@@ -4,11 +4,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/model/wallet_info.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/model/wallet_info.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:http/http.dart' as http;
 
 class WalletController extends GetxController implements GetxService {
@@ -63,6 +63,7 @@ class WalletController extends GetxController implements GetxService {
 
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
+        // print("BODY HERE $result");
         results = result["Result"];
         walletMsg = result["ResponseMsg"];
         if (results == "true") {
@@ -75,7 +76,7 @@ class WalletController extends GetxController implements GetxService {
         }
       }
     } catch (e) {
-      print(e.toString());
+      print("BODY HERE" +e.toString());
     }
   }
 

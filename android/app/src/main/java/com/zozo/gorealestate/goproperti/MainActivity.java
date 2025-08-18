@@ -1,4 +1,4 @@
-package com.zozo.gorealestatess;
+package opendoorsapp.com;
 
 import io.flutter.embedding.android.FlutterActivity;
 

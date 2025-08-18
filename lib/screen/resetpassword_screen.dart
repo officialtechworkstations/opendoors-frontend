@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/controller/signup_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/controller/signup_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -234,7 +234,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 signUpController
                                     .twilloOtp(cuntryCode, number.text)
                                     .then((value) {
-                                  if (value["Result"] == "true") {
+                                  if (value != null && value["Result"] == "true") {
                                     Get.toNamed(Routes.otpScreen, arguments: {
                                       "number": number.text,
                                       "cuntryCode": cuntryCode,

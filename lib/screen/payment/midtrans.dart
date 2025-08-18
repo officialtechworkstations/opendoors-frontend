@@ -1,11 +1,13 @@
 // ignore_for_file: prefer_final_fields, unused_field, prefer_typing_uninitialized_variables, use_key_in_widget_constructors, prefer_interpolation_to_compose_strings, unnecessary_string_interpolations, await_only_futures, avoid_print, prefer_const_constructors, avoid_unnecessary_containers, file_names
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+
+import '../../utils/Colors.dart';
 
 class MidTrans extends StatefulWidget {
   final String email;
@@ -116,7 +118,7 @@ class _MidTransState extends State<MidTrans> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: Darkblue,),
                           ),
                           SizedBox(height: Get.height * 0.02),
                           SizedBox(
@@ -155,7 +157,7 @@ class _MidTransState extends State<MidTrans> {
         ),
         body: Center(
           child: Container(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: Darkblue,),
           ),
         ),
       );

@@ -5,12 +5,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/wallet_controller.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Custom_widget.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/wallet_controller.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -97,7 +97,11 @@ class BookrealEstateController extends GetxController implements GetxService {
     update();
   }
 
+  bool checkDate = true;
+
   checkDateApi({String? pid}) async {
+    checkDate = false;
+    update();
     try {
       Map map = {
         "pro_id": pid,
@@ -121,8 +125,12 @@ class BookrealEstateController extends GetxController implements GetxService {
         if (visible == true) {
           if (checkDateResult == "true") {
             if (chack == true) {
+              checkDate = true;
+              update();
               Get.toNamed(Routes.bookInformetionScreen);
             } else {
+              checkDate = true;
+              update();
               Get.toNamed(Routes.reviewSummaryScreen, arguments: {
                 "copAmt": 0,
                 "fname": "",
@@ -136,6 +144,8 @@ class BookrealEstateController extends GetxController implements GetxService {
               });
             }
           } else {
+            checkDate = true;
+            update();
             Fluttertoast.showToast(
               msg: checkDateMsg,
               gravity: ToastGravity.BOTTOM,
@@ -146,16 +156,20 @@ class BookrealEstateController extends GetxController implements GetxService {
             );
           }
         } else {
+          checkDate = true;
+          update();
           showToastMessage("Please select date".tr);
         }
       }
       update();
     } catch (e) {
+      checkDate = true;
+      update();
       print(e.toString());
     }
   }
 
-  bookApiData({
+  Future bookApiData({
     String? pid,
     String? subtotal,
     String? total,
@@ -203,7 +217,9 @@ class BookrealEstateController extends GetxController implements GetxService {
         "country": country,
         "noguest": noGuest,
       };
+
       print("---------+++++++++++${map.toString()}");
+
       Uri uri = Uri.parse(Config.path + Config.bookApi);
       var response = await http.post(
         uri,
@@ -216,6 +232,7 @@ class BookrealEstateController extends GetxController implements GetxService {
         String bookresult = result["ResponseMsg"];
 
         showToastMessage(bookresult);
+        return result;
       }
       update();
     } catch (e) {

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/firebase/message.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/firebase/message.dart';
 
 class ChatServices extends ChangeNotifier {
   final FirebaseFirestore _firebaseStorage = FirebaseFirestore.instance;
@@ -25,7 +25,7 @@ class ChatServices extends ChangeNotifier {
     String chatRoomId = ids.join("_");
 
     await _firebaseStorage
-        .collection("chat_rooms")
+        .collection("opendoors_chats")
         .doc(chatRoomId)
         .collection("message")
         .add(newMessage.toMap());
@@ -37,8 +37,9 @@ class ChatServices extends ChangeNotifier {
     ids.sort();
     String chatRoomId = ids.join("_");
 
+    print("chatRoomID $chatRoomId");
     return _firebaseStorage
-        .collection("chat_rooms")
+        .collection("opendoors_chats")
         .doc(chatRoomId)
         .collection("message")
         .orderBy("timestamp", descending: false)

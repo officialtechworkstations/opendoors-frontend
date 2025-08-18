@@ -2,16 +2,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/Api/data_store.dart';
-import 'package:goproperti/controller/bookingdetails_controller.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/mybooking_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/bookingdetails_controller.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/mybooking_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -119,7 +119,9 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                     fontFamily: FontFamily.gilroyBold,
                     fontSize: 16,
                   ),
-                  labelColor: blueColor,
+                  dividerColor: Darkblue,
+                  indicatorColor: Darkblue,
+                  labelColor: Darkblue,
                   onTap: (value) {
                     if (value == 0) {
                       myBookingController.statusWiseBook = "active";
@@ -160,6 +162,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
   Widget activeWidget() {
     return GetBuilder<MyBookingController>(builder: (context) {
       return RefreshIndicator(
+        color: Darkblue,
         onRefresh: () {
           return Future.delayed(
             Duration(seconds: 2),
@@ -181,11 +184,9 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                           children: [
                             InkWell(
                               onTap: () async {
-                                await homePageController.getPropertyDetailsApi(
-                                    id: myBookingController.statusWiseBookInfo
-                                            ?.statuswise![index].propId ??
-                                        "");
-                                Get.toNamed(Routes.viewDataScreen);
+                                Get.toNamed(Routes.viewDataScreen, arguments: {
+                                  "id" : myBookingController.statusWiseBookInfo?.statuswise![index].propId
+                                });
                               },
                               child: Container(
                                 margin: EdgeInsets.all(10),
@@ -493,7 +494,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                           Padding(
                             padding: const EdgeInsets.only(left: 30),
                             child: Image.asset(
-                              "assets/images/bookingEmpty.png",
+                              "assets/images/Door Icon.png",
                               height: 110,
                               width: 100,
                             ),
@@ -512,7 +513,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(color: Darkblue,),
                 ),
         ),
       );
@@ -522,6 +523,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
   Widget completedWidget() {
     return GetBuilder<MyBookingController>(builder: (context) {
       return RefreshIndicator(
+        color: Darkblue,
         onRefresh: () {
           return Future.delayed(
             Duration(seconds: 2),
@@ -543,11 +545,9 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                           children: [
                             InkWell(
                               onTap: () async {
-                                await homePageController.getPropertyDetailsApi(
-                                    id: myBookingController.statusWiseBookInfo
-                                            ?.statuswise![index].propId ??
-                                        "");
-                                Get.toNamed(Routes.viewDataScreen);
+                                Get.toNamed(Routes.viewDataScreen, arguments: {
+                                  "id" : myBookingController.statusWiseBookInfo?.statuswise![index].propId
+                                });
                               },
                               child: Container(
                                 height: 155,
@@ -739,7 +739,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                           Padding(
                             padding: const EdgeInsets.only(left: 30),
                             child: Image.asset(
-                              "assets/images/bookingEmpty.png",
+                              "assets/images/Door Icon.png",
                               height: 110,
                               width: 100,
                             ),
@@ -758,7 +758,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(color: Darkblue,),
                 ),
         ),
       );

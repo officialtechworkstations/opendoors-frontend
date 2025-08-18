@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/booking_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/booking_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -136,6 +136,7 @@ class _BookingScreenState extends State<BookingScreen>
   Widget activeWidget() {
     return GetBuilder<BookingController>(builder: (context) {
       return RefreshIndicator(
+        color: Darkblue,
         onRefresh: () {
           return Future.delayed(
             Duration(seconds: 2),
@@ -388,7 +389,7 @@ class _BookingScreenState extends State<BookingScreen>
                           Padding(
                             padding: const EdgeInsets.only(left: 30),
                             child: Image.asset(
-                              "assets/images/bookingEmpty.png",
+                              "assets/images/Door Icon.png",
                               height: 110,
                               width: 100,
                             ),
@@ -407,7 +408,7 @@ class _BookingScreenState extends State<BookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(color: Darkblue,),
                 ),
         ),
       );
@@ -417,6 +418,7 @@ class _BookingScreenState extends State<BookingScreen>
   Widget completedWidget() {
     return GetBuilder<BookingController>(builder: (context) {
       return RefreshIndicator(
+        color: Darkblue,
         onRefresh: () {
           return Future.delayed(
             Duration(seconds: 2),
@@ -626,7 +628,7 @@ class _BookingScreenState extends State<BookingScreen>
                           Padding(
                             padding: const EdgeInsets.only(left: 30),
                             child: Image.asset(
-                              "assets/images/bookingEmpty.png",
+                              "assets/images/Door Icon.png",
                               height: 110,
                               width: 100,
                             ),
@@ -645,7 +647,7 @@ class _BookingScreenState extends State<BookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(color: Darkblue,),
                 ),
         ),
       );

@@ -50,20 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC_DvOqnmIm5EnA8JCL65FaQTJBftFaU7g',
-    appId: '1:324152946798:android:cb8d3beabbff9e8415f67f',
-    messagingSenderId: '324152946798',
-    projectId: 'studio-67236',
-    storageBucket: 'studio-67236.appspot.com',
+    apiKey: 'AIzaSyADMlUxpDgGEe0SGRHUXq8-LzgIn5sF37o',
+    appId: '1:26275977783:android:8d169b9d36a172e49a7db2',
+    messagingSenderId: '26275977783',
+    projectId: 'open-doors-app-2025f',
+    storageBucket: 'open-doors-app-2025f.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCQ78DiE452hwx4vXsfEmnDCkEBGzQAnV0',
-    appId: '1:324152946798:ios:496b42f787c549d015f67f',
-    messagingSenderId: '324152946798',
-    projectId: 'studio-67236',
-    storageBucket: 'studio-67236.appspot.com',
-    androidClientId: '324152946798-0np1mt98982bvl1e7878q3e789g0e88h.apps.googleusercontent.com',
-    iosBundleId: 'com.zozo.gorealestatess',
+    apiKey: 'AIzaSyDcuOO3h15jw-oc4J36BeWPHM6qO-YSCag',
+    appId: '1:26275977783:ios:b5f84611f4f4b67e9a7db2',
+    messagingSenderId: '26275977783',
+    projectId: 'open-doors-app-2025f',
+    storageBucket: 'open-doors-app-2025f.firebasestorage.app',
+    iosBundleId: 'opendoorsapp.com',
   );
+
 }

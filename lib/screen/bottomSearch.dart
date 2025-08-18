@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goproperti/Api/config.dart';
-import 'package:goproperti/controller/homepage_controller.dart';
-import 'package:goproperti/controller/search_controller.dart';
-import 'package:goproperti/model/fontfamily_model.dart';
-import 'package:goproperti/model/routes_helper.dart';
-import 'package:goproperti/screen/home_screen.dart';
-import 'package:goproperti/utils/Colors.dart';
-import 'package:goproperti/utils/Dark_lightmode.dart';
+import 'package:opendoors/Api/config.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/search_controller.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -154,15 +154,13 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                     itemBuilder: (context, index) {
                                       return InkWell(
                                         onTap: () async {
-                                          homePageController
-                                              .chnageObjectIndex(index);
-                                          await homePageController
-                                              .getPropertyDetailsApi(
-                                                  id: searchController
-                                                      .searchData[index].id);
                                           Get.toNamed(
                                             Routes.viewDataScreen,
+                                            arguments: {
+                                              "id" : searchController.searchData[index].id
+                                            }
                                           );
+                                          homePageController.chnageObjectIndex(index);
                                         },
                                         child: Container(
                                           height: 140,
@@ -390,7 +388,7 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                   ),
                                 )
                               : Center(
-                                  child: CircularProgressIndicator(),
+                                  child: CircularProgressIndicator(color: Darkblue,),
                                 )
                           : Padding(
                               padding: const EdgeInsets.symmetric(
@@ -400,7 +398,7 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                   SizedBox(height: Get.height * 0.10),
                                   Image(
                                     image: AssetImage(
-                                        "assets/images/searchDataEmpty.png"),
+                                        "assets/images/Door Icon.png"),
                                     height: 110,
                                     width: 110,
                                   ),
@@ -445,11 +443,11 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                   return InkWell(
                     onTap: () async {
                       homePageController.chnageObjectIndex(index);
-                      await homePageController.getPropertyDetailsApi(
-                          id: homePageController.homeDatatInfo?.homeData
-                              !.featuredProperty![index].id);
                       Get.toNamed(
                         Routes.viewDataScreen,
+                        arguments: {
+                          "id" : homePageController.homeDatatInfo?.homeData!.featuredProperty![index].id
+                        }
                       );
                     },
                     child: Container(
@@ -641,36 +639,41 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                   );
                 },
               )
-            : Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                child: Column(
-                  children: [
-                    SizedBox(height: Get.height * 0.10),
-                    Image(
-                      image: AssetImage(
-                        "assets/images/searchDataEmpty.png",
-                      ),
-                      height: 110,
-                      width: 110,
-                    ),
-                    Center(
-                      child: SizedBox(
-                        width: Get.width * 0.80,
-                        child: Text(
-                          "Sorry, there is no any nearby \n category or data not found"
-                              .tr,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: notifire.getgreycolor,
-                            fontFamily: FontFamily.gilroyBold,
+            : Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                    child: Column(
+                      children: [
+                        SizedBox(height: Get.height * 0.10),
+                        Image(
+                          image: AssetImage(
+                            "assets/images/Door Icon.png",
+                          ),
+                          height: 110,
+                          width: 110,
+                        ),
+                        Center(
+                          child: SizedBox(
+                            width: Get.width * 0.80,
+                            child: Text(
+                              "Nothing here yet,\n but your next move could change that"
+                                  .tr,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: notifire.getgreycolor,
+                                fontFamily: FontFamily.gilroyBold,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+              ],
+            ),
       );
     });
   }
