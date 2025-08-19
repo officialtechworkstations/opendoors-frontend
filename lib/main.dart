@@ -4,6 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:opendoors/firebase/auth_service.dart';
@@ -20,6 +21,7 @@ import 'firebase_options.dart';
 import 'helpar/get_di.dart' as di;
 
 void main() async {
+  await dotenv.load(fileName: ".env");
   requestPermission();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -73,18 +75,17 @@ class MyApp extends StatelessWidget {
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
 
 Future requestStoragePermission() async {
-
   if (Platform.isAndroid) {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     print(">>>>>>>>>>>>>>>>${androidInfo.version.sdkInt}");
     int androidVersion = androidInfo.version.sdkInt;
-    if(androidVersion > 32){
+    if (androidVersion > 32) {
       await Permission.photos.request();
-    } else if(androidVersion <= 32){
+    } else if (androidVersion <= 32) {
       await Permission.storage.request();
     }
-  } else if(Platform.isIOS) {
+  } else if (Platform.isIOS) {
     await Permission.photos.request();
   }
 }
