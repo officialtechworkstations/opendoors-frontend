@@ -184,8 +184,16 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                           children: [
                             InkWell(
                               onTap: () async {
+                                final status = myBookingController
+                                    .statusWiseBookInfo
+                                    ?.statuswise![index]
+                                    .bookStatus;
                                 Get.toNamed(Routes.viewDataScreen, arguments: {
-                                  "id" : myBookingController.statusWiseBookInfo?.statuswise![index].propId
+                                  "id": myBookingController.statusWiseBookInfo
+                                      ?.statuswise![index].propId,
+                                  "booked": status != null &&
+                                      status.isNotEmpty &&
+                                      status != "Cancelled"
                                 });
                               },
                               child: Container(
@@ -204,12 +212,20 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                                 borderRadius:
                                                     BorderRadius.circular(15),
                                                 child: FadeInImage.assetNetwork(
-                                                  fadeInCurve: Curves.easeInCirc,
+                                                  fadeInCurve:
+                                                      Curves.easeInCirc,
                                                   placeholder:
                                                       "assets/images/ezgif.com-crop.gif",
                                                   height: 140,
-                                                  imageErrorBuilder: (context, error, stackTrace) {
-                                                  return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                                                  imageErrorBuilder: (context,
+                                                      error, stackTrace) {
+                                                    return Center(
+                                                      child: Image.asset(
+                                                        "assets/images/emty.gif",
+                                                        fit: BoxFit.cover,
+                                                        height: Get.height,
+                                                      ),
+                                                    );
                                                   },
                                                   image:
                                                       "${Config.imageUrl}${myBookingController.statusWiseBookInfo?.statuswise![index].propImg ?? ""}",
@@ -232,9 +248,8 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                                       MainAxisAlignment.center,
                                                   children: [
                                                     Container(
-                                                      margin:
-                                                          const EdgeInsets.fromLTRB(
-                                                              0, 0, 3, 0),
+                                                      margin: const EdgeInsets
+                                                          .fromLTRB(0, 0, 3, 0),
                                                       child: Image.asset(
                                                         "assets/images/Rating.png",
                                                         height: 12,
@@ -244,12 +259,13 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                                     Text(
                                                       myBookingController
                                                               .statusWiseBookInfo
-                                                              ?.statuswise![index]
+                                                              ?.statuswise![
+                                                                  index]
                                                               .totalRate ??
                                                           "",
                                                       style: TextStyle(
-                                                        fontFamily:
-                                                            FontFamily.gilroyMedium,
+                                                        fontFamily: FontFamily
+                                                            .gilroyMedium,
                                                         color: blueColor,
                                                       ),
                                                     )
@@ -271,7 +287,8 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Text(
                                                 myBookingController
@@ -284,24 +301,27 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                                   fontSize: 17,
                                                   fontFamily:
                                                       FontFamily.gilroyBold,
-                                                  color:
-                                                      notifire.getwhiteblackcolor,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  color: notifire
+                                                      .getwhiteblackcolor,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ),
                                               SizedBox(
                                                 height: 15,
                                               ),
                                               Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: [
                                                   Row(
                                                     children: [
                                                       Text(
                                                         "${currency}${int.parse(myBookingController.statusWiseBookInfo?.statuswise![index].propPrice ?? "") * int.parse(myBookingController.statusWiseBookInfo?.statuswise![index].totalDay ?? "")}",
                                                         style: TextStyle(
-                                                          fontFamily:
-                                                              FontFamily.gilroyBold,
+                                                          fontFamily: FontFamily
+                                                              .gilroyBold,
                                                           fontSize: 20,
                                                           color: blueColor,
                                                         ),
@@ -312,7 +332,8 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                                       Text(
                                                         "/${myBookingController.statusWiseBookInfo?.statuswise![index].totalDay ?? ""} days",
                                                         style: TextStyle(
-                                                          color: notifire.getgreycolor,
+                                                          color: notifire
+                                                              .getgreycolor,
                                                           fontSize: 12,
                                                         ),
                                                       ),
@@ -324,76 +345,84 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                                 height: 15,
                                               ),
                                               myBookingController
-                                                  .statusWiseBookInfo
-                                                  ?.statuswise![index]
-                                                  .pMethodId !=
-                                                  "2"
+                                                          .statusWiseBookInfo
+                                                          ?.statuswise![index]
+                                                          .pMethodId !=
+                                                      "2"
                                                   ? Row(
-                                                mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                                children: [
-                                                  SizedBox(
-                                                    height: 10,
-                                                  ),
-                                                  Container(
-                                                    height: 30,
-                                                    width: 60,
-                                                    alignment:
-                                                    Alignment.center,
-                                                    child: Text(
-                                                      "Paid".tr,
-                                                      style: TextStyle(
-                                                        color: blueColor,
-                                                        fontFamily: FontFamily
-                                                            .gilroyMedium,
-                                                      ),
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                          color: blueColor),
-                                                      borderRadius:
-                                                      BorderRadius
-                                                          .circular(5),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 15,
-                                                  ),
-                                                ],
-                                              )
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        Container(
+                                                          height: 30,
+                                                          width: 60,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: Text(
+                                                            "Paid".tr,
+                                                            style: TextStyle(
+                                                              color: blueColor,
+                                                              fontFamily: FontFamily
+                                                                  .gilroyMedium,
+                                                            ),
+                                                          ),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                                color:
+                                                                    blueColor),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5),
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 15,
+                                                        ),
+                                                      ],
+                                                    )
                                                   : Row(
-                                                mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                                children: [
-                                                  SizedBox(
-                                                    height: 10,
-                                                  ),
-                                                  Container(
-                                                    height: 30,
-                                                    width: 85,
-                                                    alignment:
-                                                    Alignment.center,
-                                                    child: Text(
-                                                      "UnPaid".tr,
-                                                      style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontFamily: FontFamily
-                                                            .gilroyMedium,
-                                                      ),
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        Container(
+                                                          height: 30,
+                                                          width: 85,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: Text(
+                                                            "UnPaid".tr,
+                                                            style: TextStyle(
+                                                              color: Colors.red,
+                                                              fontFamily: FontFamily
+                                                                  .gilroyMedium,
+                                                            ),
+                                                          ),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                                color:
+                                                                    Colors.red),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5),
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 15,
+                                                        ),
+                                                      ],
                                                     ),
-                                                    decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                          color: Colors.red),
-                                                      borderRadius:
-                                                      BorderRadius
-                                                          .circular(5),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 15,
-                                                  ),
-                                                ],
-                                              ),
                                             ],
                                           ),
                                         ),
@@ -401,40 +430,43 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                     ),
                                     Row(
                                       children: [
-                                        myBookingController.statusWiseBookInfo
-                                            ?.statuswise![index].bookStatus ==
-                                            "Booked"
-                                            ? Expanded(
-                                          child: InkWell(
-                                            onTap: () {
-                                              ticketCancell(
-                                                myBookingController
+                                        myBookingController
                                                     .statusWiseBookInfo
                                                     ?.statuswise![index]
-                                                    .bookId,
-                                              );
-                                            },
-                                            child: Container(
-                                              height: 40,
-                                              alignment: Alignment.center,
-                                              margin: EdgeInsets.all(10),
-                                              child: Text(
-                                                "Cancel".tr,
-                                                style: TextStyle(
-                                                  fontFamily:
-                                                  FontFamily.gilroyMedium,
-                                                  color: WhiteColor,
-                                                  fontSize: 15,
+                                                    .bookStatus ==
+                                                "Booked"
+                                            ? Expanded(
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    ticketCancell(
+                                                      myBookingController
+                                                          .statusWiseBookInfo
+                                                          ?.statuswise![index]
+                                                          .bookId,
+                                                    );
+                                                  },
+                                                  child: Container(
+                                                    height: 40,
+                                                    alignment: Alignment.center,
+                                                    margin: EdgeInsets.all(10),
+                                                    child: Text(
+                                                      "Cancel".tr,
+                                                      style: TextStyle(
+                                                        fontFamily: FontFamily
+                                                            .gilroyMedium,
+                                                        color: WhiteColor,
+                                                        fontSize: 15,
+                                                      ),
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      color: blueColor,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                BorderRadius.circular(20),
-                                                color: blueColor,
-                                              ),
-                                            ),
-                                          ),
-                                        )
+                                              )
                                             : Container(),
                                         Expanded(
                                           child: InkWell(
@@ -442,9 +474,9 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                               bookingDetailsController
                                                   .getbookingDetails(
                                                 bookId: myBookingController
-                                                    .statusWiseBookInfo
-                                                    ?.statuswise![index]
-                                                    .bookId ??
+                                                        .statusWiseBookInfo
+                                                        ?.statuswise![index]
+                                                        .bookId ??
                                                     "",
                                               );
                                               Get.toNamed(
@@ -461,14 +493,17 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                               child: Text(
                                                 "E-Receipt".tr,
                                                 style: TextStyle(
-                                                  fontFamily: FontFamily.gilroyMedium,
+                                                  fontFamily:
+                                                      FontFamily.gilroyMedium,
                                                   color: blueColor,
                                                   fontSize: 15,
                                                 ),
                                               ),
                                               decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(20),
-                                                border: Border.all(color: blueColor),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                border: Border.all(
+                                                    color: blueColor),
                                               ),
                                             ),
                                           ),
@@ -513,7 +548,9 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(color: Darkblue,),
+                  child: CircularProgressIndicator(
+                    color: Darkblue,
+                  ),
                 ),
         ),
       );
@@ -546,7 +583,8 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                             InkWell(
                               onTap: () async {
                                 Get.toNamed(Routes.viewDataScreen, arguments: {
-                                  "id" : myBookingController.statusWiseBookInfo?.statuswise![index].propId
+                                  "id": myBookingController.statusWiseBookInfo
+                                      ?.statuswise![index].propId
                                 });
                               },
                               child: Container(
@@ -568,8 +606,15 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                               placeholder:
                                                   "assets/images/ezgif.com-crop.gif",
                                               height: 140,
-                                              imageErrorBuilder: (context, error, stackTrace) {
-                                              return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                                              imageErrorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Center(
+                                                  child: Image.asset(
+                                                    "assets/images/emty.gif",
+                                                    fit: BoxFit.cover,
+                                                    height: Get.height,
+                                                  ),
+                                                );
                                               },
                                               image:
                                                   "${Config.imageUrl}${myBookingController.statusWiseBookInfo?.statuswise![index].propImg ?? ""}",
@@ -631,7 +676,8 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             myBookingController
@@ -642,8 +688,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                             maxLines: 2,
                                             style: TextStyle(
                                               fontSize: 17,
-                                              fontFamily:
-                                                  FontFamily.gilroyBold,
+                                              fontFamily: FontFamily.gilroyBold,
                                               color:
                                                   notifire.getwhiteblackcolor,
                                               overflow: TextOverflow.ellipsis,
@@ -669,7 +714,8 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                                               Text(
                                                 "/${myBookingController.statusWiseBookInfo?.statuswise![index].totalDay ?? ""} days",
                                                 style: TextStyle(
-                                                  fontFamily: FontFamily.gilroyMedium,
+                                                  fontFamily:
+                                                      FontFamily.gilroyMedium,
                                                   color: notifire.getgreycolor,
                                                   fontSize: 12,
                                                 ),
@@ -758,7 +804,9 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(color: Darkblue,),
+                  child: CircularProgressIndicator(
+                    color: Darkblue,
+                  ),
                 ),
         ),
       );

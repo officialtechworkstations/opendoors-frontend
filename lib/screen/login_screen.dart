@@ -27,7 +27,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   LoginController loginController = Get.find();
   DashBoardController dashBoardController = Get.find();
   HomePageController homePageController = Get.find();
@@ -45,10 +44,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   int countrySelected = 0;
 
-  Future getCountryData() async{
-    selectCountryController.getCountryApi().then((value){
-      for(int a = 0; a < selectCountryController.countryInfo!.countryData!.length; a++){
-        if(selectCountryController.countryInfo?.countryData![a].dCon == "1"){
+  Future getCountryData() async {
+    selectCountryController.getCountryApi().then((value) {
+      for (int a = 0;
+          a < selectCountryController.countryInfo!.countryData!.length;
+          a++) {
+        if (selectCountryController.countryInfo?.countryData![a].dCon == "1") {
           setState(() {
             countrySelected = a;
           });
@@ -73,9 +74,11 @@ class _LoginScreenState extends State<LoginScreen> {
     loginController.number.text = "";
     loginController.password.text = "";
     getCountryData();
-    selectCountryController.getCountryApi().then((value){
-      for(int a = 0; a < selectCountryController.countryInfo!.countryData!.length; a++){
-        if(selectCountryController.countryInfo?.countryData![a].dCon == "1"){
+    selectCountryController.getCountryApi().then((value) {
+      for (int a = 0;
+          a < selectCountryController.countryInfo!.countryData!.length;
+          a++) {
+        if (selectCountryController.countryInfo?.countryData![a].dCon == "1") {
           setState(() {
             countrySelected = a;
           });
@@ -158,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: IntlPhoneField(
                     disableLengthCheck: true,
-                    initialCountryCode: "IN",
+                    initialCountryCode: "NG", //"IN",
                     keyboardType: TextInputType.number,
                     cursorColor: notifire.getwhiteblackcolor,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -327,7 +330,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 activeColor: BlackColor,
                                 onChanged: (value) async {
                                   loginController.changeRememberMe(value);
-                                  final prefs = await SharedPreferences.getInstance();
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
                                   await prefs.setBool('Remember', true);
                                 },
                               ),
@@ -364,69 +368,101 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                isLogin ? Center(child: CircularProgressIndicator(color: Darkblue,)) : GestButton(
-                  Width: Get.size.width,
-                  height: 50,
-                  buttoncolor: blueColor,
-                  margin: EdgeInsets.only(top: 15, left: 30, right: 30),
-                  buttontext: "Login".tr,
-                  style: TextStyle(
-                    fontFamily: FontFamily.gilroyBold,
-                    color: WhiteColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  onclick: () async {
-                    setState(() {
-                      isLogin = true;
-                      if (loginController.number.text.isNotEmpty) {
-                        isvalidate = false;
-                      } else {
-                        isvalidate = true;
-                      }
-                    });
-
-                    _formKey.currentState?.validate();
-
-                    if (_formKey.currentState?.validate() ?? false) {
-                      initPlatformState();
-                      loginController.getLoginApiData(cuntryCode, context).then((value) {
-
-                              if (value["Result"] == "true") {
-                                if(getData.read("userType") == "admin") {
-                                  dashBoardController.getDashBoardData().then((value) {
-                                    Get.offAndToNamed(Routes.membershipScreen);
-                                  },);
-                                }  else {
-                              setState(() {
-                                save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
-                                save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
-                              });
-
-                              selectCountryController.changeCountryIndex(countrySelected);
-
-                              homePageController.getCatWiseData(
-                                  countryId: getData.read("countryId"),
-                                  cId: "0");
-                              searchController.getSearchData(countryId: getData.read("countryId")).then((value) {
-                                Get.offAndToNamed(Routes.bottoBarScreen);
-                              isLogin = false;
-                              setState(() {});
-                                  },);
+                isLogin
+                    ? Center(
+                        child: CircularProgressIndicator(
+                        color: Darkblue,
+                      ))
+                    : GestButton(
+                        Width: Get.size.width,
+                        height: 50,
+                        buttoncolor: blueColor,
+                        margin: EdgeInsets.only(top: 15, left: 30, right: 30),
+                        buttontext: "Login".tr,
+                        style: TextStyle(
+                          fontFamily: FontFamily.gilroyBold,
+                          color: WhiteColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        onclick: () async {
+                          setState(() {
+                            isLogin = true;
+                            if (loginController.number.text.isNotEmpty) {
+                              isvalidate = false;
+                            } else {
+                              isvalidate = true;
                             }
-                          } else {
-                                isLogin = false;
-                                setState(() {});
-                                showToastMessage(value["ResponseMsg"]);
-                              }
-                      },);
+                          });
 
-                    } else {
-                      isLogin = false;
-                      setState(() {});
-                    }
-                  },
-                ),
+                          _formKey.currentState?.validate();
+
+                          if (_formKey.currentState?.validate() ?? false) {
+                            initPlatformState();
+                            loginController
+                                .getLoginApiData(cuntryCode, context)
+                                .then(
+                              (value) {
+                                if (value["Result"] == "true") {
+                                  if (getData.read("userType") == "admin") {
+                                    dashBoardController.getDashBoardData().then(
+                                      (value) {
+                                        Get.offAndToNamed(
+                                            Routes.membershipScreen);
+                                      },
+                                    );
+                                  } else {
+                                    setState(() {
+                                      save(
+                                          "countryId",
+                                          selectCountryController
+                                                  .countryInfo
+                                                  ?.countryData![
+                                                      countrySelected]
+                                                  .id ??
+                                              "");
+                                      save(
+                                          "countryName",
+                                          selectCountryController
+                                                  .countryInfo
+                                                  ?.countryData![
+                                                      countrySelected]
+                                                  .title ??
+                                              "");
+                                    });
+
+                                    selectCountryController
+                                        .changeCountryIndex(countrySelected);
+
+                                    homePageController.getCatWiseData(
+                                        countryId: getData.read("countryId"),
+                                        cId: "0");
+                                    searchController
+                                        .getSearchData(
+                                            countryId:
+                                                getData.read("countryId"))
+                                        .then(
+                                      (value) {
+                                        Get.offAndToNamed(
+                                            Routes.bottoBarScreen);
+                                        isLogin = false;
+                                        setState(() {});
+                                      },
+                                    );
+                                  }
+                                } else {
+                                  isLogin = false;
+                                  setState(() {});
+                                  showToastMessage(value["ResponseMsg"]);
+                                }
+                              },
+                            );
+                          } else {
+                            isLogin = false;
+                            setState(() {});
+                          }
+                        },
+                      ),
                 SizedBox(
                   height: 20,
                 ),
@@ -450,21 +486,28 @@ class _LoginScreenState extends State<LoginScreen> {
                   buttoncolor: notifire.getboxcolor,
                   buttontext: "Continue as a Guest".tr,
                   onclick: () {
-
                     setState(() {
-                      save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
-                      save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
+                      save(
+                          "countryId",
+                          selectCountryController.countryInfo
+                                  ?.countryData![countrySelected].id ??
+                              "");
+                      save(
+                          "countryName",
+                          selectCountryController.countryInfo
+                                  ?.countryData![countrySelected].title ??
+                              "");
                     });
 
                     selectCountryController.changeCountryIndex(countrySelected);
                     homePageController.getHomeDataApi(
                         countryId: getData.read("countryId"));
-                    homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0");
+                    homePageController.getCatWiseData(
+                        countryId: getData.read("countryId"), cId: "0");
                     searchController.getSearchData(
                         countryId: getData.read("countryId"));
                     Get.offAndToNamed(Routes.bottoBarScreen);
                     save('isLoginBack', true);
-
                   },
                   style: TextStyle(
                     fontFamily: FontFamily.gilroyBold,
@@ -516,12 +559,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> initPlatformState() async {
-
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     OneSignal.initialize(Config.oneSignel);
-    OneSignal.Notifications.requestPermission(true).then((value) {
-      print("Signal value:- $value");
-    },);
-
+    OneSignal.Notifications.requestPermission(true).then(
+      (value) {
+        print("Signal value:- $value");
+      },
+    );
   }
 }

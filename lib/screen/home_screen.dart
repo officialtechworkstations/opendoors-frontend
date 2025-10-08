@@ -20,6 +20,7 @@ import 'package:opendoors/controller/signup_controller.dart';
 import 'package:opendoors/firebase/chat_screen.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/property_filter_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:http/http.dart' as http;
@@ -69,7 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ));
     });
     homePageController.getHomeDataApi(countryId: getData.read("countryId"));
-    homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0");
+    homePageController.getCatWiseData(
+        countryId: getData.read("countryId"), cId: "0");
     getdarkmodepreviousstate();
     if (getData.read("UserLogin") != null) {
       isUserOnlie(getData.read("UserLogin")["id"], false);
@@ -91,7 +93,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     FirebaseAccesstoken accesstoken = new FirebaseAccesstoken();
     accesstoken.getAccessToken();
-
   }
 
   networkimageconvert() {
@@ -112,7 +113,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
   }
-
 
   Future getUserLocation() async {
     setState(() {});
@@ -284,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         body: RefreshIndicator(
-        color: Darkblue,
+          color: Darkblue,
           onRefresh: () {
             return Future.delayed(
               Duration(seconds: 2),
@@ -299,8 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             );
           },
-          child: GetBuilder<HomePageController>(
-              builder: (homePageController) {
+          child: GetBuilder<HomePageController>(builder: (homePageController) {
             return SingleChildScrollView(
               physics: BouncingScrollPhysics(),
               child: homePageController.isLoading
@@ -315,7 +314,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         categoryAndSeeAllWidget("Featured".tr, "See All".tr),
                         listFeatured(),
-                        categoryAndSeeAllWidget("Our Recommendation".tr, "See All".tr),
+                        categoryAndSeeAllWidget(
+                            "Our Recommendation".tr, "See All".tr),
                         SizedBox(
                           height: 55,
                           child: Padding(
@@ -327,13 +327,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemBuilder: (context, index) {
                                 return InkWell(
                                   onTap: () {
-                                    homePageController.changeCategoryIndex(index);
+                                    homePageController
+                                        .changeCategoryIndex(index);
 
                                     homePageController.getCatWiseData(
-                                      cId: homePageController.homeDatatInfo!.homeData!.catlist![index].id,
+                                      cId: homePageController.homeDatatInfo!
+                                          .homeData!.catlist![index].id,
                                       countryId: getData.read("countryId"),
                                     );
-                                    print("IMEA ${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img}");
+                                    print(
+                                        "IMEA ${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img}");
                                   },
                                   child: Container(
                                     height: 50,
@@ -348,11 +351,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                           height: 25,
                                           width: 25,
                                           fit: BoxFit.cover,
-                                          imageErrorBuilder: (context, error, stackTrace) {
-                                          return Center(child: Image.asset("assets/images/ezgif.com-crop.gif",fit: BoxFit.cover,height: Get.height,),);
+                                          imageErrorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Center(
+                                              child: Image.asset(
+                                                "assets/images/ezgif.com-crop.gif",
+                                                fit: BoxFit.cover,
+                                                height: Get.height,
+                                              ),
+                                            );
                                           },
-                                          image: "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img ?? ""}",
-                                          placeholder:  "assets/images/ezgif.com-crop.gif",
+                                          image:
+                                              "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img ?? ""}",
+                                          placeholder:
+                                              "assets/images/ezgif.com-crop.gif",
                                         ),
                                         SizedBox(
                                           width: 5,
@@ -360,8 +372,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Text(
                                           homePageController
                                                   .homeDatatInfo
-                                                  ?.homeData
-                                                  !.catlist![index]
+                                                  ?.homeData!
+                                                  .catlist![index]
                                                   .title ??
                                               "",
                                           style: TextStyle(
@@ -380,7 +392,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                           color: blueColor, width: 2),
                                       borderRadius: BorderRadius.circular(25),
                                       color:
-                                          homePageController.catCurrentIndex == index ? blueColor : notifire.getbgcolor,
+                                          homePageController.catCurrentIndex ==
+                                                  index
+                                              ? blueColor
+                                              : notifire.getbgcolor,
                                     ),
                                   ),
                                 );
@@ -392,8 +407,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? homePageController
                                     .catWiseInfo!.propertyCat!.isNotEmpty
                                 ? Padding(
-                                  padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                                  child: GridView.builder(
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 10, bottom: 10),
+                                    child: GridView.builder(
                                       itemCount: homePageController
                                           .catWiseInfo?.propertyCat!.length,
                                       shrinkWrap: true,
@@ -404,269 +420,316 @@ class _HomeScreenState extends State<HomeScreen> {
                                         mainAxisExtent: 250,
                                       ),
                                       itemBuilder: (context, index) {
-                                            return InkWell(
-                                              onTap: () async {
-                                                homePageController.chnageObjectIndex(index);
-                                                Get.toNamed(Routes.viewDataScreen, arguments: {
-                                                  "id" : homePageController.catWiseInfo?.propertyCat![index].id
+                                        return InkWell(
+                                          onTap: () async {
+                                            homePageController
+                                                .chnageObjectIndex(index);
+                                            Get.toNamed(Routes.viewDataScreen,
+                                                arguments: {
+                                                  "id": homePageController
+                                                      .catWiseInfo
+                                                      ?.propertyCat![index]
+                                                      .id
                                                 });
-                                                setState(() {
-                                                  homePageController.rate = homePageController.catWiseInfo?.propertyCat![index].rate ?? "";
-                                                });
-                                              },
-                                              child: Container(
-                                                height: 250,
-                                                margin: EdgeInsets.all(8),
-                                                child: Column(
+                                            setState(() {
+                                              homePageController.rate =
+                                                  homePageController
+                                                          .catWiseInfo
+                                                          ?.propertyCat![index]
+                                                          .rate ??
+                                                      "";
+                                            });
+                                          },
+                                          child: Container(
+                                            height: 250,
+                                            margin: EdgeInsets.all(8),
+                                            child: Column(
+                                              children: [
+                                                Stack(
                                                   children: [
-                                                    Stack(
-                                                      children: [
-                                                        Container(
-                                                          height: 140,
+                                                    Container(
+                                                      height: 140,
+                                                      width: Get.size.width,
+                                                      margin: EdgeInsets.only(
+                                                        right: 8,
+                                                        left: 8,
+                                                        top: 8,
+                                                      ),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        child: FadeInImage
+                                                            .assetNetwork(
+                                                          fadeInCurve:
+                                                              Curves.easeInCirc,
+                                                          placeholder:
+                                                              "assets/images/ezgif.com-crop.gif",
+                                                          height: 130,
                                                           width: Get.size.width,
-                                                          margin: EdgeInsets.only(right: 8,left: 8,top: 8,),
-                                                          child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                    15),
-                                                            child: FadeInImage
-                                                                .assetNetwork(
-                                                              fadeInCurve:
-                                                                  Curves.easeInCirc,
-                                                              placeholder:
-                                                                  "assets/images/ezgif.com-crop.gif",
-                                                              height: 130,
-                                                              width: Get.size.width,
-                                                              imageErrorBuilder: (context, error, stackTrace) {
-                                                              return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
-                                                              },
-                                                              image:
-                                                                  "${Config.imageUrl}${homePageController.catWiseInfo?.propertyCat![index].image ?? ""}",
-                                                              fit: BoxFit.cover,
+                                                          imageErrorBuilder:
+                                                              (context, error,
+                                                                  stackTrace) {
+                                                            return Center(
+                                                              child:
+                                                                  Image.asset(
+                                                                "assets/images/emty.gif",
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                                height:
+                                                                    Get.height,
+                                                              ),
+                                                            );
+                                                          },
+                                                          image:
+                                                              "${Config.imageUrl}${homePageController.catWiseInfo?.propertyCat![index].image ?? ""}",
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    homePageController
+                                                                .catWiseInfo
+                                                                ?.propertyCat![
+                                                                    index]
+                                                                .buyorrent ==
+                                                            "1"
+                                                        ? Positioned(
+                                                            top: 15,
+                                                            right: 20,
+                                                            child: Container(
+                                                              height: 30,
+                                                              width: 45,
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Container(
+                                                                    margin: const EdgeInsets
+                                                                        .fromLTRB(
+                                                                        0,
+                                                                        0,
+                                                                        3,
+                                                                        0),
+                                                                    child: Image
+                                                                        .asset(
+                                                                      "assets/images/Rating.png",
+                                                                      height:
+                                                                          15,
+                                                                      width: 15,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    "${homePageController.catWiseInfo?.propertyCat![index].rate ?? ""}",
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontFamily:
+                                                                          FontFamily
+                                                                              .gilroyMedium,
+                                                                      color:
+                                                                          blueColor,
+                                                                    ),
+                                                                  )
+                                                                ],
+                                                              ),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Color(
+                                                                    0xFFedeeef),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15),
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : Positioned(
+                                                            top: 15,
+                                                            right: 20,
+                                                            child: Container(
+                                                              height: 30,
+                                                              width: 60,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: Text(
+                                                                "BUY".tr,
+                                                                style: TextStyle(
+                                                                    color:
+                                                                        blueColor,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600),
+                                                              ),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Color(
+                                                                    0xFFedeeef),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15),
+                                                              ),
                                                             ),
                                                           ),
-                                                        ),
-                                                        homePageController
+                                                  ],
+                                                ),
+                                                Expanded(
+                                                  child: Container(
+                                                    height: 128,
+                                                    width: Get.size.width,
+                                                    margin: EdgeInsets.all(5),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 10),
+                                                          child: Text(
+                                                            homePageController
                                                                     .catWiseInfo
                                                                     ?.propertyCat![
                                                                         index]
-                                                                    .buyorrent ==
-                                                                "1"
-                                                            ? Positioned(
-                                                                top: 15,
-                                                                right: 20,
-                                                                child: Container(
-                                                                  height: 30,
-                                                                  width: 45,
-                                                                  child: Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Container(
-                                                                        margin: const EdgeInsets
-                                                                            .fromLTRB(
-                                                                            0,
-                                                                            0,
-                                                                            3,
-                                                                            0),
-                                                                        child: Image
-                                                                            .asset(
-                                                                          "assets/images/Rating.png",
-                                                                          height: 15,
-                                                                          width: 15,
-                                                                        ),
-                                                                      ),
-                                                                      Text(
-                                                                        "${homePageController.catWiseInfo?.propertyCat![index].rate ?? ""}",
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontFamily:
-                                                                              FontFamily
-                                                                                  .gilroyMedium,
-                                                                          color:
-                                                                              blueColor,
-                                                                        ),
-                                                                      )
-                                                                    ],
-                                                                  ),
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    color: Color(
-                                                                        0xFFedeeef),
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                15),
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            : Positioned(
-                                                                top: 15,
-                                                                right: 20,
-                                                                child: Container(
-                                                                  height: 30,
-                                                                  width: 60,
-                                                                  alignment: Alignment
-                                                                      .center,
-                                                                  child: Text(
-                                                                    "BUY".tr,
-                                                                    style: TextStyle(
-                                                                        color:
-                                                                            blueColor,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w600),
-                                                                  ),
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    color: Color(
-                                                                        0xFFedeeef),
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                15),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                      ],
-                                                    ),
-                                                    Expanded(
-                                                      child: Container(
-                                                        height: 128,
-                                                        width: Get.size.width,
-                                                        margin: EdgeInsets.all(5),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Padding(
-                                                              padding:
-                                                              const EdgeInsets
-                                                                  .only(left: 10),
-                                                              child: Text(
-                                                                homePageController
-                                                                    .catWiseInfo
-                                                                    ?.propertyCat![
-                                                                index]
                                                                     .title ??
-                                                                    "",
-                                                                maxLines: 1,
-                                                                style: TextStyle(
-                                                                  fontSize: 17,
-                                                                  fontFamily:
+                                                                "",
+                                                            maxLines: 1,
+                                                            style: TextStyle(
+                                                              fontSize: 17,
+                                                              fontFamily:
                                                                   FontFamily
                                                                       .gilroyBold,
-                                                                  color: notifire
-                                                                      .getwhiteblackcolor,
-                                                                  overflow:
+                                                              color: notifire
+                                                                  .getwhiteblackcolor,
+                                                              overflow:
                                                                   TextOverflow
                                                                       .ellipsis,
-                                                                ),
-                                                              ),
                                                             ),
-                                                            Padding(
-                                                              padding:
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
                                                               const EdgeInsets
                                                                   .only(
                                                                   left: 10,
                                                                   top: 6),
-                                                              child: Row(
-                                                                children: [
-                                                                  SvgPicture.asset("assets/images/location.svg",height: 16, colorFilter: ColorFilter.mode(notifire.getwhiteblackcolor, BlendMode.srcIn),),
-                                                                  SizedBox(width: 2,),
-                                                                  Flexible(
-                                                                    child: Text(
-                                                                      homePageController
+                                                          child: Row(
+                                                            children: [
+                                                              SvgPicture.asset(
+                                                                "assets/images/location.svg",
+                                                                height: 16,
+                                                                colorFilter: ColorFilter.mode(
+                                                                    notifire
+                                                                        .getwhiteblackcolor,
+                                                                    BlendMode
+                                                                        .srcIn),
+                                                              ),
+                                                              SizedBox(
+                                                                width: 2,
+                                                              ),
+                                                              Flexible(
+                                                                child: Text(
+                                                                  homePageController
                                                                           .catWiseInfo
                                                                           ?.propertyCat![
-                                                                      index]
+                                                                              index]
                                                                           .city ??
-                                                                          "",
-                                                                      maxLines: 1,
-                                                                      style: TextStyle(
-                                                                        color: notifire
-                                                                            .getgreycolor,
-                                                                        fontFamily: FontFamily
+                                                                      "",
+                                                                  maxLines: 1,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: notifire
+                                                                        .getgreycolor,
+                                                                    fontFamily:
+                                                                        FontFamily
                                                                             .gilroyMedium,
-                                                                        overflow:
+                                                                    overflow:
                                                                         TextOverflow
                                                                             .ellipsis,
-                                                                      ),
-                                                                    ),
                                                                   ),
-                                                                ],
+                                                                ),
                                                               ),
-                                                            ),
-                                                            Padding(
-                                                              padding:
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
                                                               const EdgeInsets
-                                                                  .only(left: 10),
-                                                              child: Row(
-                                                                children: [
-                                                                  Padding(
-                                                                    padding:
+                                                                  .only(
+                                                                  left: 10),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding:
                                                                     const EdgeInsets
                                                                         .only(
                                                                         top: 7),
-                                                                    child: Text(
-                                                                      "${currency}${homePageController.catWiseInfo?.propertyCat![index].price ?? ""}",
-                                                                      style:
+                                                                child: Text(
+                                                                  "${currency}${homePageController.catWiseInfo?.propertyCat![index].price ?? ""}",
+                                                                  style:
                                                                       TextStyle(
-                                                                        color: blueColor,
-                                                                        fontFamily:
+                                                                    color:
+                                                                        blueColor,
+                                                                    fontFamily:
                                                                         FontFamily
                                                                             .gilroyBold,
-                                                                        fontSize: 17,
-                                                                      ),
-                                                                    ),
+                                                                    fontSize:
+                                                                        17,
                                                                   ),
-                                                                  homePageController
-                                                                      .catWiseInfo
-                                                                      ?.propertyCat![
-                                                                  index]
-                                                                      .buyorrent ==
-                                                                      "1"
-                                                                      ? Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .only(
-                                                                        left: 3,
-                                                                        top: 7),
-                                                                    child: Text(
-                                                                      "/night"
-                                                                          .tr,
-                                                                      style:
-                                                                      TextStyle(
-                                                                        color: notifire
-                                                                            .getgreycolor,
-                                                                        fontFamily:
-                                                                        FontFamily.gilroyMedium,
-                                                                      ),
-                                                                    ),
-                                                                  )
-                                                                      : Text(""),
-                                                                ],
+                                                                ),
                                                               ),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
+                                                              homePageController
+                                                                          .catWiseInfo
+                                                                          ?.propertyCat![
+                                                                              index]
+                                                                          .buyorrent ==
+                                                                      "1"
+                                                                  ? Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              3,
+                                                                          top:
+                                                                              7),
+                                                                      child:
+                                                                          Text(
+                                                                        "/night"
+                                                                            .tr,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              notifire.getgreycolor,
+                                                                          fontFamily:
+                                                                              FontFamily.gilroyMedium,
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                  : Text(""),
+                                                            ],
+                                                          ),
+                                                        )
+                                                      ],
                                                     ),
-                                                  ],
+                                                  ),
                                                 ),
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      color: notifire.getborderColor),
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  color: notifire.getbgcolor,
-                                                ),
-                                              ),
-                                            );
+                                              ],
+                                            ),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color:
+                                                      notifire.getborderColor),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              color: notifire.getbgcolor,
+                                            ),
+                                          ),
+                                        );
                                       },
                                     ),
-                                )
+                                  )
                                 : Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 14, vertical: 5),
@@ -699,7 +762,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   )
                             : Center(
-                                child: CircularProgressIndicator(color: Darkblue,),
+                                child: CircularProgressIndicator(
+                                  color: Darkblue,
+                                ),
                               )
                       ],
                     )
@@ -707,7 +772,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: Get.height,
                       width: Get.width,
                       child: Center(
-                        child: CircularProgressIndicator(color: Darkblue,),
+                        child: CircularProgressIndicator(
+                          color: Darkblue,
+                        ),
                       ),
                     ),
             );
@@ -760,42 +827,43 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget categoryAndSeeAllWidget(String name, String buttonName) {
     return Row(
-          children: [
-            SizedBox(
-              width: 15,
+      children: [
+        SizedBox(
+          width: 15,
+        ),
+        Text(
+          name,
+          style: TextStyle(
+            fontSize: 17,
+            fontFamily: FontFamily.gilroyBold,
+            color: notifire.getwhiteblackcolor,
+          ),
+        ),
+        Spacer(),
+        TextButton(
+          onPressed: () {
+            if (name == "Featured".tr) {
+              Get.toNamed(Routes.featuredScreen);
+            }
+            if (name == "Our Recommendation".tr) {
+              Get.toNamed(Routes.ourRecommendationScreen);
+              homePageController.getCatWiseData(
+                  cId: "0", countryId: getData.read("countryId"));
+            }
+          },
+          child: Text(
+            buttonName,
+            style: TextStyle(
+              color: Darkblue,
+              fontFamily: FontFamily.gilroyBold,
             ),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 17,
-                fontFamily: FontFamily.gilroyBold,
-                color: notifire.getwhiteblackcolor,
-              ),
-            ),
-            Spacer(),
-            TextButton(
-              onPressed: () {
-                if (name == "Featured".tr) {
-                  Get.toNamed(Routes.featuredScreen);
-                }
-                if (name == "Our Recommendation".tr) {
-                    Get.toNamed(Routes.ourRecommendationScreen);
-                    homePageController.getCatWiseData(cId: "0",countryId: getData.read("countryId"));
-                }
-              },
-              child: Text(
-                buttonName,
-                style: TextStyle(
-                  color: Darkblue,
-                  fontFamily: FontFamily.gilroyBold,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-          ],
-        );
+          ),
+        ),
+        SizedBox(
+          width: 10,
+        ),
+      ],
+    );
   }
 
   Widget listFeatured() {
@@ -811,19 +879,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 physics: BouncingScrollPhysics(),
                 itemBuilder: (context, index1) {
-                  currency = homePageController.homeDatatInfo?.homeData!.currency ?? "";
+                  currency =
+                      homePageController.homeDatatInfo?.homeData!.currency ??
+                          "";
                   return InkWell(
                     onTap: () async {
                       setState(() {
-                      Get.toNamed(
-                        Routes.viewDataScreen,
-                        arguments: {
-                          "id" : homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].id
-                        }
-                      );
-                        homePageController.rate = homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].rate ?? "";
+                        Get.toNamed(Routes.viewDataScreen, arguments: {
+                          "id": homePageController.homeDatatInfo?.homeData!
+                              .featuredProperty![index1].id
+                        });
+                        homePageController.rate = homePageController
+                                .homeDatatInfo
+                                ?.homeData!
+                                .featuredProperty![index1]
+                                .rate ??
+                            "";
                       });
-                      print("IDDD ? >> >>> >>> >>> > ${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].id}");
+                      print(
+                          "IDDD ? >> >>> >>> >>> > ${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].id}");
                       homePageController.chnageObjectIndex(index1);
                     },
                     child: Container(
@@ -845,8 +919,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 placeholderCacheHeight: 320,
                                 placeholderCacheWidth: 240,
                                 placeholderFit: BoxFit.fill,
-                                imageErrorBuilder: (context, error, stackTrace) {
-                                return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                                imageErrorBuilder:
+                                    (context, error, stackTrace) {
+                                  return Center(
+                                    child: Image.asset(
+                                      "assets/images/emty.gif",
+                                      fit: BoxFit.cover,
+                                      height: Get.height,
+                                    ),
+                                  );
                                 },
                                 image:
                                     "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].image ?? ""}",
@@ -867,7 +948,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].buyorrent ==
+                            homePageController.homeDatatInfo?.homeData!
+                                        .featuredProperty![index1].buyorrent ==
                                     "1"
                                 ? Positioned(
                                     top: 15,
@@ -940,8 +1022,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Text(
                                         homePageController
                                                 .homeDatatInfo
-                                                ?.homeData
-                                                !.featuredProperty![index1]
+                                                ?.homeData!
+                                                .featuredProperty![index1]
                                                 .title ??
                                             "",
                                         maxLines: 1,
@@ -957,22 +1039,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                       padding: const EdgeInsets.only(
                                           left: 9, top: 8),
                                       child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
-                                          SvgPicture.asset("assets/images/location.svg",height: 15, colorFilter: ColorFilter.mode(WhiteColor, BlendMode.srcIn),),
+                                          SvgPicture.asset(
+                                            "assets/images/location.svg",
+                                            height: 15,
+                                            colorFilter: ColorFilter.mode(
+                                                WhiteColor, BlendMode.srcIn),
+                                          ),
                                           SizedBox(width: 2),
                                           Flexible(
                                             child: Text(
                                               homePageController
                                                       .homeDatatInfo
-                                                      ?.homeData
-                                                      !.featuredProperty![index1]
+                                                      ?.homeData!
+                                                      .featuredProperty![index1]
                                                       .city ??
                                                   "",
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
-                                                fontFamily: FontFamily.gilroyMedium,
+                                                fontFamily:
+                                                    FontFamily.gilroyMedium,
                                                 color: WhiteColor,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -982,7 +1071,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.only(left: 12, top: 11),
+                                      padding:
+                                          EdgeInsets.only(left: 12, top: 11),
                                       child: SizedBox(
                                         height: 13,
                                         child: ListView.builder(
@@ -991,15 +1081,59 @@ class _HomeScreenState extends State<HomeScreen> {
                                           itemBuilder: (context, index) {
                                             return Row(
                                               children: [
-                                                SvgPicture.asset(facilities[index],height: 12,),
-                                                SizedBox(width: 5,),
-                                                index == 0 ? Text("${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].beds} Beds", style: TextStyle(fontFamily: FontFamily.gilroyMedium, color: WhiteColor, overflow: TextOverflow.ellipsis,fontSize: 12),)
-                                                    : index == 1 ? Text("${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].bathroom} Bath", style: TextStyle(fontFamily: FontFamily.gilroyMedium, color: WhiteColor, overflow: TextOverflow.ellipsis,fontSize: 12),)
-                                                    : Text("${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].sqrft} Sqft", style: TextStyle(fontFamily: FontFamily.gilroyMedium, color: WhiteColor, overflow: TextOverflow.ellipsis,fontSize: 12),),
-                                                   SizedBox(width: 8,),
+                                                SvgPicture.asset(
+                                                  facilities[index],
+                                                  height: 12,
+                                                ),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                index == 0
+                                                    ? Text(
+                                                        "${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].beds} Beds",
+                                                        style: TextStyle(
+                                                            fontFamily: FontFamily
+                                                                .gilroyMedium,
+                                                            color: WhiteColor,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            fontSize: 12),
+                                                      )
+                                                    : index == 1
+                                                        ? Text(
+                                                            "${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].bathroom} Bath",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    FontFamily
+                                                                        .gilroyMedium,
+                                                                color:
+                                                                    WhiteColor,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                fontSize: 12),
+                                                          )
+                                                        : Text(
+                                                            "${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].sqrft} Sqft",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    FontFamily
+                                                                        .gilroyMedium,
+                                                                color:
+                                                                    WhiteColor,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                fontSize: 12),
+                                                          ),
+                                                SizedBox(
+                                                  width: 8,
+                                                ),
                                               ],
                                             );
-                                        },),
+                                          },
+                                        ),
                                       ),
                                     ),
                                     Row(
@@ -1020,8 +1154,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         homePageController
                                                     .homeDatatInfo
-                                                    ?.homeData
-                                                    !.featuredProperty![index1]
+                                                    ?.homeData!
+                                                    .featuredProperty![index1]
                                                     .buyorrent ==
                                                 "1"
                                             ? Padding(
@@ -1127,15 +1261,14 @@ Future<void> initializeNotifications() async {
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
 
-  final DarwinInitializationSettings initializationSettingsIos = DarwinInitializationSettings();
+  final DarwinInitializationSettings initializationSettingsIos =
+      DarwinInitializationSettings();
 
-
-  final InitializationSettings initializationSettings =
-      InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIos);
+  final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid, iOS: initializationSettingsIos);
 
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
-
     onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
   );
 
@@ -1145,38 +1278,37 @@ Future<void> initializeNotifications() async {
   );
 }
 
-Future<void> onDidReceiveNotificationResponse(NotificationResponse response) async {
+Future<void> onDidReceiveNotificationResponse(
+    NotificationResponse response) async {
   // Handle the notification response. You can access the payload via response.payload.
   String? payload = response.payload;
-  if(payload != null){
+  if (payload != null) {
     Map data = jsonDecode(payload);
-    Get.to(
-        ChatPage(
-          proPic: data["propic"],
-          resiverUserId: data["id"],
-          resiverUseremail: data["name"],
-        ));
+    Get.to(ChatPage(
+      proPic: data["propic"],
+      resiverUserId: data["id"],
+      resiverUseremail: data["name"],
+    ));
   }
   // Implement your logic based on the notification response here.
 }
 
 Future<void> onDidReceiveLocalNotification(
     int id, String? title, String? body, String? payload) async {
-  if(payload != null){
+  if (payload != null) {
     Map data = jsonDecode(payload);
-    Get.to(
-        ChatPage(
-          proPic: data["propic"],
-          resiverUserId: data["id"],
-          resiverUseremail: data["name"],
-        ));
+    Get.to(ChatPage(
+      proPic: data["propic"],
+      resiverUserId: data["id"],
+      resiverUseremail: data["name"],
+    ));
   }
 }
 
 void handleFCMNavigation() async {
   // Case: App terminated
   RemoteMessage? initialMessage =
-  await FirebaseMessaging.instance.getInitialMessage();
+      await FirebaseMessaging.instance.getInitialMessage();
   if (initialMessage != null) {
     navigateToChat(initialMessage);
   }
@@ -1193,10 +1325,10 @@ void navigateToChat(RemoteMessage message) {
   // Ensure required keys exist
   if (data.containsKey("id") && data.containsKey("name")) {
     Get.to(() => ChatPage(
-      proPic: data["propic"],
-      resiverUserId: data["id"],
-      resiverUseremail: data["name"],
-    ));
+          proPic: data["propic"],
+          resiverUserId: data["id"],
+          resiverUseremail: data["name"],
+        ));
   }
 }
 
@@ -1215,7 +1347,6 @@ void loadFCM() async {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
-
 
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(

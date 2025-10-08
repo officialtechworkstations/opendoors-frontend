@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:opendoors/Api/data_store.dart';
@@ -37,7 +39,7 @@ class ChatServices extends ChangeNotifier {
     ids.sort();
     String chatRoomId = ids.join("_");
 
-    print("chatRoomID $chatRoomId");
+    // log("chatRoomID $chatRoomId");
     return _firebaseStorage
         .collection("opendoors_chats")
         .doc(chatRoomId)

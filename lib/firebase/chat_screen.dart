@@ -1,18 +1,24 @@
-// ignore_for_file: avoid_print, prefer_typing_uninitialized_variables
+// ignore_for_file: avoid_print, prefer_typing_uninitialized_variables, deprecated_member_use
 
 import 'dart:convert';
+import 'dart:ui';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
 import 'package:opendoors/firebase/chat_bubble.dart';
+import 'package:opendoors/firebase/chat_filter_service.dart';
 import 'package:opendoors/firebase/chat_service.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -35,6 +41,8 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  HomePageController homePageController = Get.find();
+
   TextEditingController controller = TextEditingController();
 
   ChatServices chatservices = ChatServices();
@@ -42,8 +50,26 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _controller =
       ScrollController(initialScrollOffset: 50.0);
 
+  bool _showNotice = true; // true → banner is visible
+  String chatNotice = "";
+
   void sendMessage() async {
-    CollectionReference collectionReference = FirebaseFirestore.instance.collection('opendoors_users');
+    if (controller.text.isNotEmpty) {
+      // filter message with contact details======================
+      FilterResult result = ContactInfoFilter.filterMessage(controller.text);
+
+      if (result.blocked) {
+        // log("BLOCKED: ${result.blocked.toString()}");
+        // log(result.reason.toString());
+        // log(result.suggestion.toString());
+        showToastMessage("${result.reason}\n\n ${result.suggestion}");
+        return;
+      }
+      // filter message with contact details======================
+    }
+
+    CollectionReference collectionReference =
+        FirebaseFirestore.instance.collection('opendoors_users');
 
     print("AFA <F ${widget.resiverUserId}");
     if (controller.text.isNotEmpty) {
@@ -54,7 +80,8 @@ class _ChatPageState extends State<ChatPage> {
         fields = value.data();
 
         if (fields["isOnline"] == false) {
-          sendPushMessage(controller.text, getData.read("UserLogin")["name"], fmctoken);
+          sendPushMessage(
+              controller.text, getData.read("UserLogin")["name"], fmctoken);
         } else {
           print("user online");
         }
@@ -71,7 +98,8 @@ class _ChatPageState extends State<ChatPage> {
 
   String fmctoken = "";
   Future<dynamic> isMeassageAvalable(String uid) async {
-    CollectionReference collectionReference = FirebaseFirestore.instance.collection('opendoors_users');
+    CollectionReference collectionReference =
+        FirebaseFirestore.instance.collection('opendoors_users');
     collectionReference.doc(uid).get().then((value) {
       var fields;
       fields = value.data();
@@ -87,11 +115,21 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
+    setNotice();
     isMeassageAvalable(widget.resiverUserId);
+
     if (getData.read("UserLogin")["id"] == null) {
     } else {
       isUserOnlie(getData.read("UserLogin")["id"], true);
     }
+  }
+
+  void setNotice() async {
+    await homePageController.getChatNoApi().then((onValue) {
+      // log(homePageController.chatNotice.toString());
+      chatNotice = homePageController.chatNotice.toString();
+      setState(() {});
+    });
   }
 
   @override
@@ -114,6 +152,7 @@ class _ChatPageState extends State<ChatPage> {
       appBar: appbar(),
       body: Column(
         children: [
+          if (_showNotice) _buildWarningPopup(),
           Expanded(child: _buildMessageList()),
           _buildMessageInpurt(),
         ],
@@ -156,16 +195,15 @@ class _ChatPageState extends State<ChatPage> {
                           radius: 20,
                           backgroundImage: AssetImage(
                             "assets/images/profile-default.png",
-                          )) : CircleAvatar(
+                          ))
+                      : CircleAvatar(
                           radius: 20,
                           backgroundColor: Colors.transparent,
                           backgroundImage: NetworkImage(
                               "${Config.imageUrl}${widget.proPic}")),
-                 
                   const SizedBox(
                     width: 10,
                   ),
-                 
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -197,6 +235,72 @@ class _ChatPageState extends State<ChatPage> {
             }
           }),
     );
+  }
+
+  Widget _buildWarningPopup() {
+    return Padding(
+      // push it down a little from the app-bar
+      padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+      child: Stack(
+        children: [
+          // glass card
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5FE), // new card colour
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.campaign_outlined,
+                        color: Color(0xFF1E2329), size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        chatNotice.isNotEmpty
+                            ? chatNotice
+                            : 'Important: Keep all communication & bookings inside the app. '
+                                'Sharing personal contact details is not allowed.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: const Color(0xFF1E2329),
+                              fontSize: 13.5,
+                              height: 1.3,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // floating close button
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: () => setState(() => _showNotice = false),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFD0D9F0), // new close-button colour
+                  shape: BoxShape.circle,
+                ),
+                child:
+                    const Icon(Icons.close, size: 16, color: Color(0xFF1E2329)),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+    // --------------------------------------
   }
 
   Widget _buildMessageList() {
@@ -281,7 +385,7 @@ class _ChatPageState extends State<ChatPage> {
               controller: controller,
               style: TextStyle(
                 fontSize: 16,
-                color:  notifire.getwhiteblackcolor,
+                color: notifire.getwhiteblackcolor,
                 fontFamily: FontFamily.gilroyMedium,
               ),
               decoration: InputDecoration(
@@ -358,11 +462,11 @@ class _ChatPageState extends State<ChatPage> {
       print("Error push notificatioDDn: $e");
     }
   }
-
 }
 
 void requestPermission() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+  // log(messaging.toString());
 
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,

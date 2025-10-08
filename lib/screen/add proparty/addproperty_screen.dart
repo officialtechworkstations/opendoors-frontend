@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables, non_constant_identifier_names, unused_element, prefer_typing_uninitialized_variables, prefer_interpolation_to_compose_strings, avoid_print, deprecated_member_use, unused_field
 
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
@@ -53,7 +54,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
-    if(slectStatus == "Rent"){
+    if (slectStatus == "Rent") {
       addPropertiesController.pbuySell = "1";
     }
     if (previusstate == null) {
@@ -80,6 +81,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         addPropertiesController.pAddress.text =
             addPropertiesController.eAddress;
         addPropertiesController.pPrice.text = addPropertiesController.ePrice;
+        addPropertiesController.pPartyCost.text =
+            addPropertiesController.eparty_cost;
+        addPropertiesController.pCaution.text =
+            addPropertiesController.ecaution_fee;
+
         addPropertiesController.propertyAddress.text =
             addPropertiesController.ePropertyAddress;
         addPropertiesController.totalBeds.text =
@@ -133,7 +139,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             color: notifire.getwhiteblackcolor,
           ),
         ),
-         backgroundColor: notifire.getblackwhitecolor,
+        backgroundColor: notifire.getblackwhitecolor,
         elevation: 0,
         title: Text(
           "Add Property".tr,
@@ -240,6 +246,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                           height: 8,
                         ),
                         GetBuilder<AddPropertiesController>(builder: (context) {
+                          // log(selectCountryController.countryList.toString());
+                          // log(selectCountry.toString());
                           return Container(
                             height: 60,
                             width: Get.size.width,
@@ -263,7 +271,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               ),
                               isExpanded: true,
                               underline: SizedBox.shrink(),
-                              items: selectCountryController.countryList
+                              items: selectCountryController
+                                  .countryList //<String>[]
                                   .map<DropdownMenuItem<String>>(
                                       (String value) {
                                 return DropdownMenuItem<String>(
@@ -693,6 +702,171 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         SizedBox(
                           height: 10,
                         ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15),
+                          child: Text(
+                            "Party Allowed?",
+                            style: TextStyle(
+                              fontFamily: FontFamily.gilroyBold,
+                              fontSize: 16,
+                              color: notifire.getwhiteblackcolor,
+                            ),
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Transform.scale(
+                                  scale: 1,
+                                  child: Checkbox(
+                                    value:
+                                        addPropertiesController.party_allowed,
+                                    side: const BorderSide(
+                                        color: Color(0xffC5CAD4)),
+                                    activeColor: blueColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    onChanged: (value) {
+                                      addPropertiesController.party_allowed =
+                                          value!;
+                                      if (value == false) {
+                                        addPropertiesController.pPartyCost
+                                            .clear();
+                                      }
+                                      setState(() {});
+                                    },
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    if (addPropertiesController.party_allowed) {
+                                      addPropertiesController.pPartyCost
+                                          .clear();
+                                    }
+                                    addPropertiesController.party_allowed =
+                                        !addPropertiesController.party_allowed;
+
+                                    setState(() {});
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Party is Allowed",
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.gilroyMedium,
+                                          fontSize: 17,
+                                          color: notifire.getwhiteblackcolor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (addPropertiesController.party_allowed)
+                              textfield(
+                                type: "Party Cost",
+                                controller: addPropertiesController.pPartyCost,
+                                labelText: "Party cost",
+                                textInputType: TextInputType.number,
+                                // validator: (value) {
+                                //   if (value == null || value.isEmpty) {
+                                //     return 'Please Enter Property Price';
+                                //   }
+                                //   return null;
+                                // },
+                              ),
+                            textfield(
+                              type: "Caution Fee",
+                              controller: addPropertiesController.pCaution,
+                              labelText: "Caution fee",
+                              textInputType: TextInputType.number,
+                              // validator: (value) {
+                              //   if (value == null || value.isEmpty) {
+                              //     return 'Please Enter Property Price';
+                              //   }
+                              //   return null;
+                              // },
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            // Padding(
+                            //   padding: const EdgeInsets.only(left: 15),
+                            //   child: Text(
+                            //     "Caution Fee Setting",
+                            //     style: TextStyle(
+                            //       fontFamily: FontFamily.gilroyBold,
+                            //       fontSize: 16,
+                            //       color: notifire.getwhiteblackcolor,
+                            //     ),
+                            //   ),
+                            // ),
+                            // Row(
+                            //   children: [
+                            //     SizedBox(
+                            //       width: 10,
+                            //     ),
+                            //     Transform.scale(
+                            //       scale: 1,
+                            //       child: Checkbox(
+                            //         value: addPropertiesController
+                            //             .caution_fee_setting,
+                            //         side: const BorderSide(
+                            //             color: Color(0xffC5CAD4)),
+                            //         activeColor: blueColor,
+                            //         shape: RoundedRectangleBorder(
+                            //           borderRadius: BorderRadius.circular(5),
+                            //         ),
+                            //         onChanged: (value) {
+                            //           addPropertiesController
+                            //               .caution_fee_setting = value!;
+
+                            //           setState(() {});
+                            //         },
+                            //       ),
+                            //     ),
+                            //     GestureDetector(
+                            //       onTap: () {
+                            //         addPropertiesController
+                            //                 .caution_fee_setting =
+                            //             !addPropertiesController
+                            //                 .caution_fee_setting;
+
+                            //         setState(() {});
+                            //       },
+                            //       child: Row(
+                            //         children: [
+                            //           Text(
+                            //             "On",
+                            //             style: TextStyle(
+                            //               fontFamily: FontFamily.gilroyMedium,
+                            //               fontSize: 17,
+                            //               color: notifire.getwhiteblackcolor,
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
+                            // SizedBox(
+                            //   height: 10,
+                            // ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         GetBuilder<AddPropertiesController>(builder: (context) {
                           return Row(
                             children: [
@@ -995,7 +1169,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                                 onclick: () {
-                                  if (_formKey.currentState?.validate() ?? false) {
+                                  if (_formKey.currentState?.validate() ??
+                                      false) {
                                     if (selectCountry != null) {
                                       if (selectProperty != null) {
                                         if (addPropertiesController
@@ -1018,7 +1193,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                                     .editPropertyApi();
                                               }
                                             } else {
-                                              showToastMessage("Please Upload Image".tr);
+                                              showToastMessage(
+                                                  "Please Upload Image".tr);
                                             }
                                           } else {
                                             showToastMessage(

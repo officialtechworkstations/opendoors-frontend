@@ -7,7 +7,24 @@ import 'dart:convert';
 SearchInfo searchInfoFromJson(String str) =>
     SearchInfo.fromJson(json.decode(str));
 
+SearchInfoModel searchIFromJson(String str) =>
+    SearchInfoModel.fromJsonMap(json.decode(str));
+
 String searchInfoToJson(SearchInfo data) => json.encode(data.toJson());
+
+class SearchInfoModel {
+  List<SearchInfo>? searchInfos;
+
+  SearchInfoModel({required this.searchInfos});
+
+  factory SearchInfoModel.fromJsonMap(Map<String, dynamic> json) {
+    return SearchInfoModel(
+        searchInfos: json["search_propety"] == null
+            ? []
+            : List<SearchInfo>.from(
+                json["search_propety"]!.map((x) => SearchInfo.fromJson(x))));
+  }
+}
 
 class SearchInfo {
   SearchInfo({

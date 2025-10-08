@@ -64,6 +64,7 @@ class SignUpController extends GetxController implements GetxService {
     if (response.statusCode == 200) {
       var smsdecode = jsonDecode(response.body);
       update();
+      print(response.body.toString());
       print(
           " SMS CODE TYPE >>>>>>>>>>>>>> : : : : : :${smsdecode["SMS_TYPE"]}");
       return smsdecode;
@@ -189,7 +190,7 @@ class SignUpController extends GetxController implements GetxService {
       "password": password.text
     };
     log('-----------------------------------');
-    log(map.toString());
+    // log(map.toString());
     log('-----------------------------------');
 
     Uri uri = Uri.parse(Config.path + Config.registerUser);

@@ -257,7 +257,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ],
                           controller: signUpController.number,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          initialCountryCode: "IN",
+                          initialCountryCode: "NG", //"IN",
                           dropdownIcon: Icon(
                             Icons.arrow_drop_down,
                             color: notifire.getgreycolor,

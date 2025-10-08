@@ -22,11 +22,11 @@ import 'helpar/get_di.dart' as di;
 
 void main() async {
   await dotenv.load(fileName: ".env");
-  requestPermission();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  requestPermission();
   handleFCMNavigation();
   await Permission.phone.request();
   await requestStoragePermission();

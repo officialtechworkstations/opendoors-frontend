@@ -77,7 +77,8 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
       ),
       body: GetBuilder<BookingDetailsController>(builder: (context) {
         String bID =
-        (bookingDetailsController.bookDetailsInfo?.bookdetails!.bookId ?? "");
+            (bookingDetailsController.bookDetailsInfo?.bookdetails!.bookId ??
+                "");
         String bDate =
             ("${bookingDetailsController.bookDetailsInfo?.bookdetails!.bookDate ?? ""}")
                 .split(" ")
@@ -367,8 +368,10 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                             ),
                             SizedBox(
                               height: bookingDetailsController.bookDetailsInfo
-                                  ?.bookdetails!.couAmt ==
-                                  "0" ? 0 : 20,
+                                          ?.bookdetails!.couAmt ==
+                                      "0"
+                                  ? 0
+                                  : 20,
                             ),
                             Visibility(
                               visible: bookingDetailsController.bookDetailsInfo
@@ -411,8 +414,10 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                             // ),
                             SizedBox(
                               height: bookingDetailsController.bookDetailsInfo
-                                  ?.bookdetails!.wallAmt ==
-                                  "0" ? 0 : 20,
+                                          ?.bookdetails!.wallAmt ==
+                                      "0"
+                                  ? 0
+                                  : 20,
                             ),
                             Row(
                               children: [
@@ -458,9 +463,7 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                         child: Column(
                           children: [
                             Row(
-                              children: [
-
-                              ],
+                              children: [],
                             ),
                           ],
                         ),
@@ -620,8 +623,8 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                         child: Text(
                                           bookingDetailsController
                                                   .bookDetailsInfo
-                                                  ?.bookdetails
-                                                  !.transactionId ??
+                                                  ?.bookdetails!
+                                                  .transactionId ??
                                               "",
                                           maxLines: 2,
                                           style: TextStyle(
@@ -638,8 +641,8 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                             new ClipboardData(
                                               text: bookingDetailsController
                                                       .bookDetailsInfo
-                                                      ?.bookdetails
-                                                      !.transactionId ??
+                                                      ?.bookdetails!
+                                                      .transactionId ??
                                                   "",
                                             ),
                                           );
@@ -660,8 +663,10 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                 : SizedBox(),
                             SizedBox(
                               height: bookingDetailsController.bookDetailsInfo
-                                  ?.bookdetails!.transactionId !=
-                                  "0" ? 20 : 0,
+                                          ?.bookdetails!.transactionId !=
+                                      "0"
+                                  ? 20
+                                  : 0,
                             ),
                             Row(
                               children: [
@@ -683,8 +688,8 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                                 "2" ||
                                             bookingDetailsController
                                                     .bookDetailsInfo
-                                                    ?.bookdetails
-                                                    !.bookStatus !=
+                                                    ?.bookdetails!
+                                                    .bookStatus !=
                                                 "Cancelled"
                                         ? Container(
                                             height: 30,
@@ -809,57 +814,79 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                             SizedBox(
                               height: 20,
                             ),
-                            bookingDetailsController.bookDetailsInfo?.bookdetails!.checkIntime != null
+                            bookingDetailsController.bookDetailsInfo
+                                        ?.bookdetails!.checkIntime !=
+                                    null
                                 ? Row(
-                              children: [
-                                SizedBox(width: 20),
-                                Text("Check In Time",style: TextStyle(
-                                  fontFamily: FontFamily.gilroyMedium,
-                                  fontSize: 15,
-                                  color: notifire.getwhiteblackcolor,
-                                ),
-                                ),
-                                Spacer(),
-                                Text(bookingDetailsController.bookDetailsInfo
-                                    ?.bookdetails!.checkIntime ??
-                                    "",style: TextStyle(
-                                  fontFamily: FontFamily.gilroyBold,
-                                  fontSize: 15,
-                                  color: notifire.getwhiteblackcolor,
-                                  overflow: TextOverflow.ellipsis,
-                                ),),
-                                SizedBox(width: 20),
-                              ],
-                            )
+                                    children: [
+                                      SizedBox(width: 20),
+                                      Text(
+                                        "Check In Time",
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.gilroyMedium,
+                                          fontSize: 15,
+                                          color: notifire.getwhiteblackcolor,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Text(
+                                        bookingDetailsController.bookDetailsInfo
+                                                ?.bookdetails!.checkIntime ??
+                                            "",
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.gilroyBold,
+                                          fontSize: 15,
+                                          color: notifire.getwhiteblackcolor,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      SizedBox(width: 20),
+                                    ],
+                                  )
                                 : SizedBox(),
                             SizedBox(
-                              height: bookingDetailsController.bookDetailsInfo?.bookdetails!.checkIntime != null ? 20 : 0,
+                              height: bookingDetailsController.bookDetailsInfo
+                                          ?.bookdetails!.checkIntime !=
+                                      null
+                                  ? 20
+                                  : 0,
                             ),
-                            bookingDetailsController.bookDetailsInfo?.bookdetails!.checkOuttime != null
+                            bookingDetailsController.bookDetailsInfo
+                                        ?.bookdetails!.checkOuttime !=
+                                    null
                                 ? Row(
-                              children: [
-                                SizedBox(width: 20),
-                                Text("Check Out Time",style: TextStyle(
-                                  fontFamily: FontFamily.gilroyMedium,
-                                  fontSize: 15,
-                                  color: notifire.getwhiteblackcolor,
-                                ),
-                                ),
-                                Spacer(),
-                                Text(bookingDetailsController.bookDetailsInfo
-                                    ?.bookdetails!.checkOuttime ??
-                                    "",style: TextStyle(
-                                  fontFamily: FontFamily.gilroyBold,
-                                  fontSize: 15,
-                                  color: notifire.getwhiteblackcolor,
-                                  overflow: TextOverflow.ellipsis,
-                                ),),
-                                SizedBox(width: 20),
-                              ],
-                            )
+                                    children: [
+                                      SizedBox(width: 20),
+                                      Text(
+                                        "Check Out Time",
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.gilroyMedium,
+                                          fontSize: 15,
+                                          color: notifire.getwhiteblackcolor,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Text(
+                                        bookingDetailsController.bookDetailsInfo
+                                                ?.bookdetails!.checkOuttime ??
+                                            "",
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.gilroyBold,
+                                          fontSize: 15,
+                                          color: notifire.getwhiteblackcolor,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      SizedBox(width: 20),
+                                    ],
+                                  )
                                 : SizedBox(),
                             SizedBox(
-                              height: bookingDetailsController.bookDetailsInfo?.bookdetails!.checkOuttime != null ? 20 : 0,
+                              height: bookingDetailsController.bookDetailsInfo
+                                          ?.bookdetails!.checkOuttime !=
+                                      null
+                                  ? 20
+                                  : 0,
                             ),
                           ],
                         ),
@@ -871,37 +898,43 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                       SizedBox(
                         height: 20,
                       ),
-                      bookingDetailsController.bookDetailsInfo?.bookdetails!.addNote == "" ? SizedBox() : Container(
-                        width: double.infinity,
-                        margin: EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: notifire.getblackwhitecolor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Note:",
-                                style: TextStyle(
-                                  fontFamily: FontFamily.gilroyBold,
-                                  fontSize: 18,
-                                  color: notifire.getwhiteblackcolor,
+                      bookingDetailsController
+                                  .bookDetailsInfo?.bookdetails!.addNote ==
+                              ""
+                          ? SizedBox()
+                          : Container(
+                              width: double.infinity,
+                              margin: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: notifire.getblackwhitecolor,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Note:",
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.gilroyBold,
+                                        fontSize: 18,
+                                        color: notifire.getwhiteblackcolor,
+                                      ),
+                                    ),
+                                    SizedBox(height: 3),
+                                    Text(
+                                      "${bookingDetailsController.bookDetailsInfo?.bookdetails!.addNote}",
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.gilroyMedium,
+                                        fontSize: 15,
+                                        color: notifire.getwhiteblackcolor,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              SizedBox(height: 3),
-                              Text("${bookingDetailsController.bookDetailsInfo?.bookdetails!.addNote}",
-                                style: TextStyle(
-                                  fontFamily: FontFamily.gilroyMedium,
-                                  fontSize: 15,
-                                  color: notifire.getwhiteblackcolor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                            ),
                       SizedBox(
                         height: 10,
                       ),
@@ -938,7 +971,9 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                 ),
               )
             : Center(
-                child: CircularProgressIndicator(color: Darkblue,),
+                child: CircularProgressIndicator(
+                  color: Darkblue,
+                ),
               );
       }),
     );
@@ -1055,11 +1090,10 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                     ),
                     contentPadding: EdgeInsets.all(10),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(
-                        color: notifire.getborderColor,
-                      )
-                    ),
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(
+                          color: notifire.getborderColor,
+                        )),
                     border: InputBorder.none,
                     hintText: "Your review here...",
                     hintStyle: TextStyle(

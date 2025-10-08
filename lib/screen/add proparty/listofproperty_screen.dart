@@ -1,5 +1,7 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_brace_in_string_interps, prefer_interpolation_to_compose_strings, avoid_print
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
@@ -21,7 +23,8 @@ class ListOfPropertyScreen extends StatefulWidget {
 }
 
 class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
-  ListOfPropertiController listOfPropertiController = Get.put(ListOfPropertiController());
+  ListOfPropertiController listOfPropertiController =
+      Get.put(ListOfPropertiController());
   AddPropertiesController addPropertiesController = Get.find();
   late ColorNotifire notifire;
   getdarkmodepreviousstate() async {
@@ -104,7 +107,7 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                       ? listOfPropertiController
                               .propListInfo!.proplist!.isNotEmpty
                           ? ListView.builder(
-                    padding: EdgeInsets.only(top: 10),
+                              padding: EdgeInsets.only(top: 10),
                               itemCount: listOfPropertiController
                                   .propListInfo?.proplist!.length,
                               physics: BouncingScrollPhysics(),
@@ -117,53 +120,108 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                 return InkWell(
                                   onTap: () {
                                     addPropertiesController.getEditDetails(
-                                        eTitle1: listOfPropertiController
-                                            .propListInfo
-                                            ?.proplist![index]
-                                            .title,
-                                        eNumber1: listOfPropertiController
-                                            .propListInfo
-                                            ?.proplist![index]
-                                            .mobile,
-                                        eAddress1: listOfPropertiController
-                                            .propListInfo
-                                            ?.proplist![index]
-                                            .address,
-                                        ePrice1: listOfPropertiController
-                                            .propListInfo
-                                            ?.proplist![index]
-                                            .price,
-                                        ePropertyAddress1: listOfPropertiController
-                                            .propListInfo
-                                            ?.proplist![index]
-                                            .description,
-                                        eTotalBeds1: listOfPropertiController
-                                            .propListInfo?.proplist![index].beds,
-                                        eTotalBathroom1: listOfPropertiController
-                                            .propListInfo
-                                            ?.proplist![index]
-                                            .bathroom,
-                                        eSqft1: listOfPropertiController
-                                            .propListInfo
-                                            ?.proplist![index]
-                                            .sqrft,
-                                        eRating1: listOfPropertiController.propListInfo?.proplist![index].rate,
-                                        eCityAndCountry1: listOfPropertiController.propListInfo?.proplist![index].city,
-                                        lat1: listOfPropertiController.propListInfo?.proplist![index].latitude,
-                                        long1: listOfPropertiController.propListInfo?.proplist![index].longtitude,
-                                        propId1: listOfPropertiController.propListInfo?.proplist![index].id,
-                                        eImage1: listOfPropertiController.propListInfo?.proplist![index].image,
-                                        eGest1: listOfPropertiController.propListInfo?.proplist![index].plimit ?? "",
-                                        ebuyorRent: listOfPropertiController.propListInfo?.proplist![index].buyorrent ?? "",
-                                        isShell: listOfPropertiController.propListInfo?.proplist![index].isSell ?? "0",
-                                        id: listOfPropertiController.propListInfo?.proplist![index].id ?? "",
-                                        facelity1: listOfPropertiController.propListInfo?.proplist![index].facilitySelect ?? "",
-                                        pID: listOfPropertiController.propListInfo?.proplist![index].propertyTypeId ?? "",
-                                        proName1: listOfPropertiController.propListInfo?.proplist![index].propertyType ?? "",
-                                        countryId1: listOfPropertiController.propListInfo?.proplist![index].countryId ?? "",
-                                        countryName1: listOfPropertiController.propListInfo?.proplist![index].countryTitle ?? "");
-                                    print("========------->> ${listOfPropertiController.propListInfo!.proplist![index].propertyType}");
-                                    print("========------->> ${listOfPropertiController.propListInfo!.proplist![index].propertyTypeId}");
+                                      eTitle1: listOfPropertiController
+                                          .propListInfo?.proplist![index].title,
+                                      eNumber1: listOfPropertiController
+                                          .propListInfo
+                                          ?.proplist![index]
+                                          .mobile,
+                                      eAddress1: listOfPropertiController
+                                          .propListInfo
+                                          ?.proplist![index]
+                                          .address,
+                                      ePrice1: listOfPropertiController
+                                          .propListInfo?.proplist![index].price,
+                                      ePropertyAddress1:
+                                          listOfPropertiController.propListInfo
+                                              ?.proplist![index].description,
+                                      eTotalBeds1: listOfPropertiController
+                                          .propListInfo?.proplist![index].beds,
+                                      eTotalBathroom1: listOfPropertiController
+                                          .propListInfo
+                                          ?.proplist![index]
+                                          .bathroom,
+                                      eSqft1: listOfPropertiController
+                                          .propListInfo?.proplist![index].sqrft,
+                                      eRating1: listOfPropertiController
+                                          .propListInfo?.proplist![index].rate,
+                                      eCityAndCountry1: listOfPropertiController
+                                          .propListInfo?.proplist![index].city,
+                                      lat1: listOfPropertiController
+                                          .propListInfo
+                                          ?.proplist![index]
+                                          .latitude,
+                                      long1: listOfPropertiController
+                                          .propListInfo
+                                          ?.proplist![index]
+                                          .longtitude,
+                                      propId1: listOfPropertiController
+                                          .propListInfo?.proplist![index].id,
+                                      eImage1: listOfPropertiController
+                                          .propListInfo?.proplist![index].image,
+                                      eGest1: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .plimit ??
+                                          "",
+                                      ebuyorRent: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .buyorrent ??
+                                          "",
+                                      isShell: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .isSell ??
+                                          "0",
+                                      id: listOfPropertiController.propListInfo
+                                              ?.proplist![index].id ??
+                                          "",
+                                      facelity1: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .facilitySelect ??
+                                          "",
+                                      pID: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .propertyTypeId ??
+                                          "",
+                                      proName1: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .propertyType ??
+                                          "",
+                                      countryId1: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .countryId ??
+                                          "",
+                                      countryName1: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .countryTitle ??
+                                          "",
+                                      party_allowed1: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .partyAllowed ??
+                                          "",
+                                      party_cost1: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .partyCost ??
+                                          "",
+                                      caution_fee1: listOfPropertiController
+                                              .propListInfo
+                                              ?.proplist![index]
+                                              .cautionFee ??
+                                          "",
+                                    );
+                                    print(
+                                        "========------->> ${listOfPropertiController.propListInfo!.proplist![index].propertyType}");
+                                    print(
+                                        "========------->> ${listOfPropertiController.propListInfo!.proplist![index].propertyTypeId}");
                                     Get.toNamed(
                                       Routes.addPropertyScreen,
                                       arguments: {"add": "edit"},
@@ -187,16 +245,25 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             15),
-                                                    child: FadeInImage.assetNetwork(
-                                                      fadeInCurve: Curves.easeInCirc,
+                                                    child: FadeInImage
+                                                        .assetNetwork(
+                                                      fadeInCurve:
+                                                          Curves.easeInCirc,
                                                       placeholder:
-                                                      "assets/images/ezgif.com-crop.gif",
+                                                          "assets/images/ezgif.com-crop.gif",
                                                       height: 140,
-                                                      imageErrorBuilder: (context, error, stackTrace) {
-                                                        return Image.asset("assets/images/ezgif.com-crop.gif",height: 48,width: 48,fit: BoxFit.cover,);
+                                                      imageErrorBuilder:
+                                                          (context, error,
+                                                              stackTrace) {
+                                                        return Image.asset(
+                                                          "assets/images/ezgif.com-crop.gif",
+                                                          height: 48,
+                                                          width: 48,
+                                                          fit: BoxFit.cover,
+                                                        );
                                                       },
                                                       image:
-                                                      "${Config.imageUrl}${listOfPropertiController.propListInfo?.proplist![index].image ?? ""}",
+                                                          "${Config.imageUrl}${listOfPropertiController.propListInfo?.proplist![index].image ?? ""}",
                                                       fit: BoxFit.cover,
                                                     ),
                                                   ),
@@ -342,7 +409,8 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                               child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
-                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 children: [
                                                   Row(
                                                     children: [
@@ -409,30 +477,27 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                                         "${currency}${listOfPropertiController.propListInfo?.proplist![index].price ?? ""}",
                                                         style: TextStyle(
                                                           fontSize: 17,
-                                                          fontFamily:
-                                                          FontFamily
+                                                          fontFamily: FontFamily
                                                               .gilroyBold,
-                                                          color:
-                                                          blueColor,
+                                                          color: blueColor,
                                                         ),
                                                       ),
                                                       listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![
-                                                      index]
-                                                          .buyorrent ==
-                                                          "1"
+                                                                  .propListInfo
+                                                                  ?.proplist![
+                                                                      index]
+                                                                  .buyorrent ==
+                                                              "1"
                                                           ? Text(
-                                                        "/night".tr,
-                                                        style:
-                                                        TextStyle(
-                                                          color: notifire
-                                                              .getgreycolor,
-                                                          fontFamily:
-                                                          FontFamily
-                                                              .gilroyMedium,
-                                                        ),
-                                                      )
+                                                              "/night".tr,
+                                                              style: TextStyle(
+                                                                color: notifire
+                                                                    .getgreycolor,
+                                                                fontFamily:
+                                                                    FontFamily
+                                                                        .gilroyMedium,
+                                                              ),
+                                                            )
                                                           : Text(""),
                                                     ],
                                                   ),
@@ -456,68 +521,159 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                               right: 0,
                                               child: InkWell(
                                                 onTap: () {
-                                                  addPropertiesController.getEditDetails(
-                                                      eTitle1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .title,
-                                                      eNumber1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .mobile,
-                                                      eAddress1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .address,
-                                                      ePrice1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .price,
-                                                      ePropertyAddress1:
-                                                          listOfPropertiController
-                                                              .propListInfo
-                                                              ?.proplist![index]
-                                                              .description,
-                                                      eTotalBeds1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .beds,
-                                                      eTotalBathroom1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .bathroom,
-                                                      eSqft1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .sqrft,
-                                                      eRating1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .rate,
-                                                      eCityAndCountry1:
-                                                          listOfPropertiController
-                                                              .propListInfo
-                                                              ?.proplist![index]
-                                                              .city,
-                                                      lat1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .latitude,
-                                                      long1: listOfPropertiController
-                                                          .propListInfo
-                                                          ?.proplist![index]
-                                                          .longtitude,
-                                                      propId1: listOfPropertiController.propListInfo?.proplist![index].id,
-                                                      eImage1: listOfPropertiController.propListInfo?.proplist![index].image,
-                                                      eGest1: listOfPropertiController.propListInfo?.proplist![index].plimit ?? "",
-                                                      ebuyorRent: listOfPropertiController.propListInfo?.proplist![index].buyorrent ?? "",
-                                                      isShell: listOfPropertiController.propListInfo?.proplist![index].isSell ?? "0",
-                                                      id: listOfPropertiController.propListInfo?.proplist![index].id ?? "",
-                                                      facelity1: listOfPropertiController.propListInfo?.proplist![index].facilitySelect ?? "",
-                                                      pID: listOfPropertiController.propListInfo?.proplist![index].propertyTypeId ?? "",
-                                                      proName1: listOfPropertiController.propListInfo?.proplist![index].propertyType ?? "",
-                                                      countryId1: listOfPropertiController.propListInfo?.proplist![index].countryId ?? "",
-                                                      countryName1: listOfPropertiController.propListInfo?.proplist![index].countryTitle ?? "");
+                                                  addPropertiesController
+                                                      .getEditDetails(
+                                                    eTitle1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .title,
+                                                    eNumber1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .mobile,
+                                                    eAddress1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .address,
+                                                    ePrice1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .price,
+                                                    ePropertyAddress1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .description,
+                                                    eTotalBeds1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .beds,
+                                                    eTotalBathroom1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .bathroom,
+                                                    eSqft1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .sqrft,
+                                                    eRating1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .rate,
+                                                    eCityAndCountry1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .city,
+                                                    lat1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .latitude,
+                                                    long1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .longtitude,
+                                                    propId1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .id,
+                                                    eImage1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .image,
+                                                    eGest1:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .plimit ??
+                                                            "",
+                                                    ebuyorRent:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .buyorrent ??
+                                                            "",
+                                                    isShell:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .isSell ??
+                                                            "0",
+                                                    id: listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .id ??
+                                                        "",
+                                                    facelity1:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .facilitySelect ??
+                                                            "",
+                                                    pID: listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .propertyTypeId ??
+                                                        "",
+                                                    proName1:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .propertyType ??
+                                                            "",
+                                                    countryId1:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .countryId ??
+                                                            "",
+                                                    countryName1:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .countryTitle ??
+                                                            "",
+                                                    party_allowed1:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .partyAllowed ??
+                                                            "",
+                                                    party_cost1:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .partyCost ??
+                                                            "",
+                                                    caution_fee1:
+                                                        listOfPropertiController
+                                                                .propListInfo
+                                                                ?.proplist![
+                                                                    index]
+                                                                .cautionFee ??
+                                                            "",
+                                                  );
                                                   Get.toNamed(
                                                     Routes.addPropertyScreen,
                                                     arguments: {"add": "edit"},
@@ -544,41 +700,43 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                               },
                             )
                           : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 5),
-                                child: Column(
-                                  children: [
-                                    Image(
-                                      image: AssetImage(
-                                        "assets/images/Door Icon.png",
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 5),
+                                  child: Column(
+                                    children: [
+                                      Image(
+                                        image: AssetImage(
+                                          "assets/images/Door Icon.png",
+                                        ),
+                                        height: 110,
+                                        width: 110,
                                       ),
-                                      height: 110,
-                                      width: 110,
-                                    ),
-                                    Center(
-                                      child: SizedBox(
-                                        width: Get.width * 0.80,
-                                        child: Text(
-                                          "Nothing here yet,\n but your next move could change that"
-                                              .tr,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: notifire.getgreycolor,
-                                            fontFamily: FontFamily.gilroyBold,
+                                      Center(
+                                        child: SizedBox(
+                                          width: Get.width * 0.80,
+                                          child: Text(
+                                            "Nothing here yet,\n but your next move could change that"
+                                                .tr,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: notifire.getgreycolor,
+                                              fontFamily: FontFamily.gilroyBold,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )
+                              ],
+                            )
                       : Center(
-                          child: CircularProgressIndicator(color: Darkblue,),
+                          child: CircularProgressIndicator(
+                            color: Darkblue,
+                          ),
                         ),
                   decoration: BoxDecoration(
                     color: notifire.getblackwhitecolor,

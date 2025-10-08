@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, prefer_typing_uninitialized_variables, prefer_interpolation_to_compose_strings, non_constant_identifier_names
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,6 +18,8 @@ class AddPropertiesController extends GetxController implements GetxService {
   TextEditingController pNumber = TextEditingController();
   TextEditingController pAddress = TextEditingController();
   TextEditingController pPrice = TextEditingController();
+  TextEditingController pPartyCost = TextEditingController();
+  TextEditingController pCaution = TextEditingController();
   TextEditingController propertyAddress = TextEditingController();
   TextEditingController totalBeds = TextEditingController();
   TextEditingController totalBathroom = TextEditingController();
@@ -57,39 +60,45 @@ class AddPropertiesController extends GetxController implements GetxService {
   String buyOrRent = "";
   String Id = "";
   String pShell = "0";
+  String eparty_cost = "0";
+  String ecaution_fee = "0";
 
   String fList = "";
   String pName = "";
   String countryName = "";
+  bool party_allowed = false;
+  bool caution_fee_setting = true;
 
   var elat;
   var elong;
 
-  getEditDetails({
-    String? eTitle1,
-    eNumber1,
-    eAddress1,
-    ePrice1,
-    ePropertyAddress1,
-    eTotalBeds1,
-    eTotalBathroom1,
-    eSqft1,
-    eRating1,
-    eCityAndCountry1,
-    lat1,
-    long1,
-    propId1,
-    eImage1,
-    eGest1,
-    ebuyorRent,
-    isShell,
-    id,
-    facelity1,
-    pID,
-    proName1,
-    countryId1,
-    countryName1,
-  }) {
+  getEditDetails(
+      {String? eTitle1,
+      eNumber1,
+      eAddress1,
+      ePrice1,
+      ePropertyAddress1,
+      eTotalBeds1,
+      eTotalBathroom1,
+      eSqft1,
+      eRating1,
+      eCityAndCountry1,
+      lat1,
+      long1,
+      propId1,
+      eImage1,
+      eGest1,
+      ebuyorRent,
+      isShell,
+      id,
+      facelity1,
+      pID,
+      proName1,
+      countryId1,
+      countryName1,
+      party_allowed1,
+      party_cost1,
+      caution_fee1}) {
     eTitle = eTitle1 ?? "";
     eNumber = eNumber1 ?? "";
     eAddress = eAddress1 ?? "";
@@ -113,6 +122,9 @@ class AddPropertiesController extends GetxController implements GetxService {
     pName = proName1;
     countryId = countryId1;
     countryName = countryName1;
+    party_allowed = party_allowed1 == "1";
+    eparty_cost = party_cost1 ?? "0";
+    ecaution_fee = caution_fee1 ?? "0";
     update();
   }
 
@@ -134,6 +146,8 @@ class AddPropertiesController extends GetxController implements GetxService {
     pRating.text = "";
     pGest.text = "";
     pCityAndCountry.text = "";
+    pPartyCost.text = "";
+    pCaution.text = "";
     path = null;
     base64Image = "";
     pbuySell = "";
@@ -141,6 +155,7 @@ class AddPropertiesController extends GetxController implements GetxService {
     lat = null;
     long = null;
     pImage = "";
+    // party_allowed = false;
     update();
   }
 
@@ -168,8 +183,12 @@ class AddPropertiesController extends GetxController implements GetxService {
         "mobile": pNumber.text,
         "price": pPrice.text,
         "img": base64Image,
+        "party_allowed": party_allowed ? "1" : "0",
+        "party_cost": pPartyCost.text.isNotEmpty ? pPartyCost.text : "0",
+        "caution_fee": pCaution.text.isNotEmpty ? pCaution.text : "0"
       };
       print(":::::::::::::::" + map.toString());
+      // log(":::::::::::::::" + map.toString());
       Uri uri = Uri.parse(Config.path + Config.addPropertyApi);
       var response = await http.post(
         uri,
@@ -217,6 +236,9 @@ class AddPropertiesController extends GetxController implements GetxService {
         "price": pPrice.text,
         "img": path != null ? base64Image : "0",
         "prop_id": propId,
+        "party_allowed": party_allowed ? "1" : "0",
+        "party_cost": pPartyCost.text.isNotEmpty ? pPartyCost.text : "0",
+        "caution_fee": pCaution.text.isNotEmpty ? pCaution.text : "0"
       };
       print(":::::::::::::::" + map.toString());
       Uri uri = Uri.parse(Config.path + Config.editPropertyApi);

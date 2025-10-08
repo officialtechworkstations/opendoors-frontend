@@ -19,6 +19,7 @@ import 'package:opendoors/controller/myearning_controller.dart';
 import 'package:opendoors/controller/notification_controller.dart';
 import 'package:opendoors/controller/pagelist_controller.dart';
 import 'package:opendoors/controller/payout_controller.dart';
+import 'package:opendoors/controller/property_filter_controller.dart';
 import 'package:opendoors/controller/reviewsummary_controller.dart';
 import 'package:opendoors/controller/search_controller.dart';
 import 'package:opendoors/controller/selectcountry_controller.dart';
@@ -43,6 +44,7 @@ init() async {
   Get.lazyPut(() => PageListController());
   Get.lazyPut(() => ReviewSummaryController());
   Get.lazyPut(() => SearchPropertyController());
+  Get.lazyPut(() => SearchFilterController());
   Get.lazyPut(() => WalletController());
   Get.lazyPut(() => GalleryController());
   Get.lazyPut(() => SelectCountryController());

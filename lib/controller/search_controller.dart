@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings, prefer_if_null_operators
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
@@ -18,21 +19,27 @@ class SearchPropertyController extends GetxController implements GetxService {
 
   String searchText = "";
 
-  changeValueUpdate(String value) {
+  changeValueUpdate(String value) async {
     searchText = value;
+    await Future.delayed(const Duration(milliseconds: 100));
     update();
   }
 
   HomesearchModel? homesearchData;
-  Future getSearchData({String? countryId}) async {
-
+  Future getSearchData(
+      {String? countryId, List<String>? facility, int? price}) async {
     try {
+      // List<dynamic>? savedAmenities = getData.read('selected_amenities');
+      // getData.read('selected_budget');
+
       Map map = {
         "keyword": search.text,
         "uid": getData.read("UserLogin")?["id"]?.toString() ?? "0",
         "country_id": countryId,
+        "facility": facility ?? [],
+        "price": price ?? 0,
       };
-      print("${map}");
+      print("$map");
 
       Uri uri = Uri.parse(Config.path + Config.searchApi);
       print("uri {$uri}");
@@ -41,21 +48,37 @@ class SearchPropertyController extends GetxController implements GetxService {
         uri,
         body: jsonEncode(map),
       );
-      print("response::::::::::::::::: {${response.body}}");
+      log("response::::::::::::::::: {${response.body}}");
 
       if (response.statusCode == 200) {
-        var result = jsonDecode(response.body);
-        print(result);
+        //  var result = response.body; // Already parsed
+        // var result = jsonDecode(response.body);
+        // var res = json.decode(response.body);
+        // var result;
+        // if (response.body is String) {
+        //   result = jsonDecode(response.body);
+        // } else {
+        //   result = response.body; // Already parsed
+        // }
+        // log(res);
         homesearchData = homesearchModelFromJson(response.body);
-        for (var element in result["search_propety"]) {
-          searchData.add(SearchInfo.fromJson(element));
+        final d = searchIFromJson(response.body);
+        // log(homesearchData!.searchPropety!.first.toString());
+        // for (var element in result["search_propety"]) {
+        //   searchData.add(SearchInfo.fromJson(element));
+        // }
+        if (d.searchInfos != null && d.searchInfos!.isNotEmpty) {
+          searchData = [...d.searchInfos!];
         }
+        update();
       }
       isLoading = true;
       update();
     } catch (e) {
       print("RRRRRRR");
       print(e.toString());
+    } finally {
+      update();
     }
   }
 }

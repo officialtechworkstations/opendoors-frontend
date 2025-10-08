@@ -1,13 +1,13 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 class Config {
-
   static const String baseurl = 'https://admin.opendoorsapp.com/';
   // static const String baseurl = 'https://property.cscodetech.cloud/';
   static const String notificationUrl = 'https://fcm.googleapis.com/fcm/send';
 
-  static  String? firebaseKey;
-  static  String leagacyKey = "BM5cTva4nvwRBevdqGG3sXhozCjsX8TlggXrlmhlA5bgJBKVPx_LUTRFOYgFIsCreOMKfVDS_1DoYxSTP5uueYg";
+  static String? firebaseKey;
+  static String leagacyKey =
+      "BM5cTva4nvwRBevdqGG3sXhozCjsX8TlggXrlmhlA5bgJBKVPx_LUTRFOYgFIsCreOMKfVDS_1DoYxSTP5uueYg";
   static String? projectID = "open-doors-app-2025f";
 
   static const String path = baseurl + 'user_api/';
@@ -43,8 +43,11 @@ class Config {
   static const String addAndRemoveFavourite = 'u_fav.php';
   static const String favouriteList = 'u_favlist.php';
   static const String propertyDetails = 'u_property_details.php';
+  static const String chatNotice = 'u_chat_notice.php';
   static const String searchApi = 'u_search_property.php';
+  static const String getFacility = 'u_facility.php';
   static const String checDateApi = 'u_check.php';
+  static const String getAdminSetting = 'u_setting.php';
   static const String bookApi = 'u_book.php';
   static const String statusWiseBook = 'u_book_status_wise.php';
   static const String bookingCancle = 'u_book_cancle.php';
@@ -56,7 +59,6 @@ class Config {
   static const String seeAllGalery = 'view_gallery.php';
   static const String allCountry = 'u_country.php';
   static const String deletAccount = 'acc_delete.php';
-
 
   static const String subScribeList = 'u_package.php';
   static const String packagePurchase = 'u_package_purchase.php';

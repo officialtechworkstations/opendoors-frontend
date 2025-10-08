@@ -30,6 +30,8 @@ class HomePageController extends GetxController implements GetxService {
 
   String searchLocation = "";
 
+  String chatNotice = "";
+
   String rate = "";
 
   CatWiseInfo? catWiseInfo;
@@ -80,7 +82,7 @@ class HomePageController extends GetxController implements GetxService {
 
   HomePageController() {
     getHomeDataApi();
-    getCatWiseData(cId: "0",countryId: getData.read("countryId"));
+    getCatWiseData(cId: "0", countryId: getData.read("countryId"));
   }
 
   chnageObjectIndex(int index) {
@@ -113,14 +115,14 @@ class HomePageController extends GetxController implements GetxService {
     update();
   }
 
-
   String addProp = "";
   Future getHomeDataApi({String? countryId}) async {
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>COUNTRy CODE ${countryId}");
     try {
       isLoading = false;
       Map map = {
-        "uid": getData.read("UserLogin") == null ? "0"
+        "uid": getData.read("UserLogin") == null
+            ? "0"
             : "${getData.read("UserLogin")["id"]}",
         "country_id": countryId,
       };
@@ -161,7 +163,9 @@ class HomePageController extends GetxController implements GetxService {
 
       Uri uri = Uri.parse(Config.path + Config.propertyDetails);
 
-      var response = await http.post(uri, body: jsonEncode(map),
+      var response = await http.post(
+        uri,
+        body: jsonEncode(map),
       );
 
       print("DDDDDDDDDDDDDDDD ${response.statusCode}");
@@ -178,6 +182,36 @@ class HomePageController extends GetxController implements GetxService {
       update();
     } catch (e) {
       print("IPL 2025 ${e.toString()}");
+    }
+  }
+
+  Future getChatNoApi() async {
+    try {
+      // Map map = {
+      //   "pro_id": id,
+      //   "uid": getData.read("UserLogin") == null
+      //       ? "0"
+      //       : "${getData.read("UserLogin")["id"]}",
+      // };
+
+      // print("(Map)------------->>" + map.toString());
+
+      Uri uri = Uri.parse(Config.path + Config.getAdminSetting);
+
+      var response = await http.get(uri);
+
+      print("CHAT NOTICE FETCHED ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        print("DATA GETED >>>>>>>>>>>>> ${response.body}");
+        var result = json.decode(response.body);
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $result");
+        chatNotice = result['FaqData']['notice_message'].toString();
+      }
+
+      update();
+    } catch (e) {
+      print("Err Getting chat Notice: ${e.toString()}");
     }
   }
 
@@ -233,34 +267,33 @@ class HomePageController extends GetxController implements GetxService {
     }
   }
 
-  Future getCatWiseData({required String? cId, required String? countryId}) async {
-
+  Future getCatWiseData(
+      {required String? cId, required String? countryId}) async {
     print("++++++ -------- %##%#%#%#%# ${countryId}");
-      Map map = {
-        "cid": cId ?? "0",
-        "uid": getData.read("UserLogin") == null
-            ? "0"
-            : getData.read("UserLogin")["id"].toString(),
-        "country_id": countryId,
-      };
+    Map map = {
+      "cid": cId ?? "0",
+      "uid": getData.read("UserLogin") == null
+          ? "0"
+          : getData.read("UserLogin")["id"].toString(),
+      "country_id": countryId,
+    };
 
-      Uri uri = Uri.parse(Config.path + Config.catWiseData);
+    Uri uri = Uri.parse(Config.path + Config.catWiseData);
 
-      print("++++++ -------- +++++++ ------- ++++++${map}");
-      print("++++++ -------- +++++++ ------- ++++++${uri}");
+    print("++++++ -------- +++++++ ------- ++++++${map}");
+    print("++++++ -------- +++++++ ------- ++++++${uri}");
 
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
-      if (response.statusCode == 200) {
-        var result = jsonDecode(response.body);
-        catWiseInfo = CatWiseInfo.fromJson(result);
-        isCatWise = true;
-        update();
-        print("< >? < > < > < > < > < > < > < > <>?${catWiseInfo!.responseMsg}>");
-      }
-
+    var response = await http.post(
+      uri,
+      body: jsonEncode(map),
+    );
+    if (response.statusCode == 200) {
+      var result = jsonDecode(response.body);
+      catWiseInfo = CatWiseInfo.fromJson(result);
+      isCatWise = true;
+      update();
+      print("< >? < > < > < > < > < > < > < > <>?${catWiseInfo!.responseMsg}>");
+    }
   }
 
   enquirySetApi({String? pId}) async {

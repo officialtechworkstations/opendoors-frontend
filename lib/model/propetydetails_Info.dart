@@ -3,10 +3,13 @@
 //     final propetydetailsInfo = propetydetailsInfoFromJson(jsonString);
 
 import 'dart:convert';
+import 'dart:developer';
 
-PropetydetailsInfo propetydetailsInfoFromJson(String str) => PropetydetailsInfo.fromJson(json.decode(str));
+PropetydetailsInfo propetydetailsInfoFromJson(String str) =>
+    PropetydetailsInfo.fromJson(json.decode(str));
 
-String propetydetailsInfoToJson(PropetydetailsInfo data) => json.encode(data.toJson());
+String propetydetailsInfoToJson(PropetydetailsInfo data) =>
+    json.encode(data.toJson());
 
 class PropetydetailsInfo {
   Propetydetails? propetydetails;
@@ -29,27 +32,43 @@ class PropetydetailsInfo {
     this.responseMsg,
   });
 
-  factory PropetydetailsInfo.fromJson(Map<String, dynamic> json) => PropetydetailsInfo(
-    propetydetails: json["propetydetails"] == null ? null : Propetydetails.fromJson(json["propetydetails"]),
-    facility: json["facility"] == null ? [] : List<Facility>.from(json["facility"]!.map((x) => Facility.fromJson(x))),
-    gallery: json["gallery"] == null ? [] : List<String>.from(json["gallery"]!.map((x) => x)),
-    reviewlist: json["reviewlist"] == null ? [] : List<Reviewlist>.from(json["reviewlist"]!.map((x) => Reviewlist.fromJson(x))),
-    totalReview: json["total_review"],
-    responseCode: json["ResponseCode"],
-    result: json["Result"],
-    responseMsg: json["ResponseMsg"],
-  );
+  factory PropetydetailsInfo.fromJson(Map<String, dynamic> json) =>
+      PropetydetailsInfo(
+        propetydetails: json["propetydetails"] == null
+            ? null
+            : Propetydetails.fromJson(json["propetydetails"]),
+        facility: json["facility"] == null
+            ? []
+            : List<Facility>.from(
+                json["facility"]!.map((x) => Facility.fromJson(x))),
+        gallery: json["gallery"] == null
+            ? []
+            : List<String>.from(json["gallery"]!.map((x) => x)),
+        reviewlist: json["reviewlist"] == null
+            ? []
+            : List<Reviewlist>.from(
+                json["reviewlist"]!.map((x) => Reviewlist.fromJson(x))),
+        totalReview: json["total_review"],
+        responseCode: json["ResponseCode"],
+        result: json["Result"],
+        responseMsg: json["ResponseMsg"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "propetydetails": propetydetails?.toJson(),
-    "facility": facility == null ? [] : List<dynamic>.from(facility!.map((x) => x.toJson())),
-    "gallery": gallery == null ? [] : List<dynamic>.from(gallery!.map((x) => x)),
-    "reviewlist": reviewlist == null ? [] : List<dynamic>.from(reviewlist!.map((x) => x.toJson())),
-    "total_review": totalReview,
-    "ResponseCode": responseCode,
-    "Result": result,
-    "ResponseMsg": responseMsg,
-  };
+        "propetydetails": propetydetails?.toJson(),
+        "facility": facility == null
+            ? []
+            : List<dynamic>.from(facility!.map((x) => x.toJson())),
+        "gallery":
+            gallery == null ? [] : List<dynamic>.from(gallery!.map((x) => x)),
+        "reviewlist": reviewlist == null
+            ? []
+            : List<dynamic>.from(reviewlist!.map((x) => x.toJson())),
+        "total_review": totalReview,
+        "ResponseCode": responseCode,
+        "Result": result,
+        "ResponseMsg": responseMsg,
+      };
 }
 
 class Facility {
@@ -62,14 +81,14 @@ class Facility {
   });
 
   factory Facility.fromJson(Map<String, dynamic> json) => Facility(
-    img: json["img"],
-    title: json["title"],
-  );
+        img: json["img"],
+        title: json["title"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "img": img,
-    "title": title,
-  };
+        "img": img,
+        "title": title,
+      };
 }
 
 class Propetydetails {
@@ -96,84 +115,102 @@ class Propetydetails {
   String? plimit;
   String? longtitude;
   int? isFavourite;
+  String? partyAllowed;
+  String? partyCost;
+  String? cautionFee;
 
-  Propetydetails({
-    this.id,
-    this.userId,
-    this.title,
-    this.rate,
-    this.city,
-    this.image,
-    this.propertyType,
-    this.propertyTitle,
-    this.price,
-    this.buyorrent,
-    this.isEnquiry,
-    this.address,
-    this.beds,
-    this.ownerImage,
-    this.ownerName,
-    this.bathroom,
-    this.sqrft,
-    this.description,
-    this.latitude,
-    this.mobile,
-    this.plimit,
-    this.longtitude,
-    this.isFavourite,
-  });
+  Propetydetails(
+      {this.id,
+      this.userId,
+      this.title,
+      this.rate,
+      this.city,
+      this.image,
+      this.propertyType,
+      this.propertyTitle,
+      this.price,
+      this.buyorrent,
+      this.isEnquiry,
+      this.address,
+      this.beds,
+      this.ownerImage,
+      this.ownerName,
+      this.bathroom,
+      this.sqrft,
+      this.description,
+      this.latitude,
+      this.mobile,
+      this.plimit,
+      this.longtitude,
+      this.isFavourite,
+      this.partyAllowed,
+      this.partyCost,
+      this.cautionFee});
 
-  factory Propetydetails.fromJson(Map<String, dynamic> json) => Propetydetails(
-    id: json["id"],
-    userId: json["user_id"],
-    title: json["title"],
-    rate: json["rate"],
-    city: json["city"],
-    image: json["image"] == null ? [] : List<Image>.from(json["image"]!.map((x) => Image.fromJson(x))),
-    propertyType: json["property_type"],
-    propertyTitle: json["property_title"],
-    price: json["price"],
-    buyorrent: json["buyorrent"],
-    isEnquiry: json["is_enquiry"],
-    address: json["address"],
-    beds: json["beds"],
-    ownerImage: json["owner_image"],
-    ownerName: json["owner_name"],
-    bathroom: json["bathroom"],
-    sqrft: json["sqrft"],
-    description: json["description"],
-    latitude: json["latitude"],
-    mobile: json["mobile"],
-    plimit: json["plimit"],
-    longtitude: json["longtitude"],
-    isFavourite: json["IS_FAVOURITE"],
-  );
+  factory Propetydetails.fromJson(Map<String, dynamic> json) {
+    log(json.toString());
+
+    return Propetydetails(
+        id: json["id"],
+        userId: json["user_id"],
+        title: json["title"],
+        rate: json["rate"],
+        city: json["city"],
+        image: json["image"] == null
+            ? []
+            : List<Image>.from(json["image"]!.map((x) => Image.fromJson(x))),
+        propertyType: json["property_type"],
+        propertyTitle: json["property_title"],
+        price: json["price"],
+        buyorrent: json["buyorrent"],
+        isEnquiry: json["is_enquiry"],
+        address: json["address"],
+        beds: json["beds"],
+        ownerImage: json["owner_image"],
+        ownerName: json["owner_name"],
+        bathroom: json["bathroom"],
+        sqrft: json["sqrft"],
+        description: json["description"],
+        latitude: json["latitude"],
+        mobile: json["mobile"],
+        plimit: json["plimit"],
+        longtitude: json["longtitude"],
+        isFavourite: json["IS_FAVOURITE"],
+        partyAllowed: json["party_allowed"],
+        partyCost: json["party_cost"],
+        cautionFee: json["caution_fee"]);
+  }
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "user_id": userId,
-    "title": title,
-    "rate": rate,
-    "city": city,
-    "image": image == null ? [] : List<dynamic>.from(image!.map((x) => x.toJson())),
-    "property_type": propertyType,
-    "property_title": propertyTitle,
-    "price": price,
-    "buyorrent": buyorrent,
-    "is_enquiry": isEnquiry,
-    "address": address,
-    "beds": beds,
-    "owner_image": ownerImage,
-    "owner_name": ownerName,
-    "bathroom": bathroom,
-    "sqrft": sqrft,
-    "description": description,
-    "latitude": latitude,
-    "mobile": mobile,
-    "plimit": plimit,
-    "longtitude": longtitude,
-    "IS_FAVOURITE": isFavourite,
-  };
+        "id": id,
+        "user_id": userId,
+        "title": title,
+        "rate": rate,
+        "city": city,
+        "image": image == null
+            ? []
+            : List<dynamic>.from(image!.map((x) => x.toJson())),
+        "property_type": propertyType,
+        "property_title": propertyTitle,
+        "price": price,
+        "buyorrent": buyorrent,
+        "is_enquiry": isEnquiry,
+        "address": address,
+        "beds": beds,
+        "owner_image": ownerImage,
+        "owner_name": ownerName,
+        "bathroom": bathroom,
+        "sqrft": sqrft,
+        "description": description,
+        "latitude": latitude,
+        "mobile": mobile,
+        "plimit": plimit,
+        "longtitude": longtitude,
+        "IS_FAVOURITE": isFavourite,
+        "party_allowed": partyAllowed,
+        "party_cost": partyCost,
+        "caution_fee": cautionFee
+      };
 }
 
 class Image {
@@ -186,14 +223,14 @@ class Image {
   });
 
   factory Image.fromJson(Map<String, dynamic> json) => Image(
-    image: json["image"],
-    isPanorama: json["is_panorama"],
-  );
+        image: json["image"],
+        isPanorama: json["is_panorama"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "image": image,
-    "is_panorama": isPanorama,
-  };
+        "image": image,
+        "is_panorama": isPanorama,
+      };
 }
 
 class Reviewlist {
@@ -210,16 +247,16 @@ class Reviewlist {
   });
 
   factory Reviewlist.fromJson(Map<String, dynamic> json) => Reviewlist(
-    userImg: json["user_img"],
-    userTitle: json["user_title"],
-    userRate: json["user_rate"],
-    userDesc: json["user_desc"],
-  );
+        userImg: json["user_img"],
+        userTitle: json["user_title"],
+        userRate: json["user_rate"],
+        userDesc: json["user_desc"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "user_img": userImg,
-    "user_title": userTitle,
-    "user_rate": userRate,
-    "user_desc": userDesc,
-  };
+        "user_img": userImg,
+        "user_title": userTitle,
+        "user_rate": userRate,
+        "user_desc": userDesc,
+      };
 }

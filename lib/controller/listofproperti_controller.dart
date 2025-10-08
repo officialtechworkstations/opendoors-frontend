@@ -21,7 +21,8 @@ class ListOfPropertiController extends GetxController implements GetxService {
       isLodding = false;
       Map map = {
         "uid": getData.read("UserLogin") == null
-            ? "0" : "${getData.read("UserLogin")["id"]}",
+            ? "0"
+            : "${getData.read("UserLogin")["id"]}",
       };
       print(".....///......." + map.toString());
       Uri uri = Uri.parse(Config.path + Config.propertyList);

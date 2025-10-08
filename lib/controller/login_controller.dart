@@ -41,8 +41,8 @@ class LoginController extends GetxController implements GetxService {
   String forgetPasswprdResult = "";
   String forgetMsg = "";
 
-  SelectCountryController selectCountryController = Get.put(SelectCountryController());
-
+  SelectCountryController selectCountryController =
+      Get.put(SelectCountryController());
 
   showOfPassword() {
     showPassword = !showPassword;
@@ -78,45 +78,44 @@ class LoginController extends GetxController implements GetxService {
   }
 
   Future getLoginApiData(String cuntryCode, context) async {
+    final prefs = await SharedPreferences.getInstance();
+    Map map = {
+      "mobile": number.text,
+      "ccode": cuntryCode,
+      "password": password.text,
+    };
+    Uri uri = Uri.parse(Config.path + Config.loginApi);
+    var response = await http.post(
+      uri,
+      body: jsonEncode(map),
+    );
 
-      final prefs = await SharedPreferences.getInstance();
-      Map map = {
-        "mobile": number.text,
-        "ccode": cuntryCode,
-        "password": password.text,
-      };
-      Uri uri = Uri.parse(Config.path + Config.loginApi);
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
+    if (response.statusCode == 200) {
+      await prefs.setBool('Firstuser', true);
+      var result = jsonDecode(response.body);
+      print(result.toString());
+      userMessage = result["ResponseMsg"];
+      resultCheck = result["Result"];
+      showToastMessage(userMessage);
 
-      if (response.statusCode == 200) {
-        await prefs.setBool('Firstuser', true);
-        var result = jsonDecode(response.body);
-        print(result.toString());
-        userMessage = result["ResponseMsg"];
-        resultCheck = result["Result"];
-        showToastMessage(userMessage);
-
-        if (resultCheck == "true") {
-          save("homeCall", true);
-          save("UserLogin", result["UserLogin"]);
-          save("userType", result["type"]);
-          print("LOGIMN DARTAT $result");
-          OneSignal.User.addTags({"user_id": getData.read("UserLogin")["id"]});
-          setfirebaselogin(email: result["UserLogin"]["name"], context: context);
-          save("currency", result["currency"]);
-          currency = result["currency"];
-          isChecked = false;
-          update();
-          return result;
-        }
+      if (resultCheck == "true") {
+        save("homeCall", true);
+        save("UserLogin", result["UserLogin"]);
+        save("userType", result["type"]);
+        print("LOGIMN DARTAT $result");
+        OneSignal.User.addTags({"user_id": getData.read("UserLogin")["id"]});
+        setfirebaselogin(email: result["UserLogin"]["name"], context: context);
+        save("currency", result["currency"]);
+        currency = result["currency"];
+        isChecked = false;
         update();
-        showToastMessage(result["ResponseMsg"]);
         return result;
       }
-      return jsonDecode(response.body);
+      update();
+      showToastMessage(result["ResponseMsg"]);
+      return result;
+    }
+    return jsonDecode(response.body);
   }
 
   void setfirebaselogin({context, required String email}) async {

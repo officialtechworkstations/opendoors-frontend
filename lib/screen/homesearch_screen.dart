@@ -1,13 +1,17 @@
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables, prefer_is_empty, unnecessary_brace_in_string_interps, avoid_print
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/property_filter_controller.dart';
 import 'package:opendoors/controller/search_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
+import 'package:opendoors/screen/property_filter_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +28,11 @@ class HomeSearchScreen extends StatefulWidget {
 
 class _HomeSearchScreenState extends State<HomeSearchScreen> {
   SearchPropertyController searchController = Get.find();
+
   HomePageController homePageController = Get.find();
+  final SearchFilterController filterController =
+      Get.put(SearchFilterController());
+
   late ColorNotifire notifire;
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -42,7 +50,9 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
     searchController.searchText = "";
     searchController.search.text = "";
     searchController.searchData = [];
-    searchController.getSearchData(countryId: getData.read("countryId"));
+    searchController.homesearchData?.searchPropety = [];
+    // searchController.getSearchData(countryId: getData.read("countryId"));
+    filterController.getAmenity(countryId: getData.read("countryId"));
   }
 
   @override
@@ -77,62 +87,72 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                     ),
                   ),
                   Expanded(
-                    child: Container(
-                      width: Get.size.width,
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 7, right: 8),
-                        child: TextField(
-                          controller: searchController.search,
-                          cursorColor: Colors.black,
-                          textInputAction: TextInputAction.search,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: notifire.getwhiteblackcolor,
-                            fontFamily: FontFamily.gilroyMedium,
-                          ),
-                          onSubmitted: (value) {
-                            searchController.getSearchData(
-                                countryId: getData.read("countryId"));
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              searchController.changeValueUpdate(value);
-                              searchController.getSearchData(
-                                  countryId: getData.read("countryId"));
-                              if (value == "") {
-                                setState(() {
-                                  searchController.searchData = [];
-                                });
-                              }
-                            });
-                          },
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 10),
-                            border: InputBorder.none,
-                            hintText: "Search...".tr,
-                            hintStyle: TextStyle(
-                              fontFamily: FontFamily.gilroyMedium,
-                              color: notifire.getlightblack,
-                            ),
-                            suffixIcon: Padding(
-                              padding: const EdgeInsets.all(14),
-                              child: Image.asset(
-                                "assets/images/SearchHomescreen.png",
-                                height: 10,
-                                width: 10,
-                                fit: BoxFit.cover,
-                                color: notifire.getlightblack,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            width: Get.size.width,
+                            margin: EdgeInsets.symmetric(horizontal: 10),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 7, right: 8),
+                              child: TextField(
+                                controller: searchController.search,
+                                cursorColor: Colors.black,
+                                textInputAction: TextInputAction.search,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: notifire.getwhiteblackcolor,
+                                  fontFamily: FontFamily.gilroyMedium,
+                                ),
+                                onSubmitted: (value) {
+                                  searchController.getSearchData(
+                                      countryId: getData.read("countryId"));
+                                },
+                                onChanged: (value) {
+                                  setState(() {
+                                    searchController.changeValueUpdate(value);
+                                    searchController.getSearchData(
+                                        countryId: getData.read("countryId"));
+                                    if (value == "") {
+                                      setState(() {
+                                        searchController.searchData = [];
+                                      });
+                                    }
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 10),
+                                  border: InputBorder.none,
+                                  hintText: "Search...".tr,
+                                  hintStyle: TextStyle(
+                                    fontFamily: FontFamily.gilroyMedium,
+                                    color: notifire.getlightblack,
+                                  ),
+                                  suffixIcon: Padding(
+                                    padding: const EdgeInsets.all(14),
+                                    child: Image.asset(
+                                      "assets/images/SearchHomescreen.png",
+                                      height: 10,
+                                      width: 10,
+                                      fit: BoxFit.cover,
+                                      color: notifire.getlightblack,
+                                    ),
+                                  ),
+                                ),
                               ),
+                            ),
+                            decoration: BoxDecoration(
+                              color: notifire.getblackwhitecolor,
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                         ),
-                      ),
-                      decoration: BoxDecoration(
-                        color: notifire.getblackwhitecolor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                        filterWidget(),
+                        SizedBox(
+                          width: 20,
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -150,7 +170,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                       )
                     : SizedBox(),
               ),
-              searchController.searchText != ""
+              searchController.searchText != "" ||
+                      (searchController.homesearchData?.searchPropety != null &&
+                          searchController
+                              .homesearchData!.searchPropety!.isNotEmpty)
                   ? searchController.isLoading
                       ? searchController
                               .homesearchData!.searchPropety!.isNotEmpty
@@ -432,6 +455,67 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
           ),
         );
       }),
+    );
+  }
+
+  Widget filterWidget() {
+    notifire = Provider.of<ColorNotifire>(context, listen: true);
+    final isDark = notifire.isDark;
+    return Obx(() => Stack(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: filterController.hasActiveFilters
+                    ? Colors.transparent
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: filterController.hasActiveFilters
+                        ? isDark
+                            ? Colors.grey[800]!
+                            : Colors.grey[300]!
+                        : isDark
+                            ? Colors.grey[800]!
+                            : Colors.grey[300]!),
+              ),
+              child: IconButton(
+                style: IconButton.styleFrom(
+                  padding: EdgeInsets.all(0),
+                ),
+                icon: Icon(
+                  Icons.filter_list_outlined,
+                  color: filterController.hasActiveFilters
+                      ? Colors.grey[600]
+                      : Colors.grey[600],
+                ),
+                onPressed: () => _showFilterBottomSheet(context),
+              ),
+            ),
+            if (filterController.hasActiveFilters)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: blueColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
+        ));
+  }
+
+  void _showFilterBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FilterBottomSheet(),
     );
   }
 
