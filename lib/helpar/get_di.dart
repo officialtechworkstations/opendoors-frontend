@@ -26,6 +26,8 @@ import 'package:opendoors/controller/selectcountry_controller.dart';
 import 'package:opendoors/controller/signup_controller.dart';
 import 'package:opendoors/controller/subscribe_controller.dart';
 import 'package:opendoors/controller/wallet_controller.dart';
+import 'package:opendoors/screen/kyc/widget2/kyc_controller.dart';
+import 'package:opendoors/screen/kyc/widgets/controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 init() async {
@@ -58,4 +60,6 @@ init() async {
   Get.lazyPut(() => EnquiryController());
   Get.lazyPut(() => MyEarningController());
   Get.lazyPut(() => PayOutController());
+  Get.lazyPut(() => KYCController());
+  Get.lazyPut(() => KYC2Controller());
 }

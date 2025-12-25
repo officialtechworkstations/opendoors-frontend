@@ -1,5 +1,7 @@
 // ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last, avoid_print, unnecessary_brace_in_string_interps, unused_local_variable, unnecessary_new
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -8,6 +10,7 @@ import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/bookingdetails_controller.dart';
 import 'package:opendoors/controller/bookrealestate_controller.dart';
 import 'package:opendoors/controller/mybooking_controller.dart';
+import 'package:opendoors/controller/reviewsummary_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
@@ -26,11 +29,35 @@ class EReceiptScreen extends StatefulWidget {
 class _EReceiptScreenState extends State<EReceiptScreen> {
   BookrealEstateController bookrealEstateController = Get.find();
   BookingDetailsController bookingDetailsController = Get.find();
+  ReviewSummaryController reviewSummaryController = Get.find();
   MyBookingController myBookingController = Get.find();
 
   String staus = Get.arguments["Completed"];
-
   late ColorNotifire notifire;
+  // double commisionAmount = 0;
+
+  // getTheCommision() {
+  //   final days = int.tryParse(
+  //           bookingDetailsController.bookDetailsInfo?.bookdetails?.totalDay ??
+  //               '0') ??
+  //       0;
+  //   final price = double.tryParse(
+  //           bookingDetailsController.bookDetailsInfo?.bookdetails?.propPrice ??
+  //               '0') ??
+  //       0;
+
+  //   final amount = price * days;
+  //   final comm = reviewSummaryController.calculateTheOrderCommission(amount);
+  //   final rate = reviewSummaryController.getOrderCommissionRate(amount);
+  //   // log(comm.toString());
+  //   // log(rate.toString());
+  //   // log(amount.toString());
+
+  //   setState(() {
+  //     commisionAmount = comm;
+  //   });
+  // }
+
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
@@ -329,6 +356,36 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                 ),
                               ],
                             ),
+                            // SizedBox(
+                            //   height: 20,
+                            // ),
+                            // Row(
+                            //   children: [
+                            //     SizedBox(
+                            //       width: 20,
+                            //     ),
+                            //     Text(
+                            //       "Commission".tr,
+                            //       style: TextStyle(
+                            //         fontFamily: FontFamily.gilroyMedium,
+                            //         fontSize: 15,
+                            //         color: notifire.getwhiteblackcolor,
+                            //       ),
+                            //     ),
+                            //     Spacer(),
+                            //     Text(
+                            //       "${currency}${int.tryParse(commisionAmount.toStringAsFixed(0)) ?? ""}",
+                            //       style: TextStyle(
+                            //         fontFamily: FontFamily.gilroyBold,
+                            //         fontSize: 15,
+                            //         color: notifire.getwhiteblackcolor,
+                            //       ),
+                            //     ),
+                            //     SizedBox(
+                            //       width: 20,
+                            //     ),
+                            //   ],
+                            // ),
                             SizedBox(
                               height: 20,
                             ),

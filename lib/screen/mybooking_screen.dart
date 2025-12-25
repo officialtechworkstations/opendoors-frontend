@@ -7,6 +7,7 @@ import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/bookingdetails_controller.dart';
 import 'package:opendoors/controller/homepage_controller.dart';
 import 'package:opendoors/controller/mybooking_controller.dart';
+import 'package:opendoors/controller/reviewsummary_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
@@ -29,6 +30,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
   MyBookingController myBookingController = Get.find();
   HomePageController homePageController = Get.find();
   BookingDetailsController bookingDetailsController = Get.find();
+  ReviewSummaryController reviewSummaryController = Get.find();
 
   var selectedRadioTile;
   final note = TextEditingController();
@@ -54,6 +56,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
       myBookingController.statusWiseBooking();
     }
     getdarkmodepreviousstate();
+    // reviewSummaryController.getCommisionData();
     super.initState();
   }
 

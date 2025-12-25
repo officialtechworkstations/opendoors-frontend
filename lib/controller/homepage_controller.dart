@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/model/app_settings.dart';
 import 'package:opendoors/model/catwise_info.dart';
 import 'package:opendoors/model/favourite_info.dart';
 import 'package:opendoors/model/homedata_info.dart';
@@ -31,6 +32,7 @@ class HomePageController extends GetxController implements GetxService {
   String searchLocation = "";
 
   String chatNotice = "";
+  AppSetting appSetting = AppSetting.initial();
 
   String rate = "";
 
@@ -207,6 +209,8 @@ class HomePageController extends GetxController implements GetxService {
         var result = json.decode(response.body);
         print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $result");
         chatNotice = result['FaqData']['notice_message'].toString();
+        final appSDetup = AppSetting.fromJson(result['FaqData']);
+        appSetting = appSDetup;
       }
 
       update();

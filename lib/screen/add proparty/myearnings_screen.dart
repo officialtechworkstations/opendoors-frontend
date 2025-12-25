@@ -1,15 +1,19 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_brace_in_string_interps, sort_child_properties_last
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/controller/booking_controller.dart';
+import 'package:opendoors/controller/dashboard_controller.dart';
 import 'package:opendoors/controller/myearning_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,6 +27,9 @@ class MyEarningsScreen extends StatefulWidget {
 class _MyEarningsScreenState extends State<MyEarningsScreen> {
   MyEarningController myEarningController = Get.find();
   BookingController bookingController = Get.find();
+  DashBoardController dashBoardController = Get.find();
+  PackageInfo? packageInfo;
+
   late ColorNotifire notifire;
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -38,6 +45,17 @@ class _MyEarningsScreenState extends State<MyEarningsScreen> {
   void initState() {
     super.initState();
     getdarkmodepreviousstate();
+    // dashBoardController.getCommisionData();
+  }
+
+  void getPackage() async {
+    //! App details get
+    packageInfo = await PackageInfo.fromPlatform();
+    final appName = packageInfo!.appName;
+    final packageName = packageInfo!.packageName;
+
+    log(appName);
+    log(packageName);
   }
 
   @override
@@ -54,12 +72,17 @@ class _MyEarningsScreenState extends State<MyEarningsScreen> {
             Get.back();
           },
         ),
-        title: Text(
-          "My Earnings".tr,
-          style: TextStyle(
-            color: notifire.getwhiteblackcolor,
-            fontFamily: FontFamily.gilroyBold,
-            fontSize: 16,
+        title: InkWell(
+          onTap: () {
+            getPackage();
+          },
+          child: Text(
+            "My Earnings".tr,
+            style: TextStyle(
+              color: notifire.getwhiteblackcolor,
+              fontFamily: FontFamily.gilroyBold,
+              fontSize: 16,
+            ),
           ),
         ),
       ),
@@ -97,8 +120,14 @@ class _MyEarningsScreenState extends State<MyEarningsScreen> {
                                               placeholder:
                                                   "assets/images/ezgif.com-crop.gif",
                                               height: 135,
-                                              imageErrorBuilder: (context, error, stackTrace) {
-                                                return Image.asset("assets/images/ezgif.com-crop.gif",height: 48,width: 48,fit: BoxFit.cover,);
+                                              imageErrorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Image.asset(
+                                                  "assets/images/ezgif.com-crop.gif",
+                                                  height: 48,
+                                                  width: 48,
+                                                  fit: BoxFit.cover,
+                                                );
                                               },
                                               image:
                                                   "${Config.imageUrl}${myEarningController.earningInfo?.statuswise![index].propImg ?? ""}",
@@ -160,7 +189,8 @@ class _MyEarningsScreenState extends State<MyEarningsScreen> {
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             myEarningController
@@ -171,8 +201,7 @@ class _MyEarningsScreenState extends State<MyEarningsScreen> {
                                             maxLines: 2,
                                             style: TextStyle(
                                               fontSize: 17,
-                                              fontFamily:
-                                                  FontFamily.gilroyBold,
+                                              fontFamily: FontFamily.gilroyBold,
                                               color:
                                                   notifire.getwhiteblackcolor,
                                               overflow: TextOverflow.ellipsis,
@@ -283,7 +312,9 @@ class _MyEarningsScreenState extends State<MyEarningsScreen> {
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(color: Darkblue,),
+                  child: CircularProgressIndicator(
+                    color: Darkblue,
+                  ),
                 ),
         );
       }),

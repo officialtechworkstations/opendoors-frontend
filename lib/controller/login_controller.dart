@@ -1,10 +1,12 @@
 // ignore_for_file: unused_local_variable, avoid_print, prefer_interpolation_to_compose_strings
 
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
@@ -40,6 +42,8 @@ class LoginController extends GetxController implements GetxService {
 
   String forgetPasswprdResult = "";
   String forgetMsg = "";
+
+  bool isSending = false;
 
   SelectCountryController selectCountryController =
       Get.put(SelectCountryController());
@@ -136,18 +140,26 @@ class LoginController extends GetxController implements GetxService {
   setForgetPasswordApi({
     String? mobile,
     String? ccode,
+    String? email,
   }) async {
     try {
       Map map = {
-        "mobile": mobile,
-        "ccode": ccode,
+        // "mobile": mobile,
+        // "ccode": ccode,
+        "email": email,
         "password": newPassword.text,
       };
+      log(map.toString());
+
+      isSending = true;
+      update();
+
       Uri uri = Uri.parse(Config.path + Config.forgetPassword);
       var response = await http.post(
         uri,
         body: jsonEncode(map),
       );
+      log(response.body.toString());
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
         forgetPasswprdResult = result["Result"];
@@ -155,11 +167,18 @@ class LoginController extends GetxController implements GetxService {
         if (forgetPasswprdResult == "true") {
           save('isLoginBack', false);
           Get.toNamed(Routes.login);
-          showToastMessage(forgetMsg);
+          showToastMessage(forgetMsg, ToastGravity.TOP);
+        } else {
+          showToastMessage(forgetMsg, ToastGravity.TOP);
         }
+
+        isSending = false;
+        update();
       }
     } catch (e) {
       print(e.toString());
+      isSending = false;
+      update();
     }
   }
 

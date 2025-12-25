@@ -99,6 +99,10 @@ class SignUpController extends GetxController implements GetxService {
 
   Future checkMobileInResetPassword(
       {String? number, String? cuntryCode}) async {
+    log('-----------------');
+    log('number : $number');
+    log('cuntryCode : $cuntryCode');
+    log('-----------------');
     try {
       Map map = {
         "mobile": number,
@@ -109,6 +113,9 @@ class SignUpController extends GetxController implements GetxService {
         uri,
         body: jsonEncode(map),
       );
+
+      log('response status code : ${response.statusCode}');
+      log('response body : ${response.body}');
 
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
@@ -166,6 +173,33 @@ class SignUpController extends GetxController implements GetxService {
     if (response.statusCode == 200) {
       var msgdecode = jsonDecode(response.body);
       print(" OTP CODE : >>> ${response.body}");
+
+      if (msgdecode["Result"] == "true") {
+        update();
+        showToastMessage(msgdecode["ResponseMsg"]);
+        return msgdecode;
+      } else {
+        showToastMessage(msgdecode["ResponseMsg"]);
+      }
+    } else {
+      showToastMessage("Something went wrong!");
+    }
+  }
+
+  Future emailOtp(email) async {
+    Map body = {"email": email};
+
+    var response = await http.post(
+        Uri.parse(Config.path + Config.sendEmailSmsApi),
+        body: jsonEncode(body),
+        headers: {
+          'Content-Type': 'application/json',
+        });
+    print("><<<<<<<<<<<<<<<<<<$body");
+
+    if (response.statusCode == 200) {
+      var msgdecode = jsonDecode(response.body);
+      print(" OTP EMAIL CODE : >>> ${response.body}");
 
       if (msgdecode["Result"] == "true") {
         update();

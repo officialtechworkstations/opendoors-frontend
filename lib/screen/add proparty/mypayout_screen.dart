@@ -30,6 +30,22 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
   String? selectType;
 
   late ColorNotifire notifire;
+
+  // double commisionAmount = 0;
+  // double commissionRate = 0;
+
+  // getTheCommision(StateSetter setState) {
+  //   final textfield = double.tryParse(payOutController.amount.text.trim()) ?? 0;
+  //   final amount = textfield;
+  //   final comm = dashBoardController.calculateTheOrderCommission(amount);
+  //   final rate = dashBoardController.getOrderCommissionRate(amount);
+
+  //   setState(() {
+  //     commisionAmount = comm;
+  //     commissionRate = rate;
+  //   });
+  // }
+
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
@@ -529,7 +545,9 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                               ),
                             )
                       : Center(
-                          child: CircularProgressIndicator(color: Darkblue,),
+                          child: CircularProgressIndicator(
+                            color: Darkblue,
+                          ),
                         );
                 }),
               ),
@@ -636,6 +654,33 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                       fontSize: 16,
                     ),
                   ),
+                  // SizedBox(
+                  //   height: 4,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     Text(
+                  //       "${"Commission:".tr} (${commissionRate})",
+                  //       style: TextStyle(
+                  //         color: notifire.getwhiteblackcolor,
+                  //         fontFamily: FontFamily.gilroyMedium,
+                  //         fontSize: 16,
+                  //       ),
+                  //     ),
+                  //     SizedBox(
+                  //       width: 10,
+                  //     ),
+                  //     Text(
+                  //       "${commisionAmount.toStringAsFixed(2)}${currency}",
+                  //       style: TextStyle(
+                  //         color: notifire.getwhiteblackcolor,
+                  //         fontFamily: FontFamily.gilroyMedium,
+                  //         fontSize: 16,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   SizedBox(
                     height: 10,
                   ),
@@ -648,6 +693,9 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                         return 'Please Enter Amount'.tr;
                       }
                       return null;
+                    },
+                    onChanged: (p0) {
+                      // getTheCommision(setState);
                     },
                   ),
                   SizedBox(
@@ -836,33 +884,33 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                                     return null;
                                   },
                                 ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 15),
-                                  child: Text(
-                                    "IFSC Code".tr,
-                                    style: TextStyle(
-                                      fontFamily: FontFamily.gilroyBold,
-                                      fontSize: 16,
-                                      color: notifire.getwhiteblackcolor,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 6,
-                                ),
-                                textfield(
-                                  controller: payOutController.ifscCode,
-                                  labelText: "IFSC Code".tr,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please Enter IFSC Code'.tr;
-                                    }
-                                    return null;
-                                  },
-                                ),
+                                // SizedBox(
+                                //   height: 10,
+                                // ),
+                                // Padding(
+                                //   padding: const EdgeInsets.only(left: 15),
+                                //   child: Text(
+                                //     "IFSC Code".tr,
+                                //     style: TextStyle(
+                                //       fontFamily: FontFamily.gilroyBold,
+                                //       fontSize: 16,
+                                //       color: notifire.getwhiteblackcolor,
+                                //     ),
+                                //   ),
+                                // ),
+                                // SizedBox(
+                                //   height: 6,
+                                // ),
+                                // textfield(
+                                //   controller: payOutController.ifscCode,
+                                //   labelText: "IFSC Code".tr,
+                                //   validator: (value) {
+                                //     if (value == null || value.isEmpty) {
+                                //       return 'Please Enter IFSC Code'.tr;
+                                //     }
+                                //     return null;
+                                //   },
+                                // ),
                               ],
                             )
                           : selectType == "Paypal"

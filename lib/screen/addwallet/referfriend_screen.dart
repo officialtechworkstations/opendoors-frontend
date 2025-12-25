@@ -99,8 +99,7 @@ class _ReferFriendScreenState extends State<ReferFriendScreen> {
                   height: 20,
                 ),
                 Text(
-                  "Earn ${currency + walletController
-                      .refercredit} for Each\n Friend you refer",
+                  "Earn ${currency + walletController.refercredit} for Each\n Friend you refer",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,
@@ -153,8 +152,7 @@ class _ReferFriendScreenState extends State<ReferFriendScreen> {
                             width: 15,
                           ),
                           Text(
-                            "Friend get ${currency + walletController
-                                .refercredit} on their first complete\ntransaction",
+                            "Friend get ${currency + walletController.refercredit} on their first complete\ntransaction",
                             textAlign: TextAlign.start,
                             style: TextStyle(
                               fontFamily: FontFamily.gilroyMedium,
@@ -179,8 +177,7 @@ class _ReferFriendScreenState extends State<ReferFriendScreen> {
                             width: 15,
                           ),
                           Text(
-                            "You get ${currency +
-                                walletController.signupcredit} on your wallet ",
+                            "You get ${currency + walletController.signupcredit} on your wallet ",
                             textAlign: TextAlign.start,
                             style: TextStyle(
                               fontFamily: FontFamily.gilroyMedium,
@@ -277,10 +274,10 @@ class _ReferFriendScreenState extends State<ReferFriendScreen> {
     print("!!!!!!!!!!" + appName.toString());
     print("!!!!!!!!!!" + packageName.toString());
     final String text =
-        'Hey! Now use our app to share with your family or friends. User will get wallet amount on your 1st successful transaction. Enter my referral code ${walletController
-        .rCode} & Enjoy your shopping !!!';
+        'Hey! Now use our app to share with your family or friends. User will get wallet amount on your 1st successful transaction. Enter my referral code ${walletController.rCode} & Enjoy your shopping !!!';
 
-    final String linkUrl = 'https://play.google.com/store/apps/details?id=$packageName';
+    final String linkUrl =
+        'https://play.google.com/store/apps/details?id=$packageName';
 
     await Share.share(
       '$text\n$linkUrl',

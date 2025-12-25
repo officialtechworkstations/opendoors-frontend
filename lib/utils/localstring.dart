@@ -23,7 +23,7 @@ class LocaleString extends Translations {
           "Dark Mode": "डार्क मोड",
           "Are you sure you want to log out?":
               "क्या आप लॉग आउट करना चाहते हैं?",
-          "Cancle": "कैंकल",
+          "Cancel": "कैंकल",
           "Yes, Remove": "हाँ, हटाओ",
           "Coupons": "कूपन",
           "Property Title": "संपत्ति का शीर्षक",
@@ -156,7 +156,6 @@ class LocaleString extends Translations {
           "Terms and Condition": "नियम व शर्तें",
           "Please select Terms and Condition": "कृपया नियम और शर्त चुनें",
           "Already have an account?": "क्या आपके पास पहले से एक खाता मौजूद है?",
-
           "Manage your properties with ease and \nget instant alert about responses":
               "अपनी संपत्तियों को आसानी से प्रबंधित करें और \nप्रतिक्रियाओं के बारे में तत्काल अलर्ट प्राप्त करें",
           "Listing Agent": "लिस्टिंग एजेंट",
@@ -353,7 +352,7 @@ class LocaleString extends Translations {
           "Dark Mode": "الوضع الداكن",
           "Are you sure you want to log out?":
               "هل أنت متأكد أنك تريد تسجيل الخروج؟, ",
-          "Cancle": "إلغاء",
+          "Cancel": "إلغاء",
           "Yes, Remove": "نعم ، قم بإزالة",
           "Coupons": "كوبونات",
           "Property Title": "عنوان الملكية",
@@ -677,7 +676,7 @@ class LocaleString extends Translations {
           "Dark Mode": "Mode sombre",
           "Are you sure you want to log out?":
               "Êtes-vous sûr de vouloir vous déconnecter?,",
-          "Cancle": "Annuler",
+          "Cancel": "Annuler",
           "Yes, Remove": "Oui, supprimer",
           "Coupons": "Coupons",
           "Property Title": "Titre de propriété",
@@ -1026,7 +1025,7 @@ class LocaleString extends Translations {
           "Dark Mode": "Dunkler Modus",
           "Are you sure you want to log out?":
               "Möchten Sie sich wirklich abmelden?,",
-          "Cancle": "Abbrechen",
+          "Cancel": "Abbrechen",
           "Yes, Remove": "Ja, entfernen",
           "Coupons": "Gutscheine",
           "Property Title": "Eigentums Titel",
@@ -1369,7 +1368,7 @@ class LocaleString extends Translations {
           "Dark Mode": "Mode Gelap",
           "Are you sure you want to log out?":
               "Apakah Anda yakin ingin keluar?,",
-          "Cancle": "Batal",
+          "Cancel": "Batal",
           "Yes, Remove": "Ya, Hapus",
           "Coupons": "Kupon",
           "Property Title": "Judul Properti",
@@ -1704,7 +1703,7 @@ class LocaleString extends Translations {
           "Logout": "Sair",
           "Dark Mode": "Modo Escuro",
           "Are you sure you want to log out?": "Tem certeza que deseja sair?,",
-          "Cancle": "Cântico",
+          "Cancel": "Cântico",
           "Yes, Remove": "Sim, remover",
           "Coupons": "cupons",
           "Property Title": "Título da propriedade",
@@ -2044,7 +2043,7 @@ class LocaleString extends Translations {
           "Logout": "Teken uit",
           "Dark Mode": "Donker modus",
           "Are you sure you want to log out?": "Is jy seker jy wil afmeld?,",
-          "Cancle": "Kankel",
+          "Cancel": "Kankel",
           "Yes, Remove": "Ja, verwyder",
           "Coupons": "Koepons",
           "Property Title": "Eiendomstitel",
@@ -2380,7 +2379,7 @@ class LocaleString extends Translations {
           "Dark Mode": "Modo oscuro",
           "Are you sure you want to log out?":
               "¿Está seguro de que desea cerrar la sesión?,",
-          "Cancle": "Cancelar",
+          "Cancel": "Cancelar",
           "Yes, Remove": "Sí, eliminar",
           "Coupons": "cupones",
           "Property Title": "Titulo de propiedad",
@@ -2725,7 +2724,7 @@ class LocaleString extends Translations {
           "Dark Mode": "Karanlık Mod",
           "Are you sure you want to log out?":
               "Oturumu kapatmak istediğinizden emin misiniz?,",
-          "Cancle": "İptal",
+          "Cancel": "İptal",
           "Yes, Remove": "Evet, Kaldır",
           "Coupons": "Kuponlar",
           "Property Title": "Mülkiyet Başlığı",

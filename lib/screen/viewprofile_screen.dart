@@ -287,7 +287,6 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide(color: notifire.getborderColor),
                       ),
-
                       hintText: "Email".tr,
                     ),
                     validator: (value) {
@@ -310,7 +309,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        "+91",
+                        "+234",
                         style: TextStyle(
                           color: notifire.getwhiteblackcolor,
                           fontFamily: FontFamily.gilroyMedium,
@@ -333,14 +332,12 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                     border: Border.all(color: notifire.getborderColor),
                   ),
                 ),
-
                 SizedBox(
                   height: 20,
                 ),
                 SizedBox(
                   height: 20,
                 ),
-
                 GestButton(
                   Width: Get.size.width,
                   height: 50,
@@ -364,7 +361,6 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                     }
                   },
                 ),
-
                 SizedBox(
                   height: 30,
                 ),

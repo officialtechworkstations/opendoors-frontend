@@ -28,29 +28,29 @@ class OnBordingScreen extends StatefulWidget {
 }
 
 class _OnBordingScreenState extends State<OnBordingScreen> {
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getStorage();
-    selectCountryController.getCountryApi().then((value){
-        for(int a = 0; a < selectCountryController.countryInfo!.countryData!.length; a++){
-          if(selectCountryController.countryInfo?.countryData![a].dCon == "1"){
-            setState(() {
-              countrySelected = a;
-            });
-          }
+    selectCountryController.getCountryApi().then((value) {
+      for (int a = 0;
+          a < selectCountryController.countryInfo!.countryData!.length;
+          a++) {
+        if (selectCountryController.countryInfo?.countryData![a].dCon == "1") {
+          setState(() {
+            countrySelected = a;
+          });
         }
+      }
     });
   }
 
-  Future getStorage() async{
+  Future getStorage() async {
     final storagePermissionStatus = await Permission.storage.request();
   }
 
   Future getLocation() async {
-
     final permission = await Permission.location.request();
     // LocationPermission permission;
     // permission = await Geolocator.checkPermission();
@@ -58,8 +58,7 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
     if (permission.isDenied) {
       lat = 0.0;
       long = 0.0;
-    } else {
-    }
+    } else {}
   }
 
   int selectIndex = 0;
@@ -184,19 +183,32 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
                   buttontext: "Continue as a Guest".tr,
                   onclick: () {
                     setState(() {
-                      save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
-                      save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
+                      save(
+                          "countryId",
+                          selectCountryController.countryInfo
+                                  ?.countryData![countrySelected].id ??
+                              "");
+                      save(
+                          "countryName",
+                          selectCountryController.countryInfo
+                                  ?.countryData![countrySelected].title ??
+                              "");
                     });
-                      selectCountryController.changeCountryIndex(countrySelected);
-                      homePageController.getHomeDataApi(
-                          countryId: getData.read("countryId"));
+                    selectCountryController.changeCountryIndex(countrySelected);
+                    homePageController.getHomeDataApi(
+                        countryId: getData.read("countryId"));
 
-                      searchController.getSearchData(
-                          countryId: getData.read("countryId"));
-                        homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0").then((value) {
-                          Get.offAndToNamed(Routes.bottoBarScreen);
-                        },);
-                      save('isLoginBack', true);
+                    searchController.getSearchData(
+                        countryId: getData.read("countryId"));
+                    homePageController
+                        .getCatWiseData(
+                            countryId: getData.read("countryId"), cId: "0")
+                        .then(
+                      (value) {
+                        Get.offAndToNamed(Routes.bottoBarScreen);
+                      },
+                    );
+                    save('isLoginBack', true);
                   },
                   style: TextStyle(
                     fontFamily: FontFamily.gilroyBold,
@@ -232,7 +244,9 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
               ],
             )
           ],

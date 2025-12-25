@@ -1,0 +1,2 @@
+{uid: 28, status: 1, plimit: 6, country_id: , pbuysell: 2, title: The Hedge , address: maryland lagos, description: new road lagos, ccount: maryland lagos, facility: 1,2,1,2, ptype: 2, beds: 3, bathroom: 3, sqft: 250, rate: 5, latitude: 6.6464048, longtitude: 3.2927914, mobile: 8167567753, price: 2000, img: 0, prop_id: 1, party_allowed: 0, party_cost: 0.00, caution_fee: 2000.00}
+user_id, listing_date

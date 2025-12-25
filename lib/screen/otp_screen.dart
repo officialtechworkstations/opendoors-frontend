@@ -1,7 +1,10 @@
 // ignore_for_file: prefer_const_constructors, must_be_immutable, use_key_in_widget_constructors, unnecessary_brace_in_string_interps, avoid_print, sort_child_properties_last, unrelated_type_equality_checks
 
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/controller/login_controller.dart';
@@ -27,7 +30,6 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
-
   @override
   void initState() {
     // TODO: implement initState
@@ -52,6 +54,8 @@ class _OtpScreenState extends State<OtpScreen> {
 
   String otpCode = Get.arguments["otpCode"].toString();
 
+  String email = Get.arguments["email"];
+
   late ColorNotifire notifire;
 
   getdarkmodepreviousstate() async {
@@ -64,22 +68,42 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
-  Future getCountryData() async{
-    selectCountryController.getCountryApi().then((value){
-      print("COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}");
-      for(int a = 0; a < selectCountryController.countryInfo!.countryData!.length; a++){
-        if(selectCountryController.countryInfo?.countryData![a].dCon == "1"){
+  Future getCountryData() async {
+    selectCountryController.getCountryApi().then((value) {
+      print(
+          "COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}");
+      for (int a = 0;
+          a < selectCountryController.countryInfo!.countryData!.length;
+          a++) {
+        if (selectCountryController.countryInfo?.countryData![a].dCon == "1") {
           setState(() {
             countrySelected = a;
-            print("COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}");
+            print(
+                "COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}");
             setState(() {
-              save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
-              save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
+              save(
+                  "countryId",
+                  selectCountryController
+                          .countryInfo?.countryData![countrySelected].id ??
+                      "");
+              save(
+                  "countryName",
+                  selectCountryController
+                          .countryInfo?.countryData![countrySelected].title ??
+                      "");
             });
           });
         } else {
-          save("countryId", selectCountryController.countryInfo?.countryData![countrySelected].id ?? "");
-          save("countryName", selectCountryController.countryInfo?.countryData![countrySelected].title ?? "");
+          save(
+              "countryId",
+              selectCountryController
+                      .countryInfo?.countryData![countrySelected].id ??
+                  "");
+          save(
+              "countryName",
+              selectCountryController
+                      .countryInfo?.countryData![countrySelected].title ??
+                  "");
         }
       }
       setState(() {
@@ -91,9 +115,13 @@ class _OtpScreenState extends State<OtpScreen> {
   int countrySelected = 0;
 
   bool isLoading = false;
+  bool isResending = false;
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
+    final message = rout == "resetScreen"
+        ? "${"We have sent a reset password otp code to".tr}\n${email}"
+        : "${"We have sent the verification code to".tr}\n${email}";
     return Scaffold(
       backgroundColor: notifire.getbgcolor,
       body: Stack(
@@ -145,8 +173,10 @@ class _OtpScreenState extends State<OtpScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 15),
                     child: Text(
-                      "${"We have sent the code verification to".tr}\n${countryCode} ${phoneNumber}",
-                      maxLines: 2,
+                      // "${"We have sent the code verification to".tr}\n${countryCode} ${phoneNumber}",
+                      message,
+
+                      maxLines: 3,
                       style: TextStyle(
                         overflow: TextOverflow.ellipsis,
                         fontFamily: FontFamily.gilroyMedium,
@@ -200,42 +230,68 @@ class _OtpScreenState extends State<OtpScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Didn't receive code?".tr,
+                          "Didn't receive code? ".tr,
                           style: TextStyle(
                             fontFamily: FontFamily.gilroyMedium,
                             color: notifire.getgreycolor,
                           ),
                         ),
                         InkWell(
-                          onTap: () {
-
-                            signUpController.smstype().then((value) {
-                              if(value["SMS_TYPE"] == "Msg91"){
-                                signUpController.sendOtp(countryCode, phoneNumber).then((value) {
+                          onTap: isResending
+                              ? null
+                              : () {
+                                  // signUpController.smstype().then((value) {
+                                  //   if(value["SMS_TYPE"] == "Msg91"){
+                                  //     signUpController.sendOtp(countryCode, phoneNumber).then((value) {
+                                  //       setState(() {
+                                  //         otpCode = value["otp"].toString();
+                                  //       });
+                                  //     },);
+                                  //   } else if(value["SMS_TYPE"] == "Twilio") {
+                                  //     signUpController.twilloOtp(countryCode, phoneNumber).then((value) {
+                                  //       setState(() {
+                                  //         otpCode = value["otp"].toString();
+                                  //       });
+                                  //     },);
+                                  //   }
+                                  // });
                                   setState(() {
-                                    otpCode = value["otp"].toString();
+                                    isResending = true;
                                   });
-                                },);
-                              } else if(value["SMS_TYPE"] == "Twilio") {
-                                signUpController.twilloOtp(countryCode, phoneNumber).then((value) {
-                                  setState(() {
-                                    otpCode = value["otp"].toString();
+                                  signUpController.emailOtp(email).then((res) {
+                                    if (res["Result"] == "true") {
+                                      setState(() {
+                                        otpCode = res["otp"].toString();
+                                      });
+                                    }
+                                  }).whenComplete(() {
+                                    setState(() {
+                                      isResending = false;
+                                    });
                                   });
-                                },);
-                              }
-                            });
 
-                            pinPutController.text = "";
-                          },
+                                  pinPutController.text = "";
+                                },
                           child: Container(
                             height: 30,
                             alignment: Alignment.center,
                             child: Text(
-                              "Resend New Code".tr,
+                              "Resend New Code ".tr,
                               style: TextStyle(
                                 color: blueColor,
                                 fontFamily: FontFamily.gilroyBold,
                               ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                          width: 10,
+                          child: Visibility(
+                            visible: isResending,
+                            child: CircularProgressIndicator.adaptive(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation(blueColor),
                             ),
                           ),
                         ),
@@ -259,74 +315,89 @@ class _OtpScreenState extends State<OtpScreen> {
                     ),
                     onclick: () {
                       print("OTP CODE :   $otpCode");
-                        if (otpCode == code) {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          getCountryData().then((value) {
-                              if (rout == "signUpScreen") {
+                      if (otpCode == code) {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        getCountryData().then(
+                          (value) {
+                            if (rout == "signUpScreen") {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              try {
+                                signUpController
+                                    .setUserApiData(countryCode)
+                                    .then(
+                                  (value) {
+                                    print(
+                                        ">>>>>>>>>>>>>>>>> >>>>>>>>>>>> >>>>>>>>>> >>>> ${value}");
+                                    if (value["Result"] == "true") {
+                                      selectCountryController
+                                          .changeCountryIndex(countrySelected);
+                                      homePageController.getHomeDataApi(
+                                          countryId: getData.read("countryId"));
+                                      homePageController.getCatWiseData(
+                                          countryId: getData.read("countryId"),
+                                          cId: "0");
+                                      searchController.getSearchData(
+                                          countryId: getData.read("countryId"));
+                                      Get.offAndToNamed(Routes.bottoBarScreen);
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      showToastMessage(value["ResponseMsg"]);
+                                    }
+                                  },
+                                );
+                                initPlatformState();
+                                showToastMessage(signUpController.signUpMsg);
+                              } catch (e) {
                                 setState(() {
-                                  isLoading = true;
+                                  isLoading = false;
                                 });
-                                  try {
-                                    signUpController.setUserApiData(countryCode).then((value) {
-                                      print(">>>>>>>>>>>>>>>>> >>>>>>>>>>>> >>>>>>>>>> >>>> ${value}");
-                                        if (value["Result"] == "true") {
-
-                                          selectCountryController.changeCountryIndex(countrySelected);
-                                          homePageController.getHomeDataApi(countryId: getData.read("countryId"));
-                                          homePageController.getCatWiseData(countryId: getData.read("countryId"), cId: "0");
-                                          searchController.getSearchData(countryId: getData.read("countryId"));
-                                          Get.offAndToNamed(Routes.bottoBarScreen);
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        } else {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                          showToastMessage(value["ResponseMsg"]);
-                                        }
-                                    },);
-                                    initPlatformState();
-                                    showToastMessage(signUpController.signUpMsg);
-                                  } catch (e) {
-                                    setState(() {
-                                      isLoading = false;
-                                    });
-                                    print("525 --- 525  --- 525 ${e}");
-                                  }
+                                print("525 --- 525  --- 525 ${e}");
                               }
-                              else if (rout == "resetScreen") {
-                            setState(() {
-                              isLoading = false;
-                            });
-                            forgetPasswordBottomSheet();
-                          }
-                          },);
-                        } else {
-                          showToastMessage("Please enter your valid OTP".tr);
-                        }
+                            } else if (rout == "resetScreen") {
+                              setState(() {
+                                isLoading = false;
+                              });
+                              forgetPasswordBottomSheet();
+                            }
+                          },
+                        );
+                      } else {
+                        showToastMessage("Please enter your valid OTP".tr);
+                      }
                     },
                   ),
                 ],
               ),
             ),
           ),
-          isLoading ? Center(child: CircularProgressIndicator(color: Darkblue,)) : SizedBox()
+          isLoading
+              ? Center(
+                  child: CircularProgressIndicator(
+                  color: Darkblue,
+                ))
+              : SizedBox()
         ],
       ),
     );
   }
 
   Future<void> initPlatformState() async {
-
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     OneSignal.initialize(Config.oneSignel);
-    OneSignal.Notifications.requestPermission(true).then((value) {
-      print("Signal value:- $value");
-    },);
-
+    OneSignal.Notifications.requestPermission(true).then(
+      (value) {
+        print("Signal value:- $value");
+      },
+    );
   }
 
   Future forgetPasswordBottomSheet() {
@@ -531,21 +602,29 @@ class _OtpScreenState extends State<OtpScreen> {
                   buttoncolor: blueColor,
                   margin: EdgeInsets.only(top: 15, left: 30, right: 30),
                   buttontext: "Continue".tr,
+                  isLoading: loginController.isSending ? true : false,
                   style: TextStyle(
                     fontFamily: "Gilroy Bold",
                     color: WhiteColor,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
-                  onclick: () {
-                    if (loginController.newPassword.text ==
-                        loginController.newConformPassword.text) {
-                      loginController.setForgetPasswordApi(
-                          ccode: countryCode, mobile: phoneNumber);
-                    } else {
-                      showToastMessage("Please Enter Valid Password".tr);
-                    }
-                  },
+                  onclick: loginController.isSending
+                      ? null
+                      : () {
+                          log('message');
+                          if (loginController.newPassword.text ==
+                              loginController.newConformPassword.text) {
+                            log('message');
+                            loginController.setForgetPasswordApi(
+                                ccode: countryCode,
+                                mobile: phoneNumber,
+                                email: email);
+                          } else {
+                            showToastMessage("Please Enter Valid Password".tr,
+                                ToastGravity.TOP);
+                          }
+                        },
                 ),
               ],
             ),

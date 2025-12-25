@@ -103,20 +103,22 @@ class _BookInformetionScreenState extends State<BookInformetionScreen> {
                     color: notifire.getwhiteblackcolor,
                   ),
                   decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: blueColor),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: notifire.getborderColor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: notifire.getborderColor),
-                      ),
-                      hintText: "First Name".tr,
-                      hintStyle: TextStyle(color: Colors.grey, fontFamily: FontFamily.gilroyMedium),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: blueColor),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: notifire.getborderColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: notifire.getborderColor),
+                    ),
+                    hintText: "First Name".tr,
+                    hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontFamily: FontFamily.gilroyMedium),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -141,20 +143,22 @@ class _BookInformetionScreenState extends State<BookInformetionScreen> {
                     color: notifire.getwhiteblackcolor,
                   ),
                   decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: blueColor),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: notifire.getborderColor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: notifire.getborderColor),
-                      ),
-                      hintText: "Last Name".tr,
-                      hintStyle: TextStyle(color: Colors.grey, fontFamily: FontFamily.gilroyMedium),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: blueColor),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: notifire.getborderColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: notifire.getborderColor),
+                    ),
+                    hintText: "Last Name".tr,
+                    hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontFamily: FontFamily.gilroyMedium),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -223,20 +227,22 @@ class _BookInformetionScreenState extends State<BookInformetionScreen> {
                     color: notifire.getwhiteblackcolor,
                   ),
                   decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: blueColor),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: notifire.getborderColor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: notifire.getborderColor),
-                      ),
-                      hintText: "Email".tr,
-                      hintStyle: TextStyle(color: Colors.grey, fontFamily: FontFamily.gilroyMedium),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: blueColor),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: notifire.getborderColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: notifire.getborderColor),
+                    ),
+                    hintText: "Email".tr,
+                    hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontFamily: FontFamily.gilroyMedium),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -265,7 +271,9 @@ class _BookInformetionScreenState extends State<BookInformetionScreen> {
                   decoration: InputDecoration(
                     helperText: null,
                     hintText: "Mobile Number".tr,
-                    hintStyle: TextStyle(color: Colors.grey, fontFamily: FontFamily.gilroyMedium),
+                    hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontFamily: FontFamily.gilroyMedium),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                       borderSide: BorderSide(

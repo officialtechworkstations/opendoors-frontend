@@ -1,5 +1,6 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, unused_local_variable, unnecessary_brace_in_string_interps, prefer_interpolation_to_compose_strings, avoid_print, unnecessary_string_interpolations, prefer_const_constructors_in_immutables, prefer_typing_uninitialized_variables, deprecated_member_use
 
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -79,7 +80,6 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
 
   late Razorpay _razorpay;
 
-
   int? _value = 0;
   int curretnIndex = 0;
   int? _groupValue;
@@ -91,6 +91,9 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
   String paystackID = "";
   String? paymenttital;
   String formattedDate = "";
+
+  // double commisionAmount = 0;
+  // double commisionRate = 0;
 
   bool? checkLogin;
 
@@ -107,6 +110,21 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
     }
   }
 
+  // getTheCommision() {
+  //   final amount = double.parse(reviewSummaryController.pPrice) *
+  //       bookrealEstateController.days.length;
+  //   final comm = reviewSummaryController.calculateTheOrderCommission(amount);
+  //   final rate = reviewSummaryController.getOrderCommissionRate(amount);
+  //   // log(comm.toString());
+  //   // log(rate.toString());
+  //   // log(amount.toString());
+
+  //   setState(() {
+  //     commisionAmount = comm;
+  //     commisionRate = rate;
+  //   });
+  // }
+
   @override
   void initState() {
     super.initState();
@@ -121,6 +139,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     price = double.parse(reviewSummaryController.pPrice);
+
+    // getTheCommision();
     setState(() {
       totalprice = double.parse(
           (price * bookrealEstateController.days.length).toString());
@@ -133,9 +153,11 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
 
       print("££££££@@@@@@" + tex.toString());
 
-      tempWallet =
-          double.parse(homePageController.homeDatatInfo?.homeData!.wallet ?? "");
+      tempWallet = double.parse(
+          homePageController.homeDatatInfo?.homeData!.wallet ?? "");
     });
+
+    // getTheCommision();
     setState(() {
       var now = DateTime.now();
       var formatter = DateFormat('dd/MM/yyyy');
@@ -201,13 +223,21 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
                                 child: FadeInImage.assetNetwork(
-                                  imageErrorBuilder: (context, error, stackTrace) {
-                                  return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                                  imageErrorBuilder:
+                                      (context, error, stackTrace) {
+                                    return Center(
+                                      child: Image.asset(
+                                        "assets/images/emty.gif",
+                                        fit: BoxFit.cover,
+                                        height: Get.height,
+                                      ),
+                                    );
                                   },
                                   fit: BoxFit.cover,
                                   image:
-                                  "${Config.imageUrl}${reviewSummaryController.pImage}",
-                                  placeholder:  "assets/images/ezgif.com-crop.gif",
+                                      "${Config.imageUrl}${reviewSummaryController.pImage}",
+                                  placeholder:
+                                      "assets/images/ezgif.com-crop.gif",
                                 ),
                               ),
                               decoration: BoxDecoration(
@@ -272,7 +302,9 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 10,),
+                              SizedBox(
+                                height: 10,
+                              ),
                               Text(
                                 reviewSummaryController.pCity,
                                 maxLines: 1,
@@ -452,7 +484,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                       : SizedBox(
                           height: 10,
                         ),
-                   Visibility(
+                  Visibility(
                     visible: checkLogin ?? true,
                     child: Container(
                       margin: EdgeInsets.symmetric(horizontal: 10),
@@ -539,13 +571,16 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                       )
                                     : InkWell(
                                         onTap: () {
-                                          if(status == true){
+                                          if (status == true) {
                                             setState(() {
-                                              tempWallet = double.parse(wallet.toString());
+                                              tempWallet = double.parse(
+                                                  wallet.toString());
                                               status = false;
                                               useWallet = 0;
-                                              currentTotalprice = totalprice + tex - copAmt;
-                                              print("MAIN AMOUNT  ?> > > ${currentTotalprice}");
+                                              currentTotalprice =
+                                                  totalprice + tex - copAmt;
+                                              print(
+                                                  "MAIN AMOUNT  ?> > > ${currentTotalprice}");
                                             });
                                           }
                                           couponController.getCouponDataApi();
@@ -565,8 +600,16 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                               mobile = value["mobile"];
                                               ccode = value["ccode"];
                                               couponCode = value["couponCode"];
-                                              print("COUPON VALUE : > : > : > : > :> $copAmt");
-                                              status ? (currentTotalprice = double.parse(currentTotalprice) - copAmt) : (currentTotalprice = currentTotalprice - copAmt);
+                                              print(
+                                                  "COUPON VALUE : > : > : > : > :> $copAmt");
+                                              status
+                                                  ? (currentTotalprice =
+                                                      double.parse(
+                                                              currentTotalprice) -
+                                                          copAmt)
+                                                  : (currentTotalprice =
+                                                      currentTotalprice -
+                                                          copAmt);
                                             });
                                           });
                                         },
@@ -602,40 +645,39 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                       ),
                     ),
                   ),
-                 coupAdded
+                  coupAdded
                       ? SizedBox(
                           height: 10,
                         )
                       : SizedBox(),
-
                   couponController.isLodding
                       ? GetBuilder<CouponController>(builder: (context) {
-                          return coupAdded ? Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: couponController.isLodding
-                                ? Text(
-                                    couponController.couponMsg,
-                                    style: TextStyle(
-                                      color: blueColor,
-                                      fontFamily: FontFamily.gilroyMedium,
-                                      fontSize: 16,
-                                    ),
-                                  )
-                                : SizedBox(),
-                          ) : SizedBox();
+                          return coupAdded
+                              ? Padding(
+                                  padding: const EdgeInsets.only(left: 15),
+                                  child: couponController.isLodding
+                                      ? Text(
+                                          couponController.couponMsg,
+                                          style: TextStyle(
+                                            color: blueColor,
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            fontSize: 16,
+                                          ),
+                                        )
+                                      : SizedBox(),
+                                )
+                              : SizedBox();
                         })
                       : SizedBox(),
-                   SizedBox(
-                          height: 10,
-                        ),
-
+                  SizedBox(
+                    height: 10,
+                  ),
                   checkLogin == true && wallet != "0"
                       ? walletDetail()
                       : SizedBox(),
                   SizedBox(
                     height: checkLogin == true && wallet != "0" ? 10 : 0,
                   ),
-
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 10),
                     width: Get.size.width,
@@ -701,6 +743,36 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             ),
                           ],
                         ),
+                        // SizedBox(
+                        //   height: 15,
+                        // ),
+                        // Row(
+                        //   children: [
+                        //     SizedBox(
+                        //       width: 20,
+                        //     ),
+                        //     Text(
+                        //       "${"Commission".tr} (${commisionRate}%)",
+                        //       style: TextStyle(
+                        //         fontFamily: FontFamily.gilroyMedium,
+                        //         fontSize: 15,
+                        //         color: notifire.getwhiteblackcolor,
+                        //       ),
+                        //     ),
+                        //     Spacer(),
+                        //     Text(
+                        //       "${currency}${commisionAmount}",
+                        //       style: TextStyle(
+                        //         fontFamily: FontFamily.gilroyBold,
+                        //         fontSize: 15,
+                        //         color: notifire.getwhiteblackcolor,
+                        //       ),
+                        //     ),
+                        //     SizedBox(
+                        //       width: 20,
+                        //     ),
+                        //   ],
+                        // ),
                         SizedBox(
                           height: 15,
                         ),
@@ -769,7 +841,10 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                         SizedBox(height: status ? 15 : 0),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Divider(color: Colors.white,thickness: 1,),
+                          child: Divider(
+                            color: Colors.white,
+                            thickness: 1,
+                          ),
                         ),
                         SizedBox(
                           height: 10,
@@ -819,6 +894,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                     height: 50,
                     buttoncolor: blueColor,
                     margin: EdgeInsets.only(top: 15, left: 30, right: 30),
+                    // buttontext: 'pay',
                     buttontext: checkLogin == true ? "Continue".tr : "Login".tr,
                     style: TextStyle(
                       fontFamily: FontFamily.gilroyBold,
@@ -858,7 +934,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
     if (value == true) {
       if (double.parse(wallet.toString()) <
           double.parse(currentTotalprice.toString())) {
-        tempWallet = double.parse(currentTotalprice.toString()) - double.parse(wallet.toString());
+        tempWallet = double.parse(currentTotalprice.toString()) -
+            double.parse(wallet.toString());
 
         useWallet = double.parse(wallet.toString());
         currentTotalprice = (double.parse(currentTotalprice.toString()) -
@@ -915,8 +992,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                   decoration: BoxDecoration(
                     color: notifire.getblackwhitecolor,
                     borderRadius: BorderRadius.circular(15),
-                    border:
-                    Border.all(color: notifire.getborderColor),
+                    border: Border.all(color: notifire.getborderColor),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(10),
@@ -925,7 +1001,11 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                       children: [
                         Row(
                           children: [
-                            SvgPicture.asset("assets/images/viewdataWallet.svg",height: 30,color: notifire.getwhiteblackcolor,),
+                            SvgPicture.asset(
+                              "assets/images/viewdataWallet.svg",
+                              height: 30,
+                              color: notifire.getwhiteblackcolor,
+                            ),
                             SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -941,7 +1021,11 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                 ),
                                 SizedBox(height: 5),
                                 Text("Available for Payment ".tr,
-                                    style: TextStyle(fontFamily: FontFamily.gilroyMedium,fontSize: 12,color: notifire.getwhiteblackcolor,)),
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.gilroyMedium,
+                                      fontSize: 12,
+                                      color: notifire.getwhiteblackcolor,
+                                    )),
                               ],
                             ),
                           ],
@@ -1074,7 +1158,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                   margin: EdgeInsets.all(15),
                   alignment: Alignment.center,
                   child: Text(
-                    "Cancle".tr,
+                    "Cancel".tr,
                     style: TextStyle(
                       color: blueColor,
                       fontFamily: FontFamily.gilroyBold,
@@ -1134,7 +1218,13 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                           placeholder:
                               const AssetImage("assets/images/loading2.gif"),
                           imageErrorBuilder: (context, error, stackTrace) {
-                          return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                            return Center(
+                              child: Image.asset(
+                                "assets/images/emty.gif",
+                                fit: BoxFit.cover,
+                                height: Get.height,
+                              ),
+                            );
                           },
                           image: NetworkImage(image)),
                     )),
@@ -1226,14 +1316,23 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                 child: InkWell(
                                   onTap: () async {
                                     setState(() {
-
-                                      paystackID = reviewSummaryController.paymentInfo!.paymentdata![i].attributes.toString().split(",").last;
-                                      print(" PAYSTACK ATTRIBUTE > L > L> > L >L> L>  L>  L> L > L > $paystackID");
-                                      razorpaykey = "${reviewSummaryController.paymentInfo!.paymentdata![i].attributes}";
+                                      paystackID = reviewSummaryController
+                                          .paymentInfo!
+                                          .paymentdata![i]
+                                          .attributes
+                                          .toString()
+                                          .split(",")
+                                          .last;
+                                      print(
+                                          " PAYSTACK ATTRIBUTE > L > L> > L >L> L>  L>  L> L > L > $paystackID");
+                                      razorpaykey =
+                                          "${reviewSummaryController.paymentInfo!.paymentdata![i].attributes}";
                                       paymenttital = reviewSummaryController
                                           .paymentInfo!.paymentdata![i].title;
                                       selectidPay = reviewSummaryController
-                                          .paymentInfo?.paymentdata![i].id ??
+                                              .paymentInfo
+                                              ?.paymentdata![i]
+                                              .id ??
                                           "";
                                       _groupValue = i;
                                     });
@@ -1241,42 +1340,87 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                   child: Container(
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(15),
-                                        border: Border.all(color: selectidPay ==
-                                            reviewSummaryController
-                                                .paymentInfo?.paymentdata![i].id
-                                            ? buttonColor
-                                            : notifire.getborderColor,)
-                                    ),
+                                        border: Border.all(
+                                          color: selectidPay ==
+                                                  reviewSummaryController
+                                                      .paymentInfo
+                                                      ?.paymentdata![i]
+                                                      .id
+                                              ? buttonColor
+                                              : notifire.getborderColor,
+                                        )),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Padding(
                                           padding: const EdgeInsets.all(10),
                                           child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(10),
-                                            child: Image.network(Config.imageUrl + "${reviewSummaryController.paymentInfo!.paymentdata![i].img}", height: 75,),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: Image.network(
+                                              Config.imageUrl +
+                                                  "${reviewSummaryController.paymentInfo!.paymentdata![i].img}",
+                                              height: 75,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Icon(
+                                                  Icons.error,
+                                                  size: 50,
+                                                );
+                                              },
+                                            ),
                                           ),
                                         ),
                                         Flexible(
                                           child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Text(reviewSummaryController
-                                                  .paymentInfo?.paymentdata![i].title ??
-                                                  "", style: TextStyle(fontSize: 18,fontFamily: FontFamily.gilroyMedium, fontWeight: FontWeight.w600, color: notifire.getwhiteblackcolor)),
-                                              SizedBox(height: 5,),
-                                              Text(reviewSummaryController.paymentInfo
-                                                  ?.paymentdata![i].subtitle ??
-                                                  "", style: TextStyle(fontFamily: FontFamily.gilroyLight, color: notifire.getgreycolor, fontSize: 14),maxLines: 3,overflow: TextOverflow.ellipsis,),
+                                              Text(
+                                                  reviewSummaryController
+                                                          .paymentInfo
+                                                          ?.paymentdata![i]
+                                                          .title ??
+                                                      "",
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontFamily: FontFamily
+                                                          .gilroyMedium,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: notifire
+                                                          .getwhiteblackcolor)),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Text(
+                                                reviewSummaryController
+                                                        .paymentInfo
+                                                        ?.paymentdata![i]
+                                                        .subtitle ??
+                                                    "",
+                                                style: TextStyle(
+                                                    fontFamily:
+                                                        FontFamily.gilroyLight,
+                                                    color:
+                                                        notifire.getgreycolor,
+                                                    fontSize: 14),
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ],
                                           ),
                                         ),
                                         Radio(
-                                          fillColor: MaterialStateColor.resolveWith(
+                                          fillColor:
+                                              MaterialStateColor.resolveWith(
                                                   (states) => i == _groupValue
-                                                  ? blueColor
-                                                  : notifire.getborderColor),
+                                                      ? blueColor
+                                                      : notifire
+                                                          .getborderColor),
                                           activeColor: buttonColor,
                                           value: i,
                                           groupValue: _groupValue,
@@ -1292,7 +1436,9 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(color: Darkblue,),
+                            child: CircularProgressIndicator(
+                              color: Darkblue,
+                            ),
                           );
                   }),
                 ),
@@ -1330,18 +1476,27 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                         Get.back();
                         stripePayment();
                       } else if (paymenttital == "PayStack") {
-                        paystackController.paystack(currentTotalprice.toString()).then((value) {
-                        print("< > >< >< >< >< >< >< >< >< ><>>< ${paystackController.paystackData!.data!.authorizationUrl}>");
-                          Get.to(() => Paystackweb(url: paystackController.paystackData!.data!.authorizationUrl, skID: paystackID,))!.then((otid) {
-                            if (verifyPaystack == 1) {
-                              bookApiData(otid);
-                              showToastMessage("Payment Successfully");
-                            } else {
-                              Get.back();
-                            }
-                          });
-                        },);
-
+                        paystackController
+                            .paystack(currentTotalprice.toString())
+                            .then(
+                          (value) {
+                            print(
+                                "< > >< >< >< >< >< >< >< >< ><>>< ${paystackController.paystackData!.data!.authorizationUrl}>");
+                            Get.to(() => Paystackweb(
+                                      url: paystackController
+                                          .paystackData!.data!.authorizationUrl,
+                                      skID: paystackID,
+                                    ))!
+                                .then((otid) {
+                              if (verifyPaystack == 1) {
+                                bookApiData(otid);
+                                showToastMessage("Payment Successfully");
+                              } else {
+                                Get.back();
+                              }
+                            });
+                          },
+                        );
                       } else if (paymenttital == "FlutterWave") {
                         Get.to(() => FlutterWave(
                                   totalAmount: currentTotalprice.toString(),
@@ -1372,18 +1527,27 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                         });
                       } else if (paymenttital == "SenangPay") {
                         Get.to(() => Senangpay(
-                          email: getData.read("UserLogin")["email"].toString(),
-                          name: getData.read("UserLogin")["name"].toString(),
-                          phone: getData.read("UserLogin")["mobile"].toString(),
-                          totalAmount: currentTotalprice.toString(),
-                        ))!.then((otid) {
-                          if (otid != null) {
-                            bookApiData(otid);
-                            showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        },);
+                                  email: getData
+                                      .read("UserLogin")["email"]
+                                      .toString(),
+                                  name: getData
+                                      .read("UserLogin")["name"]
+                                      .toString(),
+                                  phone: getData
+                                      .read("UserLogin")["mobile"]
+                                      .toString(),
+                                  totalAmount: currentTotalprice.toString(),
+                                ))!
+                            .then(
+                          (otid) {
+                            if (otid != null) {
+                              bookApiData(otid);
+                              showToastMessage("Payment Successfully");
+                            } else {
+                              Get.back();
+                            }
+                          },
+                        );
                       } else if (paymenttital == "Midtrans") {
                         Get.to(() => MidTrans(
                                   phonNumber: getData
@@ -1582,7 +1746,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
   }
 
   bookApiData(otid) {
-    bookrealEstateController.bookApiData(
+    bookrealEstateController
+        .bookApiData(
       pid: reviewSummaryController.id,
       subtotal:
           (price * bookrealEstateController.days.length - copAmt).toString(),
@@ -1606,15 +1771,20 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
       ccode: ccode,
       country: "",
       noGuest: bookrealEstateController.count.toString(),
-    ).then((value) {
-      if (value != null && value["Result"] == "true") {
-        print("ASDA $value");
-        congratiulationDialog();
-      } else {
-        print("ASDA $value");
-        showToastMessage(value == null ? "Something went wrong!" : "${value["ResponseMsg"]}");
-      }
-    },);
+    )
+        .then(
+      (value) {
+        if (value != null && value["Result"] == "true") {
+          print("ASDA $value");
+          congratiulationDialog();
+        } else {
+          print("ASDA $value");
+          showToastMessage(value == null
+              ? "Something went wrong!"
+              : "${value["ResponseMsg"]}");
+        }
+      },
+    );
 
     bookrealEstateController.count = 1;
     bookrealEstateController.checkIn = '';
@@ -1626,17 +1796,13 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
     showToastMessage("Payment Successfully");
   }
 
-
   String _getReference() {
     var platform = (Platform.isIOS) ? 'iOS' : 'Android';
     final thisDate = DateTime.now().millisecondsSinceEpoch;
     return 'ChargedFrom${platform}_$thisDate';
   }
 
-  chargeCard(int amount, String email) async {
-
-  }
-
+  chargeCard(int amount, String email) async {}
 
   final _formKey = GlobalKey<FormState>();
   var numberController = TextEditingController();
@@ -1904,7 +2070,10 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                       color: buttonColor,
                                       child: Text(
                                         "Pay ${currency}${(price * bookrealEstateController.days.length + tex)}",
-                                        style: TextStyle(fontSize: 17.0, color: WhiteColor, fontFamily: FontFamily.gilroyBold),
+                                        style: TextStyle(
+                                            fontSize: 17.0,
+                                            color: WhiteColor,
+                                            fontFamily: FontFamily.gilroyBold),
                                       ),
                                     ),
                                   ),
@@ -1930,8 +2099,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
     final FormState form = _formKey.currentState!;
     if (!form.validate()) {
       setState(() {
-        _autoValidateMode =
-            AutovalidateMode.always;
+        _autoValidateMode = AutovalidateMode.always;
       });
       showToastMessage("Please fix the errors in red before submitting.".tr);
     } else {
@@ -1942,7 +2110,11 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
       _paymentCard.amount = currentTotalprice.toString();
       form.save();
 
-      Get.to(() => StripePaymentWeb(url: 'stripe/index.php?name=${_paymentCard.name}&email=${_paymentCard.email}&cardno=${_paymentCard.number}&cvc=${_paymentCard.cvv}&amt=${_paymentCard.amount}&mm=${_paymentCard.month}&yyyy=${_paymentCard.year}',))!.then((otid) {
+      Get.to(() => StripePaymentWeb(
+                url:
+                    'stripe/index.php?name=${_paymentCard.name}&email=${_paymentCard.email}&cardno=${_paymentCard.number}&cvc=${_paymentCard.cvv}&amt=${_paymentCard.amount}&mm=${_paymentCard.month}&yyyy=${_paymentCard.year}',
+              ))!
+          .then((otid) {
         Get.back();
         if (otid != null) {
           bookApiData(otid);

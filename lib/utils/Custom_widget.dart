@@ -50,6 +50,7 @@ GestButton({
   Color? buttoncolor,
   EdgeInsets? margin,
   TextStyle? style,
+  bool isLoading = false,
 }) {
   return GestureDetector(
     onTap: onclick,
@@ -60,7 +61,7 @@ GestButton({
       alignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: buttoncolor,
+        color: isLoading ? greycolor : buttoncolor,
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -72,15 +73,23 @@ GestButton({
           ),
         ],
       ),
-      child: Text(buttontext!, style: style),
+      child: isLoading
+          ? SizedBox(
+              height: 15,
+              width: 15,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                strokeWidth: 2,
+              ))
+          : Text(buttontext!, style: style),
     ),
   );
 }
 
-showToastMessage(message) {
+showToastMessage(message, [ToastGravity gravity = ToastGravity.BOTTOM]) {
   Fluttertoast.showToast(
     msg: message,
-    gravity: ToastGravity.BOTTOM,
+    gravity: gravity,
     timeInSecForIosWeb: 1,
     backgroundColor: BlackColor.withOpacity(0.9),
     textColor: Colors.white,

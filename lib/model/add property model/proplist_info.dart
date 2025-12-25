@@ -99,14 +99,14 @@ class Proplist {
       this.cautionFee});
 
   factory Proplist.fromJson(Map<String, dynamic> json) {
-    // log(json.toString());
+    log(json.toString());
     return Proplist(
         id: json["id"],
         title: json["title"],
         propertyType: json["property_type"],
         propertyTypeId: json["property_type_id"],
         image: json["image"],
-        countryId: json["country_id"],
+        countryId: json["country_id"] ?? "1",
         countryTitle: json["country_title"] ?? "+234",
         price: json["price"],
         beds: json["beds"],

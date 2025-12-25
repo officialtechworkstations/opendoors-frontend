@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -14,16 +16,17 @@ class AuthService extends ChangeNotifier {
       required String proPicPath}) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
-        await FirebaseMessaging.instance.getToken().then((token) {
+      await FirebaseMessaging.instance.getToken().then((token) {
         print("TOKEN  NO $token");
-          _firestore.collection("opendoors_users").doc(uid).set({
-            "uid": uid,
-            "name": email,
-            "token": "$token",
-            "isOnline": false,
-            "pro_pic": proPicPath
-          });
+        log("TOKEN  NO $token");
+        _firestore.collection("opendoors_users").doc(uid).set({
+          "uid": uid,
+          "name": email,
+          "token": "$token",
+          "isOnline": false,
+          "pro_pic": proPicPath
         });
+      });
     } catch (e) {
       print("+++++++ FirebaseAuthException +++++ $e");
     }

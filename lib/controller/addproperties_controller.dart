@@ -31,13 +31,16 @@ class AddPropertiesController extends GetxController implements GetxService {
   String? path;
   String? base64Image;
 
-  String countryId = "";
+  String countryId = "1";
 
   String pType = "";
   String pbuySell = "";
   String status = "";
 
   String pImage = "";
+
+  final Rx<bool> isBusy = false.obs;
+  // bool isBusy = false;
 
   var selectedIndexes = [];
 
@@ -71,6 +74,11 @@ class AddPropertiesController extends GetxController implements GetxService {
 
   var elat;
   var elong;
+
+  setBusy(bool state) {
+    isBusy.value = state;
+    update();
+  }
 
   getEditDetails(
       {String? eTitle1,
@@ -160,13 +168,13 @@ class AddPropertiesController extends GetxController implements GetxService {
   }
 
   addPropertyApi() async {
-    String str = selectedIndexes.join(",");
+    String str = selectedIndexes.toSet().toList().join(",");
     try {
       Map map = {
         "uid": getData.read("UserLogin")["id"],
         "status": status == "" ? "1" : status, // publish 1 /0
         "plimit": pGest.text,
-        "country_id": countryId,
+        "country_id": countryId.isEmpty ? "1" : countryId,
         "pbuysell": pbuySell == "" ? "2" : pbuySell, // buy hoy to 2 nkar 1
         "title": pTitle.text,
         "address": pAddress.text,
@@ -188,6 +196,8 @@ class AddPropertiesController extends GetxController implements GetxService {
         "caution_fee": pCaution.text.isNotEmpty ? pCaution.text : "0"
       };
       print(":::::::::::::::" + map.toString());
+      setBusy(true);
+
       // log(":::::::::::::::" + map.toString());
       Uri uri = Uri.parse(Config.path + Config.addPropertyApi);
       var response = await http.post(
@@ -208,17 +218,28 @@ class AddPropertiesController extends GetxController implements GetxService {
       }
     } catch (e) {
       print(e.toString());
+    } finally {
+      setBusy(false);
     }
+  }
+
+  testLoading() async {
+    setBusy(true);
+    await Future.delayed(const Duration(seconds: 3));
+    setBusy(false);
   }
 
   editPropertyApi() async {
     try {
-      String str = selectedIndexes.join(",");
+      log("Selected Indexes: $selectedIndexes");
+      String str = selectedIndexes.toSet().toList().join(",");
       Map map = {
         "uid": getData.read("UserLogin")["id"],
+        "user_id": getData.read("UserLogin")["id"],
+        // "listing_date": "",
         "status": status == "" ? "1" : status,
         "plimit": pGest.text,
-        "country_id": countryId,
+        "country_id": countryId.isEmpty ? "1" : countryId,
         "pbuysell": pbuySell == "" ? "2" : pbuySell,
         "title": pTitle.text,
         "address": pAddress.text,
@@ -241,6 +262,9 @@ class AddPropertiesController extends GetxController implements GetxService {
         "caution_fee": pCaution.text.isNotEmpty ? pCaution.text : "0"
       };
       print(":::::::::::::::" + map.toString());
+      log(":::::::::::::::" + map.toString());
+      setBusy(true);
+
       Uri uri = Uri.parse(Config.path + Config.editPropertyApi);
       var response = await http.post(
         uri,
@@ -259,6 +283,8 @@ class AddPropertiesController extends GetxController implements GetxService {
       }
     } catch (e) {
       print(e.toString());
+    } finally {
+      setBusy(false);
     }
   }
 }

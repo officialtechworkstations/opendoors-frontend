@@ -96,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<dynamic> isUserLogOut(String uid) async {
     CollectionReference collectionReference =
-    FirebaseFirestore.instance.collection('opendoors_users');
+        FirebaseFirestore.instance.collection('opendoors_users');
     collectionReference.doc(uid).update({"token": ""});
   }
 
@@ -113,9 +113,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: notifire.getbgcolor,
           elevation: 0,
           leading: Padding(
-            padding: const EdgeInsets.only(left: 5,),
+            padding: const EdgeInsets.only(
+              left: 5,
+            ),
             child: Image.asset(
-              notifire.isDark ? "assets/images/applogo 1b.png" : "assets/images/applogo.png",
+              notifire.isDark
+                  ? "assets/images/applogo 1b.png"
+                  : "assets/images/applogo.png",
               height: 20,
               width: 20,
             ),
@@ -314,7 +318,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           Spacer(),
                           Text(
-                              getData.read("countryName") == null || getData.read("countryName") == "" ? "" : getData.read("countryName"),
+                            getData.read("countryName") == null ||
+                                    getData.read("countryName") == ""
+                                ? ""
+                                : getData.read("countryName"),
                             style: TextStyle(
                               fontFamily: FontFamily.gilroyMedium,
                               fontSize: 16,
@@ -431,7 +438,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(color: Darkblue,),
+                            child: CircularProgressIndicator(
+                              color: Darkblue,
+                            ),
                           );
                   }),
                   settingWidget(
@@ -709,7 +718,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       margin: EdgeInsets.all(15),
                       alignment: Alignment.center,
                       child: Text(
-                        "Cancle".tr,
+                        "Cancel".tr,
                         style: TextStyle(
                           color: blueColor,
                           fontFamily: FontFamily.gilroyBold,
@@ -728,21 +737,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onTap: () async {
                       final prefs = await SharedPreferences.getInstance();
                       setState(() async {
-                        isUserLogOut(getData.read("UserLogin")["id"]).then((value) async {
-                          save('isLoginBack', true);
-                          await prefs.remove('Firstuser');
-                          getData.remove("UserLogin");
-                          getData.remove("countryId");
-                          getData.remove("countryName");
-                          getData.remove("currentIndex");
-                          tokenemty();
+                        isUserLogOut(getData.read("UserLogin")["id"]).then(
+                          (value) async {
+                            save('isLoginBack', true);
+                            await prefs.remove('Firstuser');
+                            getData.remove("UserLogin");
+                            getData.remove("countryId");
+                            getData.remove("countryName");
+                            getData.remove("currentIndex");
+                            tokenemty();
 
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginScreen()));
-                        },);
-
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginScreen()));
+                          },
+                        );
                       });
                     },
                     child: Container(
@@ -848,7 +858,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       margin: EdgeInsets.all(15),
                       alignment: Alignment.center,
                       child: Text(
-                        "Cancle".tr,
+                        "Cancel".tr,
+                        // "Cancel".tr,
                         style: TextStyle(
                           color: blueColor,
                           fontFamily: FontFamily.gilroyBold,

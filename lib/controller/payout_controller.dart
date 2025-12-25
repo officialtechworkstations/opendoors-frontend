@@ -67,7 +67,7 @@ class PayOutController extends GetxController implements GetxService {
         "acc_number": accountNumber.text,
         "bank_name": bankName.text,
         "acc_name": accountHolderName.text,
-        "ifsc_code": ifscCode.text,
+        // "ifsc_code": ifscCode.text, NOTE!REMOVED FOR NOW
         "upi_id": upi.text,
         "paypal_id": emailId.text,
       };

@@ -49,6 +49,7 @@ class Config {
   static const String checDateApi = 'u_check.php';
   static const String getAdminSetting = 'u_setting.php';
   static const String bookApi = 'u_book.php';
+  static const String commissionApi = 'get-commission-rate.php';
   static const String statusWiseBook = 'u_book_status_wise.php';
   static const String bookingCancle = 'u_book_cancle.php';
   static const String bookingDetails = 'u_book_details.php';
@@ -93,4 +94,12 @@ class Config {
 
   static const String requestWithdraw = 'request_withdraw.php';
   static const String payOutList = 'payout_list.php';
+
+  // kyc
+  static const String getMyDocumentsUrl = 'u_my_uploaded_document.php';
+  static const String uploadDocumentUrl = 'u_upload_required_document.php';
+  static const String getRequiredDocumentsUrl = 'u_required_documents.php';
+
+  // email sms
+  static const String sendEmailSmsApi = 'email_otp.php';
 }

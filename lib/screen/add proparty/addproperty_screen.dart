@@ -85,6 +85,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             addPropertiesController.eparty_cost;
         addPropertiesController.pCaution.text =
             addPropertiesController.ecaution_fee;
+        // addPropertiesController.
 
         addPropertiesController.propertyAddress.text =
             addPropertiesController.ePropertyAddress;
@@ -116,7 +117,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       addPropertiesController.emptyAllDetails();
       addPropertiesController.selectedIndexes = [];
       addPropertiesController.pType = "";
-      addPropertiesController.countryId = "";
+      addPropertiesController.countryId = "1";
       selectProperty = null;
       selectCountry = null;
       setState(() {});
@@ -142,7 +143,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         backgroundColor: notifire.getblackwhitecolor,
         elevation: 0,
         title: Text(
-          "Add Property".tr,
+          manegeRoute == "Add" ? "Add Property".tr : "Edit Property".tr,
           style: TextStyle(
             color: notifire.getwhiteblackcolor,
             fontFamily: FontFamily.gilroyBold,
@@ -156,99 +157,32 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           key: _formKey,
           child: Column(
             children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text(
-                            "Property".tr,
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyBold,
-                              fontSize: 16,
-                              color: notifire.getwhiteblackcolor,
+              Obx(
+                () => Expanded(
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    child: Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              "Property".tr,
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Container(
-                          height: 60,
-                          width: Get.size.width,
-                          alignment: Alignment.center,
-                          margin: EdgeInsets.symmetric(horizontal: 10),
-                          padding: EdgeInsets.only(left: 15, right: 15),
-                          child: DropdownButton(
-                            dropdownColor: notifire.getbgcolor,
-                            value: selectValue,
-                            icon: Image.asset(
-                              'assets/images/Arrow - Down.png',
-                              height: 20,
-                              width: 20,
-                              color: notifire.getwhiteblackcolor,
-                            ),
-                            isExpanded: true,
-                            underline: SizedBox.shrink(),
-                            items: list
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: TextStyle(
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    color: notifire.getwhiteblackcolor,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                if (value == "Buy") {
-                                  addPropertiesController.pbuySell = "2";
-                                } else if (value == "Rent") {
-                                  addPropertiesController.pbuySell = "1";
-                                }
-                                selectValue = value ?? "";
-                              });
-                            },
+                          SizedBox(
+                            height: 8,
                           ),
-                          decoration: BoxDecoration(
-                            color: notifire.getblackwhitecolor,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: notifire.getborderColor),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text(
-                            "Select Country".tr,
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyBold,
-                              fontSize: 16,
-                              color: notifire.getwhiteblackcolor,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        GetBuilder<AddPropertiesController>(builder: (context) {
-                          // log(selectCountryController.countryList.toString());
-                          // log(selectCountry.toString());
-                          return Container(
+                          Container(
                             height: 60,
                             width: Get.size.width,
                             alignment: Alignment.center,
@@ -256,13 +190,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             padding: EdgeInsets.only(left: 15, right: 15),
                             child: DropdownButton(
                               dropdownColor: notifire.getbgcolor,
-                              hint: Text(
-                                "Select Country".tr,
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              value: selectCountry,
+                              value: selectValue,
                               icon: Image.asset(
                                 'assets/images/Arrow - Down.png',
                                 height: 20,
@@ -271,8 +199,355 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               ),
                               isExpanded: true,
                               underline: SizedBox.shrink(),
-                              items: selectCountryController
-                                  .countryList //<String>[]
+                              items: list.map<DropdownMenuItem<String>>(
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.gilroyMedium,
+                                      color: notifire.getwhiteblackcolor,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  if (value == "Buy") {
+                                    addPropertiesController.pbuySell = "2";
+                                  } else if (value == "Rent") {
+                                    addPropertiesController.pbuySell = "1";
+                                  }
+                                  selectValue = value ?? "";
+                                });
+                              },
+                            ),
+                            decoration: BoxDecoration(
+                              color: notifire.getblackwhitecolor,
+                              borderRadius: BorderRadius.circular(15),
+                              border:
+                                  Border.all(color: notifire.getborderColor),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              "Select Country".tr,
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          GetBuilder<AddPropertiesController>(
+                              builder: (context) {
+                            // log(selectCountryController.countryList.toString());
+                            // log(selectCountry.toString());
+                            return Container(
+                              height: 60,
+                              width: Get.size.width,
+                              alignment: Alignment.center,
+                              margin: EdgeInsets.symmetric(horizontal: 10),
+                              padding: EdgeInsets.only(left: 15, right: 15),
+                              child: DropdownButton(
+                                dropdownColor: notifire.getbgcolor,
+                                hint: Text(
+                                  "Select Country".tr,
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                value: selectCountry,
+                                icon: Image.asset(
+                                  'assets/images/Arrow - Down.png',
+                                  height: 20,
+                                  width: 20,
+                                  color: notifire.getwhiteblackcolor,
+                                ),
+                                isExpanded: true,
+                                underline: SizedBox.shrink(),
+                                items: selectCountryController
+                                    .countryList //<String>[]
+                                    .map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(
+                                      value,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.gilroyMedium,
+                                        color: notifire.getwhiteblackcolor,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  for (var i = 0;
+                                      i <
+                                          selectCountryController
+                                              .countryInfo!.countryData!.length;
+                                      i++) {
+                                    if (value ==
+                                        selectCountryController.countryInfo
+                                            ?.countryData![i].title) {
+                                      // log(selectCountryController
+                                      //     .countryInfo!.countryData![i].id
+                                      //     .toString());
+                                      addPropertiesController.countryId =
+                                          selectCountryController.countryInfo
+                                                  ?.countryData![i].id ??
+                                              "";
+                                    }
+                                  }
+                                  log(addPropertiesController.countryId
+                                      .toString());
+                                  setState(() {
+                                    selectCountry = value ?? "";
+                                  });
+                                },
+                              ),
+                              decoration: BoxDecoration(
+                                color: notifire.getblackwhitecolor,
+                                borderRadius: BorderRadius.circular(15),
+                                border:
+                                    Border.all(color: notifire.getborderColor),
+                              ),
+                            );
+                          }),
+                          textfield(
+                            type: "Property Title".tr,
+                            controller: addPropertiesController.pTitle,
+                            labelText: "Full Name".tr,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter Property Title'.tr;
+                              }
+                              return null;
+                            },
+                          ),
+                          textfield(
+                            type: "Mobile Number".tr,
+                            controller: addPropertiesController.pNumber,
+                            labelText: "Mobile Number".tr,
+                            textInputType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter Mobile Number'.tr;
+                              }
+                              return null;
+                            },
+                          ),
+                          textfield(
+                            type: "Address".tr,
+                            controller: addPropertiesController.pAddress,
+                            labelText: "Address".tr,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter Your Address'.tr;
+                              }
+                              return null;
+                            },
+                          ),
+                          textfield(
+                            type: "Property Price".tr,
+                            controller: addPropertiesController.pPrice,
+                            labelText: "Price".tr,
+                            textInputType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter Property Price'.tr;
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              "Property Description".tr,
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Container(
+                            margin:
+                                EdgeInsets.only(top: 5, left: 15, right: 15),
+                            child: TextFormField(
+                              controller:
+                                  addPropertiesController.propertyAddress,
+                              minLines: 5,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              cursorColor: notifire.getwhiteblackcolor,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: blueColor),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                contentPadding: EdgeInsets.all(10),
+                                border: InputBorder.none,
+                                hintText: "Description".tr,
+                                hintStyle: TextStyle(
+                                  fontFamily: FontFamily.gilroyMedium,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyMedium,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please Enter Property Description'.tr;
+                                }
+                                return null;
+                              },
+                            ),
+                            decoration: BoxDecoration(
+                              color: notifire.getblackwhitecolor,
+                              borderRadius: BorderRadius.circular(15),
+                              border:
+                                  Border.all(color: notifire.getborderColor),
+                            ),
+                          ),
+                          textfield(
+                            type: "Total Beds".tr,
+                            controller: addPropertiesController.totalBeds,
+                            labelText: "Total Beds".tr,
+                            textInputType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter Total Beds'.tr;
+                              }
+                              return null;
+                            },
+                          ),
+                          textfield(
+                            type: "Total Bathroom".tr,
+                            controller: addPropertiesController.totalBathroom,
+                            labelText: "Total Bathroom".tr,
+                            textInputType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter Total Bathroom'.tr;
+                              }
+                              return null;
+                            },
+                          ),
+                          textfield(
+                            type: "Property Sqft.".tr,
+                            controller: addPropertiesController.pSqft,
+                            labelText: "Property Sqft.".tr,
+                            textInputType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter Property Sqft'.tr;
+                              }
+                              return null;
+                            },
+                          ),
+                          manegeRoute == "Add"
+                              ? textfield(
+                                  type: "Property Rating".tr,
+                                  controller: addPropertiesController.pRating,
+                                  labelText: "Property Rating".tr,
+                                  textInputType: TextInputType.number,
+                                  max: 1,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please Enter Property Rating'.tr;
+                                    }
+                                    return null;
+                                  },
+                                )
+                              : textfield(
+                                  type: "Property Rating".tr,
+                                  controller: addPropertiesController.pRating,
+                                  labelText: "Property Rating".tr,
+                                  textInputType: TextInputType.number,
+                                  readOnly: true,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please Enter Property Rating'.tr;
+                                    }
+                                    return null;
+                                  },
+                                ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          textfield(
+                            type: "Property Total Person Allowed?".tr,
+                            controller: addPropertiesController.pGest,
+                            labelText: "Person limit".tr,
+                            textInputType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter Property Total Person'.tr;
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              "Property Type".tr,
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Container(
+                            height: 60,
+                            width: Get.size.width,
+                            alignment: Alignment.center,
+                            margin: EdgeInsets.symmetric(horizontal: 10),
+                            padding: EdgeInsets.only(left: 15, right: 15),
+                            child: DropdownButton(
+                              dropdownColor: notifire.getbgcolor,
+                              hint: Text(
+                                "Select Property".tr,
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                              value: selectProperty,
+                              icon: Image.asset(
+                                'assets/images/Arrow - Down.png',
+                                height: 20,
+                                width: 20,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                              underline: SizedBox.shrink(),
+                              isExpanded: true,
+                              items: dashBoardController.typeList
                                   .map<DropdownMenuItem<String>>(
                                       (String value) {
                                 return DropdownMenuItem<String>(
@@ -290,21 +565,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               onChanged: (value) {
                                 for (var i = 0;
                                     i <
-                                        selectCountryController
-                                            .countryInfo!.countryData!.length;
+                                        dashBoardController
+                                            .proTypeInfo!.typelist!.length;
                                     i++) {
                                   if (value ==
-                                      selectCountryController
-                                          .countryInfo?.countryData![i].title) {
-                                    addPropertiesController.countryId =
-                                        selectCountryController.countryInfo
-                                                ?.countryData![i].id ??
+                                      dashBoardController
+                                          .proTypeInfo?.typelist![i].title) {
+                                    addPropertiesController.pType =
+                                        dashBoardController
+                                                .proTypeInfo?.typelist![i].id ??
                                             "";
+                                    print(addPropertiesController.pType);
                                   }
                                 }
-                                print(addPropertiesController.countryId);
                                 setState(() {
-                                  selectCountry = value ?? "";
+                                  selectProperty = value ?? "";
                                 });
                               },
                             ),
@@ -314,466 +589,222 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               border:
                                   Border.all(color: notifire.getborderColor),
                             ),
-                          );
-                        }),
-                        textfield(
-                          type: "Property Title".tr,
-                          controller: addPropertiesController.pTitle,
-                          labelText: "Full Name".tr,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Property Title'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                        textfield(
-                          type: "Mobile Number".tr,
-                          controller: addPropertiesController.pNumber,
-                          labelText: "Mobile Number".tr,
-                          textInputType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Mobile Number'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                        textfield(
-                          type: "Address".tr,
-                          controller: addPropertiesController.pAddress,
-                          labelText: "Address".tr,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Your Address'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                        textfield(
-                          type: "Property Price".tr,
-                          controller: addPropertiesController.pPrice,
-                          labelText: "Price".tr,
-                          textInputType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Property Price'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text(
-                            "Property Description".tr,
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyBold,
-                              fontSize: 16,
-                              color: notifire.getwhiteblackcolor,
-                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 5, left: 15, right: 15),
-                          child: TextFormField(
-                            controller: addPropertiesController.propertyAddress,
-                            minLines: 5,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            cursorColor: notifire.getwhiteblackcolor,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                            decoration: InputDecoration(
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: blueColor),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              contentPadding: EdgeInsets.all(10),
-                              border: InputBorder.none,
-                              hintText: "Description".tr,
-                              hintStyle: TextStyle(
-                                fontFamily: FontFamily.gilroyMedium,
-                                fontSize: 15,
-                              ),
-                            ),
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyMedium,
-                              fontSize: 16,
-                              color: notifire.getwhiteblackcolor,
-                            ),
+                          textfield(
+                            type: "City, Country".tr,
+                            controller: addPropertiesController.pCityAndCountry,
+                            labelText: "City, Country".tr,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please Enter Property Description'.tr;
+                                return 'Please Enter City, Country'.tr;
                               }
                               return null;
                             },
                           ),
-                          decoration: BoxDecoration(
-                            color: notifire.getblackwhitecolor,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: notifire.getborderColor),
+                          SizedBox(
+                            height: 10,
                           ),
-                        ),
-                        textfield(
-                          type: "Total Beds".tr,
-                          controller: addPropertiesController.totalBeds,
-                          labelText: "Total Beds".tr,
-                          textInputType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Total Beds'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                        textfield(
-                          type: "Total Bathroom".tr,
-                          controller: addPropertiesController.totalBathroom,
-                          labelText: "Total Bathroom".tr,
-                          textInputType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Total Bathroom'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                        textfield(
-                          type: "Property Sqft.".tr,
-                          controller: addPropertiesController.pSqft,
-                          labelText: "Property Sqft.".tr,
-                          textInputType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Property Sqft'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                        manegeRoute == "Add"
-                            ? textfield(
-                                type: "Property Rating".tr,
-                                controller: addPropertiesController.pRating,
-                                labelText: "Property Rating".tr,
-                                textInputType: TextInputType.number,
-                                max: 1,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please Enter Property Rating'.tr;
-                                  }
-                                  return null;
-                                },
-                              )
-                            : textfield(
-                                type: "Property Rating".tr,
-                                controller: addPropertiesController.pRating,
-                                labelText: "Property Rating".tr,
-                                textInputType: TextInputType.number,
-                                readOnly: true,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please Enter Property Rating'.tr;
-                                  }
-                                  return null;
-                                },
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              "Select Property Facility".tr,
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
                               ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        textfield(
-                          type: "Property Total Person Allowed?".tr,
-                          controller: addPropertiesController.pGest,
-                          labelText: "Person limit".tr,
-                          textInputType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Property Total Person'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text(
-                            "Property Type".tr,
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyBold,
-                              fontSize: 16,
-                              color: notifire.getwhiteblackcolor,
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Container(
-                          height: 60,
-                          width: Get.size.width,
-                          alignment: Alignment.center,
-                          margin: EdgeInsets.symmetric(horizontal: 10),
-                          padding: EdgeInsets.only(left: 15, right: 15),
-                          child: DropdownButton(
-                            dropdownColor: notifire.getbgcolor,
-                            hint: Text(
-                              "Select Property".tr,
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            value: selectProperty,
-                            icon: Image.asset(
-                              'assets/images/Arrow - Down.png',
-                              height: 20,
-                              width: 20,
-                              color: notifire.getwhiteblackcolor,
-                            ),
-                            underline: SizedBox.shrink(),
-                            isExpanded: true,
-                            items: dashBoardController.typeList
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: TextStyle(
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    color: notifire.getwhiteblackcolor,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              for (var i = 0;
-                                  i <
-                                      dashBoardController
-                                          .proTypeInfo!.typelist!.length;
-                                  i++) {
-                                if (value ==
-                                    dashBoardController
-                                        .proTypeInfo?.typelist![i].title) {
-                                  addPropertiesController.pType =
-                                      dashBoardController
-                                              .proTypeInfo?.typelist![i].id ??
-                                          "";
-                                  print(addPropertiesController.pType);
-                                }
-                              }
-                              setState(() {
-                                selectProperty = value ?? "";
-                              });
-                            },
+                          SizedBox(
+                            height: 8,
                           ),
-                          decoration: BoxDecoration(
-                            color: notifire.getblackwhitecolor,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: notifire.getborderColor),
-                          ),
-                        ),
-                        textfield(
-                          type: "City, Country".tr,
-                          controller: addPropertiesController.pCityAndCountry,
-                          labelText: "City, Country".tr,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter City, Country'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text(
-                            "Select Property Facility".tr,
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyBold,
-                              fontSize: 16,
-                              color: notifire.getwhiteblackcolor,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        GetBuilder<AddPropertiesController>(builder: (context) {
-                          return ListView.builder(
-                            itemCount: dashBoardController
-                                .facilityInfo?.facilitylist!.length,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Transform.scale(
-                                        scale: 1,
-                                        child: Checkbox(
-                                          value: addPropertiesController
-                                              .selectedIndexes
-                                              .contains(dashBoardController
-                                                  .facilityInfo
-                                                  ?.facilitylist![index]
-                                                  .id),
-                                          side: const BorderSide(
-                                              color: Color(0xffC5CAD4)),
-                                          activeColor: blueColor,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          onChanged: (_) {
-                                            if (addPropertiesController
+                          GetBuilder<AddPropertiesController>(
+                              builder: (context) {
+                            return ListView.builder(
+                              itemCount: dashBoardController
+                                  .facilityInfo?.facilitylist!.length,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Transform.scale(
+                                          scale: 1,
+                                          child: Checkbox(
+                                            value: addPropertiesController
                                                 .selectedIndexes
                                                 .contains(dashBoardController
                                                     .facilityInfo
                                                     ?.facilitylist![index]
-                                                    .id)) {
-                                              addPropertiesController
+                                                    .id),
+                                            side: const BorderSide(
+                                                color: Color(0xffC5CAD4)),
+                                            activeColor: blueColor,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            onChanged: (_) {
+                                              if (addPropertiesController
                                                   .selectedIndexes
-                                                  .remove(dashBoardController
+                                                  .contains(dashBoardController
                                                       .facilityInfo
                                                       ?.facilitylist![index]
-                                                      .id); // unselect
-                                              setState(() {});
-                                            } else {
-                                              addPropertiesController
-                                                  .selectedIndexes
-                                                  .add(dashBoardController
-                                                      .facilityInfo
-                                                      ?.facilitylist![index]
-                                                      .id);
-                                              setState(() {}); // select
-                                            }
-                                          },
+                                                      .id)) {
+                                                addPropertiesController
+                                                    .selectedIndexes
+                                                    .remove(dashBoardController
+                                                        .facilityInfo
+                                                        ?.facilitylist![index]
+                                                        .id); // unselect
+                                                setState(() {});
+                                              } else {
+                                                addPropertiesController
+                                                    .selectedIndexes
+                                                    .add(dashBoardController
+                                                        .facilityInfo
+                                                        ?.facilitylist![index]
+                                                        .id);
+                                                setState(() {}); // select
+                                              }
+                                            },
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        dashBoardController.facilityInfo
-                                                ?.facilitylist![index].title ??
-                                            "",
-                                        style: TextStyle(
-                                          fontFamily: FontFamily.gilroyMedium,
-                                          fontSize: 17,
-                                          color: notifire.getwhiteblackcolor,
+                                        Text(
+                                          dashBoardController
+                                                  .facilityInfo
+                                                  ?.facilitylist![index]
+                                                  .title ??
+                                              "",
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            fontSize: 17,
+                                            color: notifire.getwhiteblackcolor,
+                                          ),
                                         ),
-                                      ),
-                                      Spacer(),
-                                      Container(
-                                        height: 40,
-                                        width: 40,
-                                        padding: EdgeInsets.all(8),
-                                        child: Image.network(
-                                          "${Config.imageUrl}${dashBoardController.facilityInfo?.facilitylist![index].img ?? ""}",
+                                        Spacer(),
+                                        Container(
+                                          height: 40,
+                                          width: 40,
+                                          padding: EdgeInsets.all(8),
+                                          child: Image.network(
+                                            "${Config.imageUrl}${dashBoardController.facilityInfo?.facilitylist![index].img ?? ""}",
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFFeef4ff),
+                                            shape: BoxShape.circle,
+                                          ),
                                         ),
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFFeef4ff),
-                                          shape: BoxShape.circle,
+                                        SizedBox(
+                                          width: 15,
                                         ),
-                                      ),
-                                      SizedBox(
-                                        width: 15,
-                                      ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Divider(thickness: 1),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text(
-                            "Party Allowed?",
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyBold,
-                              fontSize: 16,
-                              color: notifire.getwhiteblackcolor,
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      child: Divider(thickness: 1),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              "Party Allowed?",
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
+                              ),
                             ),
                           ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Transform.scale(
-                                  scale: 1,
-                                  child: Checkbox(
-                                    value:
-                                        addPropertiesController.party_allowed,
-                                    side: const BorderSide(
-                                        color: Color(0xffC5CAD4)),
-                                    activeColor: blueColor,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Transform.scale(
+                                    scale: 1,
+                                    child: Checkbox(
+                                      value:
+                                          addPropertiesController.party_allowed,
+                                      side: const BorderSide(
+                                          color: Color(0xffC5CAD4)),
+                                      activeColor: blueColor,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      onChanged: (value) {
+                                        addPropertiesController.party_allowed =
+                                            value!;
+                                        if (value == false) {
+                                          addPropertiesController.pPartyCost
+                                              .clear();
+                                        }
+                                        setState(() {});
+                                      },
                                     ),
-                                    onChanged: (value) {
-                                      addPropertiesController.party_allowed =
-                                          value!;
-                                      if (value == false) {
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (addPropertiesController
+                                          .party_allowed) {
                                         addPropertiesController.pPartyCost
                                             .clear();
                                       }
+                                      addPropertiesController.party_allowed =
+                                          !addPropertiesController
+                                              .party_allowed;
+
                                       setState(() {});
                                     },
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    if (addPropertiesController.party_allowed) {
-                                      addPropertiesController.pPartyCost
-                                          .clear();
-                                    }
-                                    addPropertiesController.party_allowed =
-                                        !addPropertiesController.party_allowed;
-
-                                    setState(() {});
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "Party is Allowed",
-                                        style: TextStyle(
-                                          fontFamily: FontFamily.gilroyMedium,
-                                          fontSize: 17,
-                                          color: notifire.getwhiteblackcolor,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "Party is Allowed",
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            fontSize: 17,
+                                            color: notifire.getwhiteblackcolor,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
+                                ],
+                              ),
+                              if (addPropertiesController.party_allowed)
+                                textfield(
+                                  type: "Party Cost",
+                                  controller:
+                                      addPropertiesController.pPartyCost,
+                                  labelText: "Party cost",
+                                  textInputType: TextInputType.number,
+                                  // validator: (value) {
+                                  //   if (value == null || value.isEmpty) {
+                                  //     return 'Please Enter Property Price';
+                                  //   }
+                                  //   return null;
+                                  // },
                                 ),
-                              ],
-                            ),
-                            if (addPropertiesController.party_allowed)
                               textfield(
-                                type: "Party Cost",
-                                controller: addPropertiesController.pPartyCost,
-                                labelText: "Party cost",
+                                type: "Caution Fee",
+                                controller: addPropertiesController.pCaution,
+                                labelText: "Caution fee",
                                 textInputType: TextInputType.number,
                                 // validator: (value) {
                                 //   if (value == null || value.isEmpty) {
@@ -782,449 +813,385 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                 //   return null;
                                 // },
                               ),
-                            textfield(
-                              type: "Caution Fee",
-                              controller: addPropertiesController.pCaution,
-                              labelText: "Caution fee",
-                              textInputType: TextInputType.number,
-                              // validator: (value) {
-                              //   if (value == null || value.isEmpty) {
-                              //     return 'Please Enter Property Price';
-                              //   }
-                              //   return null;
-                              // },
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            // Padding(
-                            //   padding: const EdgeInsets.only(left: 15),
-                            //   child: Text(
-                            //     "Caution Fee Setting",
-                            //     style: TextStyle(
-                            //       fontFamily: FontFamily.gilroyBold,
-                            //       fontSize: 16,
-                            //       color: notifire.getwhiteblackcolor,
-                            //     ),
-                            //   ),
-                            // ),
-                            // Row(
-                            //   children: [
-                            //     SizedBox(
-                            //       width: 10,
-                            //     ),
-                            //     Transform.scale(
-                            //       scale: 1,
-                            //       child: Checkbox(
-                            //         value: addPropertiesController
-                            //             .caution_fee_setting,
-                            //         side: const BorderSide(
-                            //             color: Color(0xffC5CAD4)),
-                            //         activeColor: blueColor,
-                            //         shape: RoundedRectangleBorder(
-                            //           borderRadius: BorderRadius.circular(5),
-                            //         ),
-                            //         onChanged: (value) {
-                            //           addPropertiesController
-                            //               .caution_fee_setting = value!;
-
-                            //           setState(() {});
-                            //         },
-                            //       ),
-                            //     ),
-                            //     GestureDetector(
-                            //       onTap: () {
-                            //         addPropertiesController
-                            //                 .caution_fee_setting =
-                            //             !addPropertiesController
-                            //                 .caution_fee_setting;
-
-                            //         setState(() {});
-                            //       },
-                            //       child: Row(
-                            //         children: [
-                            //           Text(
-                            //             "On",
-                            //             style: TextStyle(
-                            //               fontFamily: FontFamily.gilroyMedium,
-                            //               fontSize: 17,
-                            //               color: notifire.getwhiteblackcolor,
-                            //             ),
-                            //           ),
-                            //         ],
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
-                            // SizedBox(
-                            //   height: 10,
-                            // ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        GetBuilder<AddPropertiesController>(builder: (context) {
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 15),
-                                      child: Text(
-                                        "Latitude".tr,
-                                        style: TextStyle(
-                                          fontFamily: FontFamily.gilroyBold,
-                                          fontSize: 16,
-                                          color: notifire.getwhiteblackcolor,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                      height: 60,
-                                      margin: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 5),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        addPropertiesController.lat != null
-                                            ? addPropertiesController.lat
-                                                .toString()
-                                            : "",
-                                        style: TextStyle(
-                                          fontFamily: FontFamily.gilroyMedium,
-                                          color: notifire.getwhiteblackcolor,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: notifire.getborderColor),
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              SizedBox(
+                                height: 10,
                               ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 15),
-                                      child: Text(
-                                        "Longitude".tr,
-                                        style: TextStyle(
-                                          fontFamily: FontFamily.gilroyBold,
-                                          fontSize: 16,
-                                          color: notifire.getwhiteblackcolor,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                      height: 60,
-                                      margin: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 5),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        addPropertiesController.long != null
-                                            ? addPropertiesController.long
-                                                .toString()
-                                            : "",
-                                        style: TextStyle(
-                                          fontFamily: FontFamily.gilroyMedium,
-                                          color: notifire.getwhiteblackcolor,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: notifire.getborderColor),
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
+                              // Padding(
+                              //   padding: const EdgeInsets.only(left: 15),
+                              //   child: Text(
+                              //     "Caution Fee Setting",
+                              //     style: TextStyle(
+                              //       fontFamily: FontFamily.gilroyBold,
+                              //       fontSize: 16,
+                              //       color: notifire.getwhiteblackcolor,
+                              //     ),
+                              //   ),
+                              // ),
+                              // Row(
+                              //   children: [
+                              //     SizedBox(
+                              //       width: 10,
+                              //     ),
+                              //     Transform.scale(
+                              //       scale: 1,
+                              //       child: Checkbox(
+                              //         value: addPropertiesController
+                              //             .caution_fee_setting,
+                              //         side: const BorderSide(
+                              //             color: Color(0xffC5CAD4)),
+                              //         activeColor: blueColor,
+                              //         shape: RoundedRectangleBorder(
+                              //           borderRadius: BorderRadius.circular(5),
+                              //         ),
+                              //         onChanged: (value) {
+                              //           addPropertiesController
+                              //               .caution_fee_setting = value!;
+
+                              //           setState(() {});
+                              //         },
+                              //       ),
+                              //     ),
+                              //     GestureDetector(
+                              //       onTap: () {
+                              //         addPropertiesController
+                              //                 .caution_fee_setting =
+                              //             !addPropertiesController
+                              //                 .caution_fee_setting;
+
+                              //         setState(() {});
+                              //       },
+                              //       child: Row(
+                              //         children: [
+                              //           Text(
+                              //             "On",
+                              //             style: TextStyle(
+                              //               fontFamily: FontFamily.gilroyMedium,
+                              //               fontSize: 17,
+                              //               color: notifire.getwhiteblackcolor,
+                              //             ),
+                              //           ),
+                              //         ],
+                              //       ),
+                              //     ),
+                              //   ],
+                              // ),
+                              // SizedBox(
+                              //   height: 10,
+                              // ),
                             ],
-                          );
-                        }),
-                        InkWell(
-                          onTap: () async {
-                            LocationPermission permission;
-                            permission = await Geolocator.checkPermission();
-                            permission = await Geolocator.requestPermission();
-                            if (permission == LocationPermission.denied) {}
-                            var currentLocation = await locateUser();
-                            debugPrint('location: ${currentLocation.latitude}');
-                            addPropertiesController.getCurrentLatAndLong(
-                              currentLocation.latitude,
-                              currentLocation.longitude,
-                            );
-                            print("????????????" +
-                                currentLocation.latitude.toString());
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  "assets/images/Navigation.png",
-                                  height: 25,
-                                  width: 25,
-                                ),
-                                SizedBox(
-                                  width: 8,
-                                ),
-                                Text(
-                                  "Click for Current Location".tr,
-                                  style: TextStyle(
-                                    color: notifire.getwhiteblackcolor,
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text(
-                            "Upload Image".tr,
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyBold,
-                              fontSize: 16,
-                              color: notifire.getwhiteblackcolor,
-                            ),
+                          SizedBox(
+                            height: 8,
                           ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        DottedBorder(
-                          borderType: BorderType.RRect,
-                          color: Darkblue,
-                          radius: Radius.circular(15),
-                          borderPadding: EdgeInsets.symmetric(horizontal: 20),
-                          child: InkWell(
-                            onTap: () {
-                              _openGallery(context);
+                          SizedBox(
+                            height: 10,
+                          ),
+                          InkWell(
+                            onTap: () async {
+                              LocationPermission permission;
+                              permission = await Geolocator.checkPermission();
+                              permission = await Geolocator.requestPermission();
+                              if (permission == LocationPermission.denied) {}
+                              var currentLocation = await locateUser();
+                              debugPrint(
+                                  'location: ${currentLocation.latitude}');
+                              addPropertiesController.getCurrentLatAndLong(
+                                currentLocation.latitude,
+                                currentLocation.longitude,
+                              );
+                              print("????????????" +
+                                  currentLocation.latitude.toString());
                             },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: manegeRoute == "Add"
-                                  ? Container(
-                                      height: 80,
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 20),
-                                      width: Get.size.width,
-                                      alignment: Alignment.center,
-                                      child:
-                                          addPropertiesController.path == null
-                                              ? Image.asset(
-                                                  "assets/images/image-upload.png",
-                                                  height: 40,
-                                                  width: 42,
-                                                )
-                                              : Image.file(
-                                                  File(
-                                                    addPropertiesController.path
-                                                        .toString(),
-                                                  ),
-                                                  height: 50,
-                                                  width: 50,
-                                                  fit: BoxFit.cover,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 15),
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/Navigation.png",
+                                    height: 25,
+                                    width: 25,
+                                  ),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Text(
+                                    "Click for Current Location".tr,
+                                    style: TextStyle(
+                                      color: notifire.getwhiteblackcolor,
+                                      fontFamily: FontFamily.gilroyMedium,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              "Upload Image".tr,
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          DottedBorder(
+                            borderType: BorderType.RRect,
+                            color: Darkblue,
+                            radius: Radius.circular(15),
+                            borderPadding: EdgeInsets.symmetric(horizontal: 20),
+                            child: InkWell(
+                              onTap: () {
+                                _openGallery(context);
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: manegeRoute == "Add"
+                                    ? Container(
+                                        height: 80,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 20),
+                                        width: Get.size.width,
+                                        alignment: Alignment.center,
+                                        child: addPropertiesController.path ==
+                                                null
+                                            ? Image.asset(
+                                                "assets/images/image-upload.png",
+                                                height: 40,
+                                                width: 42,
+                                              )
+                                            : Image.file(
+                                                File(
+                                                  addPropertiesController.path
+                                                      .toString(),
                                                 ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
+                                                height: 50,
+                                                width: 50,
+                                                fit: BoxFit.cover,
+                                              ),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                      )
+                                    : Container(
+                                        height: 80,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 20),
+                                        width: Get.size.width,
+                                        alignment: Alignment.center,
+                                        child: addPropertiesController.pImage ==
+                                                ""
+                                            ? Image.asset(
+                                                "assets/images/image-upload.png",
+                                                height: 40,
+                                                width: 42,
+                                              )
+                                            : addPropertiesController.path ==
+                                                    null
+                                                ? Image.network(
+                                                    "${Config.imageUrl}${addPropertiesController.pImage}",
+                                                    height: 50,
+                                                    width: 50,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : Image.file(
+                                                    File(
+                                                      addPropertiesController
+                                                          .path
+                                                          .toString(),
+                                                    ),
+                                                    height: 50,
+                                                    width: 50,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              "Property Status".tr,
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Container(
+                            height: 60,
+                            width: Get.size.width,
+                            alignment: Alignment.center,
+                            margin: EdgeInsets.symmetric(horizontal: 10),
+                            padding: EdgeInsets.only(left: 15, right: 15),
+                            child: DropdownButton(
+                              value: slectStatus,
+                              icon: Image.asset(
+                                  'assets/images/Arrow - Down.png',
+                                  height: 20,
+                                  width: 20,
+                                  color: notifire.getwhiteblackcolor),
+                              isExpanded: true,
+                              dropdownColor: notifire.getbgcolor,
+                              underline: SizedBox.shrink(),
+                              items: propartyStatus
+                                  .map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.gilroyMedium,
+                                      color: notifire.getwhiteblackcolor,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                if (value == "Publish") {
+                                  addPropertiesController.status = "1";
+                                } else if (value == "UnPublish") {
+                                  addPropertiesController.status = "0";
+                                }
+                                setState(() {
+                                  slectStatus = value ?? "";
+                                });
+                              },
+                            ),
+                            decoration: BoxDecoration(
+                              color: notifire.getblackwhitecolor,
+                              borderRadius: BorderRadius.circular(15),
+                              border:
+                                  Border.all(color: notifire.getborderColor),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          addPropertiesController.pShell == "0"
+                              ? addPropertiesController.isBusy.value
+                                  ? Center(
+                                      child: SizedBox(
+                                        height: 25,
+                                        width: 25,
+                                        child: CircularProgressIndicator(
+                                          color: Darkblue,
+                                        ),
                                       ),
                                     )
-                                  : Container(
-                                      height: 80,
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 20),
-                                      width: Get.size.width,
-                                      alignment: Alignment.center,
-                                      child: addPropertiesController.pImage ==
-                                              ""
-                                          ? Image.asset(
-                                              "assets/images/image-upload.png",
-                                              height: 40,
-                                              width: 42,
-                                            )
-                                          : addPropertiesController.path == null
-                                              ? Image.network(
-                                                  "${Config.imageUrl}${addPropertiesController.pImage}",
-                                                  height: 50,
-                                                  width: 50,
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : Image.file(
-                                                  File(
-                                                    addPropertiesController.path
-                                                        .toString(),
-                                                  ),
-                                                  height: 50,
-                                                  width: 50,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
+                                  : GestButton(
+                                      Width: Get.size.width,
+                                      height: 55,
+                                      buttoncolor: blueColor,
+                                      margin: EdgeInsets.only(
+                                          top: 5, left: 35, right: 35),
+                                      buttontext: "Update".tr,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.gilroyBold,
+                                        color: WhiteColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text(
-                            "Property Status".tr,
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyBold,
-                              fontSize: 16,
-                              color: notifire.getwhiteblackcolor,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Container(
-                          height: 60,
-                          width: Get.size.width,
-                          alignment: Alignment.center,
-                          margin: EdgeInsets.symmetric(horizontal: 10),
-                          padding: EdgeInsets.only(left: 15, right: 15),
-                          child: DropdownButton(
-                            value: slectStatus,
-                            icon: Image.asset('assets/images/Arrow - Down.png',
-                                height: 20,
-                                width: 20,
-                                color: notifire.getwhiteblackcolor),
-                            isExpanded: true,
-                            underline: SizedBox.shrink(),
-                            items: propartyStatus
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: TextStyle(
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    color: notifire.getwhiteblackcolor,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              if (value == "Publish") {
-                                addPropertiesController.status = "1";
-                              } else if (value == "UnPublish") {
-                                addPropertiesController.status = "0";
-                              }
-                              setState(() {
-                                slectStatus = value ?? "";
-                              });
-                            },
-                          ),
-                          decoration: BoxDecoration(
-                            color: notifire.getblackwhitecolor,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: notifire.getborderColor),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        addPropertiesController.pShell == "0"
-                            ? GestButton(
-                                Width: Get.size.width,
-                                height: 55,
-                                buttoncolor: blueColor,
-                                margin: EdgeInsets.only(
-                                    top: 5, left: 35, right: 35),
-                                buttontext: "Update".tr,
-                                style: TextStyle(
-                                  fontFamily: FontFamily.gilroyBold,
-                                  color: WhiteColor,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                onclick: () {
-                                  if (_formKey.currentState?.validate() ??
-                                      false) {
-                                    if (selectCountry != null) {
-                                      if (selectProperty != null) {
-                                        if (addPropertiesController
-                                            .selectedIndexes.isNotEmpty) {
-                                          if (addPropertiesController.lat !=
-                                                  null &&
-                                              addPropertiesController.long !=
-                                                  null) {
-                                            if (addPropertiesController.path !=
-                                                    null ||
-                                                addPropertiesController
-                                                        .pImage !=
-                                                    "") {
-                                              if (manegeRoute == "Add") {
-                                                addPropertiesController
-                                                    .addPropertyApi();
-                                              } else if (manegeRoute ==
-                                                  "edit") {
-                                                addPropertiesController
-                                                    .editPropertyApi();
+                                      onclick: addPropertiesController
+                                              .isBusy.value
+                                          ? null
+                                          : () {
+                                              // if (!addPropertiesController
+                                              //     .isBusy) {
+                                              //   print('sjkfdf');
+                                              //   return;
+                                              // }
+                                              if (_formKey.currentState
+                                                      ?.validate() ??
+                                                  false) {
+                                                if (selectCountry != null) {
+                                                  if (selectProperty != null) {
+                                                    if (addPropertiesController
+                                                        .selectedIndexes
+                                                        .isNotEmpty) {
+                                                      if (addPropertiesController
+                                                                  .lat !=
+                                                              null &&
+                                                          addPropertiesController
+                                                                  .long !=
+                                                              null) {
+                                                        if (addPropertiesController
+                                                                    .path !=
+                                                                null ||
+                                                            addPropertiesController
+                                                                    .pImage !=
+                                                                "") {
+                                                          if (manegeRoute ==
+                                                              "Add") {
+                                                            addPropertiesController
+                                                                .addPropertyApi();
+                                                          } else if (manegeRoute ==
+                                                              "edit") {
+                                                            log('in here');
+                                                            // addPropertiesController
+                                                            // .testLoading();
+                                                            addPropertiesController
+                                                                .editPropertyApi();
+                                                          }
+                                                        } else {
+                                                          showToastMessage(
+                                                              "Please Upload Image"
+                                                                  .tr);
+                                                        }
+                                                      } else {
+                                                        showToastMessage(
+                                                            "Please Add Your Property Location"
+                                                                .tr);
+                                                      }
+                                                    } else {
+                                                      showToastMessage(
+                                                          "Please Select Property Facility"
+                                                              .tr);
+                                                    }
+                                                  } else {
+                                                    showToastMessage(
+                                                        "Please Select Property Type"
+                                                            .tr);
+                                                  }
+                                                } else {
+                                                  showToastMessage(
+                                                      "Please Select Country"
+                                                          .tr);
+                                                }
                                               }
-                                            } else {
-                                              showToastMessage(
-                                                  "Please Upload Image".tr);
-                                            }
-                                          } else {
-                                            showToastMessage(
-                                                "Please Add Your Property Location"
-                                                    .tr);
-                                          }
-                                        } else {
-                                          showToastMessage(
-                                              "Please Select Property Facility"
-                                                  .tr);
-                                        }
-                                      } else {
-                                        showToastMessage(
-                                            "Please Select Property Type".tr);
-                                      }
-                                    } else {
-                                      showToastMessage(
-                                          "Please Select Country".tr);
-                                    }
-                                  }
-                                },
-                              )
-                            : SizedBox(),
-                        SizedBox(
-                          height: 25,
-                        ),
-                      ],
-                    ),
-                    decoration: BoxDecoration(
-                      color: notifire.getblackwhitecolor,
+                                            },
+                                    )
+                              : SizedBox(),
+                          SizedBox(
+                            height: 25,
+                          ),
+                        ],
+                      ),
+                      decoration: BoxDecoration(
+                        color: notifire.getblackwhitecolor,
+                      ),
                     ),
                   ),
                 ),

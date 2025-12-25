@@ -6,6 +6,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/booking_controller.dart';
+import 'package:opendoors/controller/dashboard_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
@@ -23,11 +24,31 @@ class EReceiptProScreen extends StatefulWidget {
 
 class _EReceiptProScreenState extends State<EReceiptProScreen> {
   BookingController bookingController = Get.find();
+  DashBoardController dashBoardController = Get.find();
 
   late ColorNotifire notifire;
   var selectedRadioTile;
   final note = TextEditingController();
   String? rejectmsg = '';
+  // double commisionAmount = 0;
+
+  // getTheCommision() {
+  //   final days = int.tryParse(
+  //           bookingController.proDetailsInfo?.bookdetails?.totalDay ?? '0') ??
+  //       0;
+  //   final price = double.tryParse(
+  //           bookingController.proDetailsInfo?.bookdetails?.propPrice ?? '0') ??
+  //       0;
+
+  //   final amount = price * days;
+  //   final comm = dashBoardController.calculateTheOrderCommission(amount);
+  //   final rate = dashBoardController.getOrderCommissionRate(amount);
+
+  //   setState(() {
+  //     commisionAmount = comm;
+  //   });
+  // }
+
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
@@ -43,6 +64,7 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
   void initState() {
     super.initState();
     getdarkmodepreviousstate();
+    // getTheCommision();
   }
 
   @override
@@ -55,173 +77,197 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
         width: Get.size.width,
         child: StatefulBuilder(
           builder: (context, setState) {
-            return checkOut ? SizedBox() : GetBuilder<BookingController>(builder: (context) {
-              return Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    bookingController.proDetailsInfo?.bookdetails!.bookStatus ==
-                        "Booked"
-                        ? InkWell(
-                      onTap: () {
-                        ticketCancell(
-                          bookingController
-                              .proDetailsInfo?.bookdetails!.bookId ??
-                              "",
-                        );
-                      },
-                      child: Container(
-                        height: 50,
-                        width: 93,
-                        alignment: Alignment.center,
-                        child: Text(
-                          "CANCEL".tr,
-                          style: TextStyle(
-                            color: WhiteColor,
-                            fontFamily: FontFamily.gilroyMedium,
-                            fontSize: 13,
+            return checkOut
+                ? SizedBox()
+                : GetBuilder<BookingController>(builder: (context) {
+                    return Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        children: [
+                          bookingController.proDetailsInfo?.bookdetails!
+                                      .bookStatus ==
+                                  "Booked"
+                              ? InkWell(
+                                  onTap: () {
+                                    ticketCancell(
+                                      bookingController.proDetailsInfo
+                                              ?.bookdetails!.bookId ??
+                                          "",
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 50,
+                                    width: 93,
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "CANCEL".tr,
+                                      style: TextStyle(
+                                        color: WhiteColor,
+                                        fontFamily: FontFamily.gilroyMedium,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Color(0xFFFFC02D),
+                                    ),
+                                  ),
+                                )
+                              : bookingController.proDetailsInfo?.bookdetails!
+                                          .bookStatus ==
+                                      "Confirmed"
+                                  ? InkWell(
+                                      onTap: () {
+                                        ticketCancell(
+                                          bookingController.proDetailsInfo
+                                                  ?.bookdetails!.bookId ??
+                                              "",
+                                        );
+                                      },
+                                      child: Container(
+                                        height: 50,
+                                        width: 93,
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          "CANCEL".tr,
+                                          style: TextStyle(
+                                            color: WhiteColor,
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Color(0xFFFFC02D),
+                                        ),
+                                      ),
+                                    )
+                                  : SizedBox(),
+                          SizedBox(
+                            width: 5,
                           ),
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Color(0xFFFFC02D),
-                        ),
+                          bookingController.proDetailsInfo?.bookdetails!
+                                      .bookStatus ==
+                                  "Booked"
+                              ? Expanded(
+                                  child: InkWell(
+                                    onTap: () {
+                                      bookingController.getBookingConfrimed(
+                                          bookId: bookingController
+                                                  .proDetailsInfo
+                                                  ?.bookdetails!
+                                                  .bookId ??
+                                              "");
+                                    },
+                                    child: Container(
+                                      height: 50,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "CONFIRM".tr,
+                                        style: TextStyle(
+                                          color: WhiteColor,
+                                          fontFamily: FontFamily.gilroyMedium,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Color(0xFF246BFD),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : bookingController.proDetailsInfo?.bookdetails!
+                                          .bookStatus ==
+                                      "Confirmed"
+                                  ? Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          bookingController.getBookingCheckIn(
+                                            bookId: bookingController
+                                                    .proDetailsInfo
+                                                    ?.bookdetails!
+                                                    .bookId ??
+                                                "",
+                                          );
+                                        },
+                                        child: Container(
+                                          height: 50,
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            "CHECK IN".tr,
+                                            style: TextStyle(
+                                              color: WhiteColor,
+                                              fontFamily:
+                                                  FontFamily.gilroyMedium,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            color: Color(0xFF246BFD),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : bookingController.proDetailsInfo
+                                              ?.bookdetails!.bookStatus ==
+                                          "Check_in"
+                                      ? Expanded(
+                                          child: InkWell(
+                                            onTap: () {
+                                              bookingController
+                                                  .getBookingCheckOut(
+                                                bookId: bookingController
+                                                        .proDetailsInfo
+                                                        ?.bookdetails!
+                                                        .bookId ??
+                                                    "",
+                                              )
+                                                  .then(
+                                                (value) {
+                                                  if (value["Result"] ==
+                                                      "true") {
+                                                    setState(() {
+                                                      checkOut = true;
+                                                    });
+                                                  } else {
+                                                    setState(() {
+                                                      checkOut = false;
+                                                    });
+                                                  }
+                                                },
+                                              );
+                                            },
+                                            child: Container(
+                                              height: 50,
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "CHECK OUT".tr,
+                                                style: TextStyle(
+                                                  color: WhiteColor,
+                                                  fontFamily:
+                                                      FontFamily.gilroyMedium,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                color: Color(0xFF246BFD),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : SizedBox(),
+                        ],
                       ),
-                    )
-                        : bookingController.proDetailsInfo?.bookdetails!.bookStatus ==
-                        "Confirmed"
-                        ? InkWell(
-                      onTap: () {
-                        ticketCancell(
-                          bookingController
-                              .proDetailsInfo?.bookdetails!.bookId ??
-                              "",
-                        );
-                      },
-                      child: Container(
-                        height: 50,
-                        width: 93,
-                        alignment: Alignment.center,
-                        child: Text(
-                          "CANCEL".tr,
-                          style: TextStyle(
-                            color: WhiteColor,
-                            fontFamily: FontFamily.gilroyMedium,
-                            fontSize: 13,
-                          ),
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Color(0xFFFFC02D),
-                        ),
-                      ),
-                    )
-                        : SizedBox(),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    bookingController.proDetailsInfo?.bookdetails!.bookStatus ==
-                        "Booked"
-                        ? Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          bookingController.getBookingConfrimed(
-                              bookId: bookingController
-                                  .proDetailsInfo?.bookdetails!.bookId ??
-                                  "");
-                        },
-                        child: Container(
-                          height: 50,
-                          alignment: Alignment.center,
-                          child: Text(
-                            "CONFIRM".tr,
-                            style: TextStyle(
-                              color: WhiteColor,
-                              fontFamily: FontFamily.gilroyMedium,
-                              fontSize: 13,
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Color(0xFF246BFD),
-                          ),
-                        ),
-                      ),
-                    )
-                        : bookingController.proDetailsInfo?.bookdetails!.bookStatus ==
-                        "Confirmed"
-                        ? Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          bookingController.getBookingCheckIn(
-                            bookId: bookingController
-                                .proDetailsInfo?.bookdetails!.bookId ??
-                                "",
-                          );
-                        },
-                        child: Container(
-                          height: 50,
-                          alignment: Alignment.center,
-                          child: Text(
-                            "CHECK IN".tr,
-                            style: TextStyle(
-                              color: WhiteColor,
-                              fontFamily: FontFamily.gilroyMedium,
-                              fontSize: 13,
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Color(0xFF246BFD),
-                          ),
-                        ),
-                      ),
-                    )
-                        : bookingController
-                        .proDetailsInfo?.bookdetails!.bookStatus ==
-                        "Check_in"
-                        ? Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          bookingController.getBookingCheckOut(
-                            bookId: bookingController.proDetailsInfo
-                                ?.bookdetails!.bookId ??
-                                "",).then((value) {
-                            if(value["Result"] == "true"){
-                              setState(() {
-                                checkOut = true;
-                              });
-                            } else {
-                              setState(() {
-                                checkOut = false;
-                              });
-                            }
-                          },);
-                        },
-                        child: Container(
-                          height: 50,
-                          alignment: Alignment.center,
-                          child: Text(
-                            "CHECK OUT".tr,
-                            style: TextStyle(
-                              color: WhiteColor,
-                              fontFamily: FontFamily.gilroyMedium,
-                              fontSize: 13,
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Color(0xFF246BFD),
-                          ),
-                        ),
-                      ),
-                    )
-                        : SizedBox(),
-                  ],
-                ),
-              );
-            });
-        },),
+                    );
+                  });
+          },
+        ),
         decoration: BoxDecoration(
           color: notifire.getbgcolor,
         ),
@@ -248,7 +294,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
         ),
       ),
       body: GetBuilder<BookingController>(builder: (context) {
-        String bId = ("${bookingController.proDetailsInfo?.bookdetails!.bookId ?? ""}");
+        String bId =
+            ("${bookingController.proDetailsInfo?.bookdetails!.bookId ?? ""}");
         String bDate =
             ("${bookingController.proDetailsInfo?.bookdetails!.bookDate ?? ""}")
                 .split(" ")
@@ -266,7 +313,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                 width: Get.size.width,
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
                     child: Column(
                       children: [
                         Container(
@@ -336,71 +384,102 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                 SizedBox(
                                   height: 20,
                                 ),
-                                bookingController.proDetailsInfo?.bookdetails!.checkIn.toString() == "" ? SizedBox() : Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Text(
-                                      "Check in".tr,
-                                      style: TextStyle(
-                                        fontFamily: FontFamily.gilroyMedium,
-                                        fontSize: 15,
-                                        color: notifire.getwhiteblackcolor,
+                                bookingController.proDetailsInfo?.bookdetails!
+                                            .checkIn
+                                            .toString() ==
+                                        ""
+                                    ? SizedBox()
+                                    : Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                          Text(
+                                            "Check in".tr,
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  FontFamily.gilroyMedium,
+                                              fontSize: 15,
+                                              color:
+                                                  notifire.getwhiteblackcolor,
+                                            ),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            bookingController.proDetailsInfo
+                                                    ?.bookdetails!.checkIn
+                                                    .toString()
+                                                    .split(" ")
+                                                    .first ??
+                                                "",
+                                            style: TextStyle(
+                                              fontFamily: FontFamily.gilroyBold,
+                                              fontSize: 15,
+                                              color:
+                                                  notifire.getwhiteblackcolor,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    Spacer(),
-                                    Text(
-                                      bookingController.proDetailsInfo?.bookdetails
-                                      !.checkIn
-                                              .toString().split(" ").first ??
-                                          "",
-                                      style: TextStyle(
-                                        fontFamily: FontFamily.gilroyBold,
-                                        fontSize: 15,
-                                        color: notifire.getwhiteblackcolor,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                  ],
-                                ),
                                 SizedBox(
-                                  height: bookingController.proDetailsInfo?.bookdetails!.checkIn.toString() == "" ? 0 : 20,
+                                  height: bookingController.proDetailsInfo
+                                              ?.bookdetails!.checkIn
+                                              .toString() ==
+                                          ""
+                                      ? 0
+                                      : 20,
                                 ),
 
-                                bookingController.proDetailsInfo?.bookdetails!.checkOut.toString() == "" ? SizedBox() : Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Text(
-                                      "Check out".tr,
-                                      style: TextStyle(
-                                        fontFamily: FontFamily.gilroyMedium,
-                                        fontSize: 15,
-                                        color: notifire.getwhiteblackcolor,
+                                bookingController.proDetailsInfo?.bookdetails!
+                                            .checkOut
+                                            .toString() ==
+                                        ""
+                                    ? SizedBox()
+                                    : Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                          Text(
+                                            "Check out".tr,
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  FontFamily.gilroyMedium,
+                                              fontSize: 15,
+                                              color:
+                                                  notifire.getwhiteblackcolor,
+                                            ),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            bookingController.proDetailsInfo!
+                                                .bookdetails!.checkOut
+                                                .toString()
+                                                .split(" ")
+                                                .first,
+                                            style: TextStyle(
+                                              fontFamily: FontFamily.gilroyBold,
+                                              fontSize: 15,
+                                              color:
+                                                  notifire.getwhiteblackcolor,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    Spacer(),
-                                    Text(
-                                      bookingController.proDetailsInfo!.bookdetails
-                                      !.checkOut.toString().split(" ").first,
-                                      style: TextStyle(
-                                        fontFamily: FontFamily.gilroyBold,
-                                        fontSize: 15,
-                                        color: notifire.getwhiteblackcolor,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                  ],
-                                ),
                                 // : SizedBox(),
                                 SizedBox(
-                                  height: bookingController.proDetailsInfo?.bookdetails!.checkOut.toString() == "" ? 0 : 20,
+                                  height: bookingController.proDetailsInfo
+                                              ?.bookdetails!.checkOut
+                                              .toString() ==
+                                          ""
+                                      ? 0
+                                      : 20,
                                 ),
                                 Row(
                                   children: [
@@ -503,12 +582,42 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                   ),
                                 ],
                               ),
+                              // SizedBox(
+                              //   height: 20,
+                              // ),
+                              // Row(
+                              //   children: [
+                              //     SizedBox(
+                              //       width: 20,
+                              //     ),
+                              //     Text(
+                              //       "Commission".tr,
+                              //       style: TextStyle(
+                              //         fontFamily: FontFamily.gilroyMedium,
+                              //         fontSize: 15,
+                              //         color: notifire.getwhiteblackcolor,
+                              //       ),
+                              //     ),
+                              //     Spacer(),
+                              //     Text(
+                              //       "${currency}${int.tryParse(commisionAmount.toStringAsFixed(0)) ?? ""}",
+                              //       style: TextStyle(
+                              //         fontFamily: FontFamily.gilroyBold,
+                              //         fontSize: 15,
+                              //         color: notifire.getwhiteblackcolor,
+                              //       ),
+                              //     ),
+                              //     SizedBox(
+                              //       width: 30,
+                              //     ),
+                              //   ],
+                              // ),
                               SizedBox(
                                 height: 20,
                               ),
                               Visibility(
-                                visible: bookingController
-                                            .proDetailsInfo?.bookdetails!.couAmt ==
+                                visible: bookingController.proDetailsInfo
+                                            ?.bookdetails!.couAmt ==
                                         "0"
                                     ? false
                                     : true,
@@ -541,10 +650,11 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                 ),
                               ),
                               SizedBox(
-                                height: bookingController
-                                    .proDetailsInfo?.bookdetails!.couAmt ==
-                                    "0"
-                                    ? 0 : 15,
+                                height: bookingController.proDetailsInfo
+                                            ?.bookdetails!.couAmt ==
+                                        "0"
+                                    ? 0
+                                    : 15,
                               ),
                               Visibility(
                                 visible: bookingController.proDetailsInfo
@@ -587,9 +697,10 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                               // ),
                               SizedBox(
                                 height: bookingController.proDetailsInfo
-                                    ?.bookdetails!.wallAmt ==
-                                    "0"
-                                    ? 0 : 15,
+                                            ?.bookdetails!.wallAmt ==
+                                        "0"
+                                    ? 0
+                                    : 15,
                               ),
                               Row(
                                 children: [
@@ -646,8 +757,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                     ),
                                   ),
                                   Spacer(),
-                                  bookingController.proDetailsInfo?.bookdetails
-                                  !.customerName ==
+                                  bookingController.proDetailsInfo?.bookdetails!
+                                              .customerName ==
                                           ""
                                       ? Text(
                                           getData
@@ -691,8 +802,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                     ),
                                   ),
                                   Spacer(),
-                                  bookingController.proDetailsInfo?.bookdetails
-                                  !.customerMobile ==
+                                  bookingController.proDetailsInfo?.bookdetails!
+                                              .customerMobile ==
                                           ""
                                       ? Text(
                                           "${getData.read("UserLogin")["ccode"]} ${getData.read("UserLogin")["mobile"]}",
@@ -733,8 +844,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    bookingController.proDetailsInfo?.bookdetails
-                                    !.paymentTitle ??
+                                    bookingController.proDetailsInfo
+                                            ?.bookdetails!.paymentTitle ??
                                         "",
                                     maxLines: 1,
                                     style: TextStyle(
@@ -752,8 +863,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                               SizedBox(
                                 height: 20,
                               ),
-                              bookingController.proDetailsInfo?.bookdetails
-                              !.transactionId !=
+                              bookingController.proDetailsInfo?.bookdetails!
+                                          .transactionId !=
                                       "0"
                                   ? Row(
                                       children: [
@@ -765,23 +876,28 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                           child: Text(
                                             'Transaction ID'.tr,
                                             style: TextStyle(
-                                              fontFamily: FontFamily.gilroyMedium,
+                                              fontFamily:
+                                                  FontFamily.gilroyMedium,
                                               fontSize: 15,
-                                              color: notifire.getwhiteblackcolor,
+                                              color:
+                                                  notifire.getwhiteblackcolor,
                                             ),
                                           ),
                                         ),
                                         Expanded(
                                           flex: 1,
                                           child: Text(
-                                            bookingController.proDetailsInfo
-                                                    ?.bookdetails!.transactionId ??
+                                            bookingController
+                                                    .proDetailsInfo
+                                                    ?.bookdetails!
+                                                    .transactionId ??
                                                 "",
                                             maxLines: 2,
                                             style: TextStyle(
                                               fontFamily: FontFamily.gilroyBold,
                                               fontSize: 15,
-                                              color: notifire.getwhiteblackcolor,
+                                              color:
+                                                  notifire.getwhiteblackcolor,
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -792,8 +908,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                               new ClipboardData(
                                                   text: bookingController
                                                           .proDetailsInfo
-                                                          ?.bookdetails
-                                                  !.transactionId ??
+                                                          ?.bookdetails!
+                                                          .transactionId ??
                                                       ""),
                                             );
                                             showToastMessage("Copy");
@@ -812,9 +928,11 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                     )
                                   : SizedBox(),
                               SizedBox(
-                                height: bookingController.proDetailsInfo?.bookdetails
-                                !.transactionId !=
-                                    "0" ? 20 : 0,
+                                height: bookingController.proDetailsInfo
+                                            ?.bookdetails!.transactionId !=
+                                        "0"
+                                    ? 20
+                                    : 0,
                               ),
                               Row(
                                 children: [
@@ -830,7 +948,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                     ),
                                   ),
                                   Spacer(),
-                                  bookingController.statusWiseBook == "Completed"
+                                  bookingController.statusWiseBook ==
+                                          "Completed"
                                       ? Container(
                                           height: 30,
                                           width: 85,
@@ -839,19 +958,21 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                             'Paid'.tr,
                                             style: TextStyle(
                                               fontSize: 12,
-                                              fontFamily: FontFamily.gilroyMedium,
+                                              fontFamily:
+                                                  FontFamily.gilroyMedium,
                                               color: blueColor,
                                             ),
                                           ),
                                           decoration: BoxDecoration(
-                                            border: Border.all(color: blueColor),
+                                            border:
+                                                Border.all(color: blueColor),
                                             borderRadius:
                                                 BorderRadius.circular(5),
                                           ),
                                         )
                                       : bookingController.proDetailsInfo
-                                                      ?.bookdetails!.pMethodId !=
-                                                  "2"
+                                                  ?.bookdetails!.pMethodId !=
+                                              "2"
                                           ? Container(
                                               height: 30,
                                               width: 85,
@@ -866,14 +987,16 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                                 ),
                                               ),
                                               decoration: BoxDecoration(
-                                                border:
-                                                    Border.all(color: blueColor),
+                                                border: Border.all(
+                                                    color: blueColor),
                                                 borderRadius:
                                                     BorderRadius.circular(5),
                                               ),
                                             )
-                                          : bookingController.proDetailsInfo
-                                                      ?.bookdetails!.bookStatus ==
+                                          : bookingController
+                                                      .proDetailsInfo
+                                                      ?.bookdetails!
+                                                      .bookStatus ==
                                                   "Completed"
                                               ? Container(
                                                   height: 30,
@@ -883,8 +1006,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                                     'Paid'.tr,
                                                     style: TextStyle(
                                                       fontSize: 12,
-                                                      fontFamily:
-                                                          FontFamily.gilroyMedium,
+                                                      fontFamily: FontFamily
+                                                          .gilroyMedium,
                                                       color: blueColor,
                                                     ),
                                                   ),
@@ -892,7 +1015,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                                     border: Border.all(
                                                         color: blueColor),
                                                     borderRadius:
-                                                        BorderRadius.circular(5),
+                                                        BorderRadius.circular(
+                                                            5),
                                                   ),
                                                 )
                                               : Container(
@@ -903,15 +1027,16 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                                     "UnPaid".tr,
                                                     style: TextStyle(
                                                       color: Colors.red,
-                                                      fontFamily:
-                                                          FontFamily.gilroyMedium,
+                                                      fontFamily: FontFamily
+                                                          .gilroyMedium,
                                                     ),
                                                   ),
                                                   decoration: BoxDecoration(
                                                     border: Border.all(
                                                         color: Colors.red),
                                                     borderRadius:
-                                                        BorderRadius.circular(5),
+                                                        BorderRadius.circular(
+                                                            5),
                                                   ),
                                                 ),
                                   SizedBox(
@@ -937,8 +1062,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    bookingController.proDetailsInfo?.bookdetails
-                                    !.bookStatus ??
+                                    bookingController.proDetailsInfo
+                                            ?.bookdetails!.bookStatus ??
                                         "",
                                     maxLines: 1,
                                     style: TextStyle(
@@ -951,58 +1076,80 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                   SizedBox(
                                     width: 20,
                                   ),
-
-                                 ],
-                              ),
-                              SizedBox(height: bookingController.proDetailsInfo?.bookdetails!.checkIntime != "" ? 20 : 0),
-                              bookingController.proDetailsInfo?.bookdetails!.checkIntime != ""
-                                  ? Row(
-                                children: [
-                                  SizedBox(width: 20),
-                                  Text("Check In Time",style: TextStyle(
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    fontSize: 15,
-                                    color: notifire.getwhiteblackcolor,
-                                  ),
-                                  ),
-                                  Spacer(),
-                                  Text( bookingController.proDetailsInfo
-                                      ?.bookdetails!.checkIntime ??
-                                      "",style: TextStyle(
-                                    fontFamily: FontFamily.gilroyBold,
-                                    fontSize: 15,
-                                    color: notifire.getwhiteblackcolor,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),),
-                                  SizedBox(width: 20),
                                 ],
-                              )
+                              ),
+                              SizedBox(
+                                  height: bookingController.proDetailsInfo
+                                              ?.bookdetails!.checkIntime !=
+                                          ""
+                                      ? 20
+                                      : 0),
+                              bookingController.proDetailsInfo?.bookdetails!
+                                          .checkIntime !=
+                                      ""
+                                  ? Row(
+                                      children: [
+                                        SizedBox(width: 20),
+                                        Text(
+                                          "Check In Time",
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            fontSize: 15,
+                                            color: notifire.getwhiteblackcolor,
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        Text(
+                                          bookingController.proDetailsInfo
+                                                  ?.bookdetails!.checkIntime ??
+                                              "",
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.gilroyBold,
+                                            fontSize: 15,
+                                            color: notifire.getwhiteblackcolor,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        SizedBox(width: 20),
+                                      ],
+                                    )
                                   : SizedBox(),
                               SizedBox(
-                                height: bookingController.proDetailsInfo?.bookdetails!.checkOuttime != "" ? 20 : 0,
+                                height: bookingController.proDetailsInfo
+                                            ?.bookdetails!.checkOuttime !=
+                                        ""
+                                    ? 20
+                                    : 0,
                               ),
-                              bookingController.proDetailsInfo?.bookdetails!.checkOuttime != ""
+                              bookingController.proDetailsInfo?.bookdetails!
+                                          .checkOuttime !=
+                                      ""
                                   ? Row(
-                                children: [
-                                  SizedBox(width: 20),
-                                  Text("Check Out Time",style: TextStyle(
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    fontSize: 15,
-                                    color: notifire.getwhiteblackcolor,
-                                  ),
-                                  ),
-                                  Spacer(),
-                                  Text( bookingController.proDetailsInfo
-                                      ?.bookdetails!.checkOuttime ??
-                                      "",style: TextStyle(
-                                    fontFamily: FontFamily.gilroyBold,
-                                    fontSize: 15,
-                                    color: notifire.getwhiteblackcolor,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),),
-                                  SizedBox(width: 20),
-                                ],
-                              )
+                                      children: [
+                                        SizedBox(width: 20),
+                                        Text(
+                                          "Check Out Time",
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            fontSize: 15,
+                                            color: notifire.getwhiteblackcolor,
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        Text(
+                                          bookingController.proDetailsInfo
+                                                  ?.bookdetails!.checkOuttime ??
+                                              "",
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.gilroyBold,
+                                            fontSize: 15,
+                                            color: notifire.getwhiteblackcolor,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        SizedBox(width: 20),
+                                      ],
+                                    )
                                   : SizedBox(),
                             ],
                           ),
@@ -1012,43 +1159,58 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                           ),
                         ),
                         SizedBox(
-                          height: bookingController.proDetailsInfo?.bookdetails!.addNote == "" ? 0 : 20,
+                          height: bookingController
+                                      .proDetailsInfo?.bookdetails!.addNote ==
+                                  ""
+                              ? 0
+                              : 20,
                         ),
-                        bookingController.proDetailsInfo?.bookdetails!.addNote == "" ? SizedBox() : Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: notifire.getblackwhitecolor,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Note:",style: TextStyle(
-                                  fontFamily: FontFamily.gilroyBold,
-                                  fontSize: 18,
-                                  color: notifire.getwhiteblackcolor,
-                                ),),
-                                SizedBox(height: 3),
-                                Text("${bookingController.proDetailsInfo?.bookdetails!.addNote}",
-                                  style: TextStyle(
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    fontSize: 15,
-                                    color: notifire.getwhiteblackcolor,
+                        bookingController
+                                    .proDetailsInfo?.bookdetails!.addNote ==
+                                ""
+                            ? SizedBox()
+                            : Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: notifire.getblackwhitecolor,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Note:",
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.gilroyBold,
+                                          fontSize: 18,
+                                          color: notifire.getwhiteblackcolor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 3),
+                                      Text(
+                                        "${bookingController.proDetailsInfo?.bookdetails!.addNote}",
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.gilroyMedium,
+                                          fontSize: 15,
+                                          color: notifire.getwhiteblackcolor,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
+                              ),
                       ],
                     ),
                   ),
                 ),
               )
             : Center(
-                child: CircularProgressIndicator(color: Darkblue,),
+                child: CircularProgressIndicator(
+                  color: Darkblue,
+                ),
               );
       }),
     );

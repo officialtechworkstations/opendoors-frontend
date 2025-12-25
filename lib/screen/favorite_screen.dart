@@ -82,12 +82,11 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                             itemBuilder: (context, index) {
                               return InkWell(
                                 onTap: () async {
-                                  Get.toNamed(
-                                    Routes.viewDataScreen,
-                                    arguments: {
-                                      "id" : homePageController.favouriteInfo?.propetylist![index].id
-                                    }
-                                  );
+                                  Get.toNamed(Routes.viewDataScreen,
+                                      arguments: {
+                                        "id": homePageController.favouriteInfo
+                                            ?.propetylist![index].id
+                                      });
                                   setState(() {
                                     homePageController.rate = homePageController
                                             .favouriteInfo
@@ -115,8 +114,15 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                                 placeholder:
                                                     "assets/images/ezgif.com-crop.gif",
                                                 height: 140,
-                                                imageErrorBuilder: (context, error, stackTrace) {
-                                                return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                                                imageErrorBuilder: (context,
+                                                    error, stackTrace) {
+                                                  return Center(
+                                                    child: Image.asset(
+                                                      "assets/images/emty.gif",
+                                                      fit: BoxFit.cover,
+                                                      height: Get.height,
+                                                    ),
+                                                  );
                                                 },
                                                 image:
                                                     "${Config.imageUrl}${homePageController.favouriteInfo?.propetylist![index].image ?? ""}",
@@ -147,7 +153,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                                         Container(
                                                           margin:
                                                               const EdgeInsets
-                                                                      .fromLTRB(
+                                                                  .fromLTRB(
                                                                   0, 0, 3, 0),
                                                           child: Image.asset(
                                                             "assets/images/Rating.png",
@@ -157,10 +163,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                                         ),
                                                         Text(
                                                           homePageController
-                                                              .favouriteInfo
-                                                              ?.propetylist![
-                                                          index]
-                                                              .rate ??
+                                                                  .favouriteInfo
+                                                                  ?.propetylist![
+                                                                      index]
+                                                                  .rate ??
                                                               "",
                                                           style: TextStyle(
                                                             fontFamily: FontFamily
@@ -209,7 +215,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Row(
                                               children: [
@@ -224,16 +231,18 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                                     maxLines: 2,
                                                     style: TextStyle(
                                                       fontSize: 17,
-                                                      fontFamily: FontFamily
-                                                          .gilroyBold,
+                                                      fontFamily:
+                                                          FontFamily.gilroyBold,
                                                       color: notifire
                                                           .getwhiteblackcolor,
-                                                      overflow: TextOverflow
-                                                          .ellipsis,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                   ),
                                                 ),
-                                                SizedBox(width: 10,),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
                                                 InkWell(
                                                   onTap: () {
                                                     homePageController
@@ -260,7 +269,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                                   child: Text(
                                                     homePageController
                                                             .favouriteInfo
-                                                            ?.propetylist![index]
+                                                            ?.propetylist![
+                                                                index]
                                                             .city ??
                                                         "",
                                                     maxLines: 1,
@@ -286,27 +296,26 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                                   "${currency}${homePageController.favouriteInfo?.propetylist![index].price ?? ""}",
                                                   style: TextStyle(
                                                     fontSize: 17,
-                                                    fontFamily: FontFamily
-                                                        .gilroyBold,
+                                                    fontFamily:
+                                                        FontFamily.gilroyBold,
                                                     color: blueColor,
                                                   ),
                                                 ),
                                                 homePageController
-                                                    .favouriteInfo
-                                                    ?.propetylist![
-                                                index]
-                                                    .buyorrent ==
-                                                    "1"
+                                                            .favouriteInfo
+                                                            ?.propetylist![
+                                                                index]
+                                                            .buyorrent ==
+                                                        "1"
                                                     ? Text(
-                                                  "/night".tr,
-                                                  style: TextStyle(
-                                                    color: notifire
-                                                        .getgreycolor,
-                                                    fontFamily:
-                                                    FontFamily
-                                                        .gilroyMedium,
-                                                  ),
-                                                )
+                                                        "/night".tr,
+                                                        style: TextStyle(
+                                                          color: notifire
+                                                              .getgreycolor,
+                                                          fontFamily: FontFamily
+                                                              .gilroyMedium,
+                                                        ),
+                                                      )
                                                     : SizedBox(),
                                               ],
                                             ),
@@ -332,8 +341,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                               children: [
                                 SizedBox(height: Get.height * 0.10),
                                 Image(
-                                  image: AssetImage(
-                                      "assets/images/Door Icon.png"),
+                                  image:
+                                      AssetImage("assets/images/Door Icon.png"),
                                   height: 120,
                                   width: 120,
                                 ),
@@ -359,7 +368,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         )
                   : Expanded(
                       child: Center(
-                        child: CircularProgressIndicator(color: Darkblue,),
+                        child: CircularProgressIndicator(
+                          color: Darkblue,
+                        ),
                       ),
                     );
             }),
@@ -425,12 +436,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           right: 20,
                           child: Container(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 7),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 7),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Container(
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 3, 0),
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 0, 3, 0),
                                     child: Icon(
                                       Icons.star,
                                       size: 18,
@@ -489,7 +502,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 5,),
+                          SizedBox(
+                            height: 5,
+                          ),
                           Row(
                             children: [
                               Expanded(
@@ -525,19 +540,18 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                 ),
                               ),
                               homePageController
-                                  .favouriteInfo
-                                  ?.propetylist![homePageController
-                                  .currentIndex]
-                                  .buyorrent ==
-                                  "1"
+                                          .favouriteInfo
+                                          ?.propetylist![
+                                              homePageController.currentIndex]
+                                          .buyorrent ==
+                                      "1"
                                   ? Text(
-                                "/night".tr,
-                                style: TextStyle(
-                                  color: notifire.getgreycolor,
-                                  fontFamily:
-                                  FontFamily.gilroyMedium,
-                                ),
-                              )
+                                      "/night".tr,
+                                      style: TextStyle(
+                                        color: notifire.getgreycolor,
+                                        fontFamily: FontFamily.gilroyMedium,
+                                      ),
+                                    )
                                   : SizedBox(),
                             ],
                           ),
@@ -563,7 +577,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         margin: EdgeInsets.all(15),
                         alignment: Alignment.center,
                         child: Text(
-                          "Cancle".tr,
+                          "Cancel".tr,
                           style: TextStyle(
                             color: blueColor,
                             fontFamily: FontFamily.gilroyBold,
@@ -583,12 +597,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         homePageController.addFavouriteList(
                           pid: homePageController
                                   .favouriteInfo
-                                  ?.propetylist![homePageController.currentIndex]
+                                  ?.propetylist![
+                                      homePageController.currentIndex]
                                   .id ??
                               "",
                           propertyType: homePageController
                                   .favouriteInfo
-                                  ?.propetylist![homePageController.currentIndex]
+                                  ?.propetylist![
+                                      homePageController.currentIndex]
                                   .propertyType ??
                               "",
                         );

@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_print
+
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -7,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/firebase/auth_service.dart';
 import 'package:opendoors/firebase/chat_screen.dart';
 import 'package:opendoors/model/routes_helper.dart';
@@ -37,9 +42,11 @@ void main() async {
   listenFCM();
   loadFCM();
   initializeNotifications();
+  initOneSignal();
 
   await GetStorage.init();
   await di.init();
+
   runApp(const MyApp());
 }
 
@@ -73,6 +80,33 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
+
+Future<void> initOneSignal() async {
+  // Set log level for debugging
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+
+  // Initialize with your App ID
+  OneSignal.initialize(Config.oneSignel);
+
+  // Request permission
+  final permission = await OneSignal.Notifications.requestPermission(true);
+  print("Signal permission:- $permission");
+
+  // IMPORTANT: Wait a bit for OneSignal to fully initialize
+  await Future.delayed(const Duration(seconds: 2));
+
+  // Now you can safely get subscription ID
+  final subscriptionId = OneSignal.User.pushSubscription.id;
+  print("OneSignal Subscription ID: $subscriptionId");
+
+  // // Add user tags after initialization
+  // if (getData.read("UserLogin") != null) {
+  //   OneSignal.User.addTags({"user_id": getData.read("UserLogin")["id"]});
+  // }
+
+  // Setup listeners
+  // setupNotificationListeners();
+}
 
 Future requestStoragePermission() async {
   if (Platform.isAndroid) {
