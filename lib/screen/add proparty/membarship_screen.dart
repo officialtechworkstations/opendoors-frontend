@@ -303,7 +303,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                                     ),
                                                     Container(
                                                       height: 25,
-                                                      width: 70,
+                                                      width: 90,
                                                       padding:
                                                           EdgeInsets.symmetric(
                                                               vertical: 5),
@@ -325,7 +325,12 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(15),
-                                                        color: Darkblue,
+                                                        color: kycController
+                                                                    .overallStatus
+                                                                    .value ==
+                                                                "approved"
+                                                            ? Colors.green
+                                                            : Darkblue,
                                                       ),
                                                     ),
                                                   ],

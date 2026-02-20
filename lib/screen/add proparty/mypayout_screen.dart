@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_brace_in_string_interps, sort_child_properties_last, non_constant_identifier_names, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, unnecessary_brace_in_string_interps, sort_child_properties_last, non_constant_identifier_names, prefer_const_literals_to_create_immutables, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,6 +10,7 @@ import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -647,7 +648,9 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                     height: 10,
                   ),
                   Text(
-                    "${"Minimum amount:".tr} ${dashBoardController.dashBoardInfo?.withdrawLimit}${currency}",
+                    // ${"Minimum amount:".tr}
+                    // ${dashBoardController.dashBoardInfo?.withdrawLimit}${currency}",
+                    "${"Maximum payout amount:".tr} ${AppFormater.formatAmount(double.tryParse(dashBoardController.dashBoardInfo?.withdrawLimit != null ? dashBoardController.dashBoardInfo!.withdrawLimit : "0") ?? 0)} ${currency}",
                     style: TextStyle(
                       color: notifire.getwhiteblackcolor,
                       fontFamily: FontFamily.gilroyMedium,
@@ -950,67 +953,88 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                   SizedBox(
                     height: 15,
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            payOutController.emptyDetails();
-                            Get.back();
-                          },
-                          child: Container(
-                            height: 50,
-                            margin: EdgeInsets.all(15),
-                            alignment: Alignment.center,
-                            child: Text(
-                              "Cancel".tr,
-                              style: TextStyle(
-                                color: blueColor,
-                                fontFamily: FontFamily.gilroyBold,
-                                fontSize: 16,
+                  Obx(() => Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap:
+                                  payOutController.isLoadingPayRequest.value ==
+                                          true
+                                      ? null
+                                      : () {
+                                          payOutController.emptyDetails();
+                                          Get.back();
+                                        },
+                              child: Container(
+                                height: 50,
+                                margin: EdgeInsets.all(15),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Cancel".tr,
+                                  style: TextStyle(
+                                    color: blueColor,
+                                    fontFamily: FontFamily.gilroyBold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFeef4ff),
+                                  borderRadius: BorderRadius.circular(45),
+                                ),
                               ),
                             ),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFeef4ff),
-                              borderRadius: BorderRadius.circular(45),
-                            ),
                           ),
-                        ),
-                      ),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              if (selectType != null) {
-                                payOutController.requestWithdraweApi(
-                                  rType: selectType,
-                                );
-                              } else {
-                                showToastMessage("Please Select Type".tr);
-                              }
-                            }
-                          },
-                          child: Container(
-                            height: 50,
-                            margin: EdgeInsets.all(15),
-                            alignment: Alignment.center,
-                            child: Text(
-                              "Proceed".tr,
-                              style: TextStyle(
-                                color: WhiteColor,
-                                fontFamily: FontFamily.gilroyBold,
-                                fontSize: 16,
+                          Expanded(
+                            child: InkWell(
+                              onTap: payOutController
+                                          .isLoadingPayRequest.value ==
+                                      true
+                                  ? null
+                                  : () {
+                                      if (_formKey.currentState?.validate() ??
+                                          false) {
+                                        if (selectType != null) {
+                                          // print('here');
+                                          payOutController.requestWithdraweApi(
+                                            rType: selectType,
+                                          );
+                                        } else {
+                                          showToastMessage(
+                                              "Please Select Type".tr);
+                                        }
+                                      }
+                                    },
+                              child: Container(
+                                height: 50,
+                                margin: EdgeInsets.all(15),
+                                alignment: Alignment.center,
+                                child: payOutController
+                                            .isLoadingPayRequest.value ==
+                                        true
+                                    ? SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          color: WhiteColor,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Proceed".tr,
+                                        style: TextStyle(
+                                          color: WhiteColor,
+                                          fontFamily: FontFamily.gilroyBold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                decoration: BoxDecoration(
+                                  color: blueColor,
+                                  borderRadius: BorderRadius.circular(45),
+                                ),
                               ),
                             ),
-                            decoration: BoxDecoration(
-                              color: blueColor,
-                              borderRadius: BorderRadius.circular(45),
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  )
+                          )
+                        ],
+                      ))
                 ],
               ),
             ),

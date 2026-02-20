@@ -134,7 +134,7 @@ class DashBoardController extends GetxController implements GetxService {
           }
         }
         Future.delayed(
-          Duration(seconds: 3),
+          const Duration(seconds: 3),
         ).then(
           (value) {
             isLoading = true;

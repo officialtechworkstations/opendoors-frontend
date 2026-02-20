@@ -115,12 +115,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 15),
-                        child: Text(
-                          "Get Started!".tr,
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontFamily: FontFamily.gilroyBold,
-                            color: notifire.getwhiteblackcolor,
+                        child: GestureDetector(
+                          onTap: () {
+                            // setState(() {
+                            //   isLoading = false;
+                            // });
+                          },
+                          child: Text(
+                            "Get Started!".tr,
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontFamily: FontFamily.gilroyBold,
+                              color: notifire.getwhiteblackcolor,
+                            ),
                           ),
                         ),
                       ),
@@ -254,7 +261,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: IntlPhoneField(
-                          disableLengthCheck: true,
+                          disableLengthCheck: false,
+
                           keyboardType: TextInputType.number,
                           cursorColor: notifire.getwhiteblackcolor,
                           inputFormatters: [
@@ -263,10 +271,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           controller: signUpController.number,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           initialCountryCode: "NG", //"IN",
+
                           dropdownIcon: Icon(
                             Icons.arrow_drop_down,
                             color: notifire.getgreycolor,
                           ),
+
                           dropdownTextStyle: TextStyle(
                             color: notifire.getgreycolor,
                           ),
@@ -289,8 +299,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onCountryChanged: (value) {
                             signUpController.number.text = '';
                           },
+
+                          invalidNumberMessage:
+                              'Please enter a valid phone number'.tr,
                           decoration: InputDecoration(
-                            helperText: null,
+                            counterText: '',
+                            helperText: '',
                             labelText: "Mobile Number".tr,
                             labelStyle: TextStyle(
                               color: notifire.getgreycolor,
@@ -320,9 +334,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
+
                           validator: (p0) {
-                            if (p0!.completeNumber.isEmpty) {
+                            if (p0 == null || p0.completeNumber.isEmpty) {
                               return 'Please enter your number'.tr;
+                            }
+                            if (!p0.isValidNumber()) {
+                              return 'Please enter a valid phone number'.tr;
+                            }
+                            if (p0.countryCode == 'NG' &&
+                                (p0.number.length < 10 ||
+                                    p0.number.length > 11)) {
+                              return 'Please enter a valid phone number'.tr;
                             } else {}
                             return null;
                           },
@@ -530,152 +553,198 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           });
                           if ((_formKey.currentState?.validate() ?? false) &&
                               (signUpController.chack == true)) {
+                            if (signUpController.number.text.isEmpty) {
+                              return showToastMessage(
+                                  "Please enter valid phone number".tr);
+                            }
                             setState(() {
                               isLoading = true;
                             });
+
                             signUpController.smstype().then((msgtype) {
                               signUpController
                                   .checkMobileNumber(cuntryCode)
                                   .then((value) {
                                 if (value == "true") {
-                                  signUpController
-                                      .emailOtp(
-                                          signUpController.email.text.trim())
-                                      .then((res) {
-                                    if (res["Result"] == "true") {
-                                      Get.toNamed(Routes.otpScreen, arguments: {
-                                        "number": signUpController.number.text,
-                                        "cuntryCode": cuntryCode,
-                                        "route": "signUpScreen",
-                                        "email":
-                                            signUpController.email.text.trim(),
-                                        "otpCode": res["otp"]
-                                      });
-                                      setState(() {
-                                        isLoading = false;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        isLoading = false;
-                                      });
-                                      showToastMessage(
-                                          'Invalid Mobile Number'.tr);
-                                    }
-                                  });
+                                  // print(
+                                  //     '=======================signup======================');
+                                  // print('here now');
+                                  // print(
+                                  //     '=======================signup======================');
 
-                                  // if (msgtype["otp_auth"] == "No") {
-                                  //   signUpController
-                                  //       .setUserApiData(cuntryCode)
-                                  //       .then(
-                                  //     (value) {
-                                  //       if (value["Result"] == "true") {
-                                  //         setState(() {
-                                  //           save(
-                                  //               "countryId",
-                                  //               selectCountryController
-                                  //                       .countryInfo
-                                  //                       ?.countryData![
-                                  //                           countrySelected]
-                                  //                       .id ??
-                                  //                   "");
-                                  //           save(
-                                  //               "countryName",
-                                  //               selectCountryController
-                                  //                       .countryInfo
-                                  //                       ?.countryData![
-                                  //                           countrySelected]
-                                  //                       .title ??
-                                  //                   "");
-                                  //         });
-                                  //         selectCountryController
-                                  //             .changeCountryIndex(
-                                  //                 countrySelected);
-                                  //         homePageController.getHomeDataApi(
-                                  //             countryId:
-                                  //                 getData.read("countryId"));
-                                  //         homePageController.getCatWiseData(
-                                  //             countryId:
-                                  //                 getData.read("countryId"),
-                                  //             cId: "0");
-                                  //         searchController.getSearchData(
-                                  //             countryId:
-                                  //                 getData.read("countryId"));
-                                  //         Get.offAndToNamed(
-                                  //             Routes.bottoBarScreen);
-                                  //         initPlatformState();
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //       } else {
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //         showToastMessage(
-                                  //             value["ResponseMsg"]);
-                                  //       }
-                                  //     },
-                                  //   );
-                                  // }
-                                  // else {
-                                  //   if (msgtype["SMS_TYPE"] == "Msg91") {
-                                  //     signUpController
-                                  //         .sendOtp(cuntryCode,
-                                  //             signUpController.number.text)
-                                  //         .then((value) {
-                                  //       if (value["Result"] == "true") {
-                                  //         Get.toNamed(Routes.otpScreen,
-                                  //             arguments: {
-                                  //               "number": signUpController
-                                  //                   .number.text,
-                                  //               "cuntryCode": cuntryCode,
-                                  //               "route": "signUpScreen",
-                                  //               "otpCode":
-                                  //                   value["otp"].toString(),
-                                  //             });
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //       } else {
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //         showToastMessage(
-                                  //             'Invalid Mobile Number'.tr);
-                                  //       }
+                                  // print(
+                                  //     '=======================otp with email======================');
+                                  // signUpController
+                                  //     .emailOtp(
+                                  //         signUpController.email.text.trim())
+                                  //     .then((res) {
+                                  //   if (res["Result"] == "true") {
+                                  //     Get.toNamed(Routes.otpScreen, arguments: {
+                                  //       "number": signUpController.number.text,
+                                  //       "cuntryCode": cuntryCode,
+                                  //       "route": "signUpScreen",
+                                  //       "email":
+                                  //           signUpController.email.text.trim(),
+                                  //       "otpCode": res["otp"]
                                   //     });
-                                  //   } else if (msgtype["SMS_TYPE"] ==
-                                  //       "Twilio") {
-                                  //     signUpController
-                                  //         .twilloOtp(cuntryCode,
-                                  //             signUpController.number.text)
-                                  //         .then((value) {
-                                  //       if (value == null) {
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //       }
-                                  //       if (value["Result"] == "true") {
-                                  //         Get.toNamed(Routes.otpScreen,
-                                  //             arguments: {
-                                  //               "number": signUpController
-                                  //                   .number.text,
-                                  //               "cuntryCode": cuntryCode,
-                                  //               "route": "signUpScreen",
-                                  //               "otpCode": value["otp"]
-                                  //             });
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //       } else {
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //         showToastMessage(
-                                  //             'Invalid Mobile Number'.tr);
-                                  //       }
+                                  //     setState(() {
+                                  //       isLoading = false;
                                   //     });
+                                  //   } else {
+                                  //     setState(() {
+                                  //       isLoading = false;
+                                  //     });
+                                  //     showToastMessage(
+                                  //         'Invalid Mobile Number'.tr);
                                   //   }
-                                  // }
+                                  // });
+                                  // print('=============otp with email============');
+
+                                  // print('=============otp with sms============');
+                                  if (msgtype["otp_auth"] == "No") {
+                                    signUpController
+                                        .setUserApiData(cuntryCode)
+                                        .then(
+                                      (value) {
+                                        if (value["Result"] == "true") {
+                                          setState(() {
+                                            save(
+                                                "countryId",
+                                                selectCountryController
+                                                        .countryInfo
+                                                        ?.countryData![
+                                                            countrySelected]
+                                                        .id ??
+                                                    "");
+                                            save(
+                                                "countryName",
+                                                selectCountryController
+                                                        .countryInfo
+                                                        ?.countryData![
+                                                            countrySelected]
+                                                        .title ??
+                                                    "");
+                                          });
+                                          selectCountryController
+                                              .changeCountryIndex(
+                                                  countrySelected);
+                                          homePageController.getHomeDataApi(
+                                              countryId:
+                                                  getData.read("countryId"));
+                                          homePageController.getCatWiseData(
+                                              countryId:
+                                                  getData.read("countryId"),
+                                              cId: "0");
+                                          searchController.getSearchData(
+                                              countryId:
+                                                  getData.read("countryId"));
+                                          Get.offAndToNamed(
+                                              Routes.bottoBarScreen);
+                                          initPlatformState();
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          showToastMessage(
+                                              value["ResponseMsg"]);
+                                        }
+                                      },
+                                    );
+                                  } else {
+                                    if (msgtype["SMS_TYPE"] == "Msg91") {
+                                      signUpController
+                                          .sendOtp(cuntryCode,
+                                              signUpController.number.text)
+                                          .then((value) {
+                                        if (value["Result"] == "true") {
+                                          Get.toNamed(Routes.otpScreen,
+                                              arguments: {
+                                                "number": signUpController
+                                                    .number.text,
+                                                "cuntryCode": cuntryCode,
+                                                "route": "signUpScreen",
+                                                "otpCode":
+                                                    value["otp"].toString(),
+                                              });
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          showToastMessage(
+                                              'Invalid Mobile Number'.tr);
+                                        }
+                                      });
+                                    } else if (msgtype["SMS_TYPE"] ==
+                                        "Twilio") {
+                                      signUpController
+                                          .twilloOtp(cuntryCode,
+                                              signUpController.number.text)
+                                          .then((value) {
+                                        if (value == null) {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        }
+                                        if (value["Result"] == "true") {
+                                          Get.toNamed(Routes.otpScreen,
+                                              arguments: {
+                                                "number": signUpController
+                                                    .number.text,
+                                                "cuntryCode": cuntryCode,
+                                                "route": "signUpScreen",
+                                                "otpCode": value["otp"]
+                                              });
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          showToastMessage(
+                                              'Invalid Mobile Number'.tr);
+                                        }
+                                      });
+                                    } else if (msgtype["SMS_TYPE"] ==
+                                        "Termii") {
+                                      signUpController
+                                          .termiOtp(cuntryCode,
+                                              signUpController.number.text)
+                                          .then((value) {
+                                        if (value == null) {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        }
+                                        if (value["Result"] == "true") {
+                                          Get.toNamed(Routes.otpScreen,
+                                              arguments: {
+                                                "number": signUpController
+                                                    .number.text,
+                                                "cuntryCode": cuntryCode,
+                                                "route": "signUpScreen",
+                                                "otpCode": value["otp"]
+                                              });
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          showToastMessage(
+                                              'Invalid Mobile Number'.tr);
+                                        }
+                                      });
+                                    }
+                                  }
+                                  // print('=============otp with sms============');
                                 } else {
                                   showToastMessage(
                                       signUpController.userMessage);

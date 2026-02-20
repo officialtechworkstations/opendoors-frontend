@@ -25,6 +25,7 @@ class Config {
   static const String reviewlist = 'review_list.php';
   static const String msgotp = 'msg_otp.php';
   static const String twillotp = 'twilio_otp.php';
+  static const String termiotp = 'termi_otp.php';
   static const String registerUser = 'u_reg_user.php';
   static const String mobileChack = 'mobile_check.php';
   static const String loginApi = 'u_login_user.php';

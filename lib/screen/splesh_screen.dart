@@ -118,8 +118,8 @@ class _SpleshScreenState extends State<SpleshScreen> {
       // Get build numbers from your backend
       final String? latestAndroidBuildNumber =
           _appSetting.providerCurrentBuildNumberAndroidApp;
-      final String? latestIOSBuildNumber =
-          _appSetting.providerCurrentBuildNumberIosApp;
+      // final String? latestIOSBuildNumber =
+      //     _appSetting.providerCurrentBuildNumberIosApp;
 
       final PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
@@ -149,14 +149,15 @@ class _SpleshScreenState extends State<SpleshScreen> {
       } else if (Platform.isIOS) {
         final Version latestVersionIos = Version.parse(
             latestIOSVersion?.isEmpty ?? true ? "1.0.0" : latestIOSVersion!);
-        final int latestBuildIos = int.parse(
-            latestIOSBuildNumber?.isEmpty ?? true
-                ? "1"
-                : latestIOSBuildNumber!);
+        // final int latestBuildIos = int.parse(
+        //     latestIOSBuildNumber?.isEmpty ?? true
+        //         ? "1"
+        //         : latestIOSBuildNumber!);
 
-        if (latestVersionIos > currentVersion ||
-            (latestVersionIos == currentVersion &&
-                latestBuildIos > currentBuild)) {
+        // if (latestVersionIos > currentVersion ||
+        //     (latestVersionIos == currentVersion &&
+        //         latestBuildIos > currentBuild)) {
+        if (latestVersionIos > currentVersion) {
           _showUpdateScreen(_appSetting);
           return;
         }

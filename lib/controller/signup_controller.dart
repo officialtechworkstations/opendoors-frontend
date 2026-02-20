@@ -61,6 +61,10 @@ class SignUpController extends GetxController implements GetxService {
       'Content-Type': 'application/json',
     });
 
+    print('=======================smstype======================');
+    print(response.body.toString());
+    print('=======================smstype======================');
+
     if (response.statusCode == 200) {
       var smsdecode = jsonDecode(response.body);
       update();
@@ -84,10 +88,15 @@ class SignUpController extends GetxController implements GetxService {
         body: jsonEncode(map),
       );
 
+      print('=======================checkMobileNumber======================');
+      print(response.body.toString());
+      print('=======================checkMobileNumber======================');
+
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
         userMessage = result["ResponseMsg"];
         resultCheck = result["Result"];
+        print(userMessage.toString());
         print("MMMMMMMMMMMMMMMMMM$result");
         return resultCheck;
       }
@@ -164,6 +173,32 @@ class SignUpController extends GetxController implements GetxService {
     Map body = {"mobile": cuntryCode + number};
 
     var response = await http.post(Uri.parse(Config.path + Config.twillotp),
+        body: jsonEncode(body),
+        headers: {
+          'Content-Type': 'application/json',
+        });
+    print("><<<<<<<<<<<<<<<<<<$body");
+
+    if (response.statusCode == 200) {
+      var msgdecode = jsonDecode(response.body);
+      print(" OTP CODE : >>> ${response.body}");
+
+      if (msgdecode["Result"] == "true") {
+        update();
+        showToastMessage(msgdecode["ResponseMsg"]);
+        return msgdecode;
+      } else {
+        showToastMessage(msgdecode["ResponseMsg"]);
+      }
+    } else {
+      showToastMessage("Something went wrong!");
+    }
+  }
+
+  Future termiOtp(cuntryCode, number) async {
+    Map body = {"mobile": cuntryCode + number};
+
+    var response = await http.post(Uri.parse(Config.path + Config.termiotp),
         body: jsonEncode(body),
         headers: {
           'Content-Type': 'application/json',
