@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_typing_uninitialized_variables, sort_child_properties_last, prefer_const_literals_to_create_immutables, unnecessary_brace_in_string_interps, unnecessary_string_interpolations, unused_local_variable, no_leading_underscores_for_local_identifiers, avoid_print, prefer_interpolation_to_compose_strings, unrelated_type_equality_checks, use_build_context_synchronously
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:badges/badges.dart' as bg;
@@ -24,6 +25,7 @@ import 'package:opendoors/screen/property_filter_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:http/http.dart' as http;
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -174,7 +176,9 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 getData.read("UserLogin") != null && networkimage != ""
                     ? InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          log("${Config.imageUrl}${networkimage ?? ""}");
+                        },
                         child: Container(
                           height: 50,
                           width: 50,
@@ -543,35 +547,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               ),
                                                             ),
                                                           )
-                                                        : Positioned(
-                                                            top: 15,
-                                                            right: 20,
-                                                            child: Container(
-                                                              height: 30,
-                                                              width: 60,
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
-                                                              child: Text(
-                                                                "BUY".tr,
-                                                                style: TextStyle(
-                                                                    color:
-                                                                        blueColor,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600),
-                                                              ),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: Color(
-                                                                    0xFFedeeef),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            15),
-                                                              ),
-                                                            ),
-                                                          ),
+                                                        : SizedBox.shrink(),
+                                                    // REMOVE THE BOOK TAG
+                                                    // Positioned(
+                                                    //     top: 15,
+                                                    //     right: 20,
+                                                    //     child: Container(
+                                                    //       height: 30,
+                                                    //       width: 60,
+                                                    //       alignment:
+                                                    //           Alignment
+                                                    //               .center,
+                                                    //       child: Text(
+                                                    //         "BOOK".tr,
+                                                    //         // "BUY".tr,
+                                                    //         style: TextStyle(
+                                                    //             color:
+                                                    //                 blueColor,
+                                                    //             fontWeight:
+                                                    //                 FontWeight
+                                                    //                     .w600),
+                                                    //       ),
+                                                    //       decoration:
+                                                    //           BoxDecoration(
+                                                    //         color: Color(
+                                                    //             0xFFedeeef),
+                                                    //         borderRadius:
+                                                    //             BorderRadius
+                                                    //                 .circular(
+                                                    //                     15),
+                                                    //       ),
+                                                    //     ),
+                                                    //   ),
                                                   ],
                                                 ),
                                                 Expanded(
@@ -668,7 +675,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         .only(
                                                                         top: 7),
                                                                 child: Text(
-                                                                  "${currency}${homePageController.catWiseInfo?.propertyCat![index].price ?? ""}",
+                                                                  "${currency}" +
+                                                                      AppFormater
+                                                                          .formatAmount(
+                                                                        double.tryParse(homePageController.catWiseInfo?.propertyCat![index].price ??
+                                                                                "0") ??
+                                                                            0,
+                                                                      ),
+                                                                  // "${currency}${homePageController.catWiseInfo?.propertyCat![index].price ?? ""}",
                                                                   style:
                                                                       TextStyle(
                                                                     color:
@@ -986,25 +1000,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   )
-                                : Positioned(
-                                    top: 15,
-                                    right: 20,
-                                    child: Container(
-                                      height: 30,
-                                      width: 60,
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        "BUY".tr,
-                                        style: TextStyle(
-                                            color: blueColor,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFFedeeef),
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                  ),
+                                : SizedBox.shrink(),
+                            // REMOVE THE BOOK TAG
+                            // Positioned(
+                            //     top: 15,
+                            //     right: 20,
+                            //     child: Container(
+                            //       height: 30,
+                            //       width: 60,
+                            //       alignment: Alignment.center,
+                            //       child: Text(
+                            //         "BOOK".tr,
+                            //         // "BUY".tr,
+                            //         style: TextStyle(
+                            //             color: blueColor,
+                            //             fontWeight: FontWeight.w600),
+                            //       ),
+                            //       decoration: BoxDecoration(
+                            //         color: Color(0xFFedeeef),
+                            //         borderRadius: BorderRadius.circular(15),
+                            //       ),
+                            //     ),
+                            //   ),
                             Positioned(
                               bottom: 10,
                               child: SizedBox(
@@ -1144,7 +1161,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                           padding: const EdgeInsets.only(
                                               left: 12, top: 10),
                                           child: Text(
-                                            "${currency}${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].price}",
+                                            '${currency}' +
+                                                AppFormater.formatAmount(
+                                                  double.tryParse(homePageController
+                                                              .homeDatatInfo
+                                                              ?.homeData!
+                                                              .featuredProperty![
+                                                                  index1]
+                                                              .price ??
+                                                          "0") ??
+                                                      0,
+                                                ),
+                                            // "${currency}${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].price}",
                                             style: TextStyle(
                                               color: WhiteColor,
                                               fontFamily: FontFamily.gilroyBold,

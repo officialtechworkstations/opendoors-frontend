@@ -11,6 +11,7 @@ import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -184,28 +185,31 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                                     ),
                                                   ),
                                                 )
-                                              : Positioned(
-                                                  top: 15,
-                                                  right: 20,
-                                                  child: Container(
-                                                    height: 30,
-                                                    width: 60,
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      "BUY".tr,
-                                                      style: TextStyle(
-                                                          color: blueColor,
-                                                          fontWeight:
-                                                              FontWeight.w600),
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: Color(0xFFedeeef),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15),
-                                                    ),
-                                                  ),
-                                                ),
+                                              : SizedBox.shrink(),
+                                          // REMOVE THE BOOK TAG
+                                          // Positioned(
+                                          //     top: 15,
+                                          //     right: 20,
+                                          //     child: Container(
+                                          //       height: 30,
+                                          //       width: 60,
+                                          //       alignment: Alignment.center,
+                                          //       child: Text(
+                                          //         "BOOK".tr,
+                                          //         // "BUY".tr,
+                                          //         style: TextStyle(
+                                          //             color: blueColor,
+                                          //             fontWeight:
+                                          //                 FontWeight.w600),
+                                          //       ),
+                                          //       decoration: BoxDecoration(
+                                          //         color: Color(0xFFedeeef),
+                                          //         borderRadius:
+                                          //             BorderRadius.circular(
+                                          //                 15),
+                                          //       ),
+                                          //     ),
+                                          //   ),
                                         ],
                                       ),
                                       SizedBox(
@@ -293,7 +297,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                             Row(
                                               children: [
                                                 Text(
-                                                  "${currency}${homePageController.favouriteInfo?.propetylist![index].price ?? ""}",
+                                                  "${currency}${AppFormater.formatAmount(double.tryParse(homePageController.favouriteInfo?.propetylist![index].price ?? "0") ?? 0)}",
+                                                  // "${currency}${homePageController.favouriteInfo?.propetylist![index].price ?? ""}",
                                                   style: TextStyle(
                                                     fontSize: 17,
                                                     fontFamily:
@@ -532,7 +537,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           Row(
                             children: [
                               Text(
-                                "${currency}${homePageController.favouriteInfo?.propetylist![homePageController.currentIndex].price ?? ""}",
+                                "${currency}${AppFormater.formatAmount(double.tryParse(homePageController.favouriteInfo?.propetylist![homePageController.currentIndex].price ?? "0") ?? 0)}",
+                                // "${currency}${homePageController.favouriteInfo?.propetylist![homePageController.currentIndex].price ?? ""}",
                                 style: TextStyle(
                                   fontSize: 17,
                                   fontFamily: FontFamily.gilroyBold,

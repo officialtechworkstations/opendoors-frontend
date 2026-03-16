@@ -1,10 +1,11 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 // Screen
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:opendoors/model/fontfamily_model.dart';
 // import 'dart:io';
 
 import 'package:opendoors/screen/kyc/widget2/kyc_controller.dart';
@@ -32,10 +33,12 @@ class KYCAuthScreen extends StatefulWidget {
 class _KYCAuthScreenState extends State<KYCAuthScreen> {
   late ColorNotifire notifire;
   KYC2Controller controller = Get.find<KYC2Controller>();
+  bool darkMode = false;
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
+    darkMode = prefs.getBool("setIsDark") ?? false;
     if (previusstate == null) {
       notifire.setIsDark = false;
     } else {
@@ -52,22 +55,32 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-
     return Scaffold(
-      //  backgroundColor: notifire.getbgcolor,
-      backgroundColor: Colors.grey[50],
+      backgroundColor: darkMode ? notifire.getbgcolor : Colors.grey[50],
       appBar: AppBar(
-        title: const Text('KYC Verification'),
-        backgroundColor: Colors.white,
+        title: Text('KYC Verification',
+            style: TextStyle(color: notifire.getwhiteblackcolor)),
+        backgroundColor: darkMode ? notifire.getbgcolor : Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
+        leading: BackButton(
+          color: notifire.getwhiteblackcolor,
+          onPressed: () {
+            Get.back();
+          },
+        ),
         actions: widget.showSkipOption
             ? [
                 TextButton(
                   onPressed: widget.onSkip,
                   child: Text(
-                    'Skip for now',
-                    style: TextStyle(color: controller.primaryColor),
+                    controller.overallStatus.value == "approved"
+                        ? 'Done'
+                        : 'Skip for now',
+                    style: TextStyle(
+                        color: controller.overallStatus.value == "approved"
+                            ? Colors.green
+                            : controller.primaryColor),
                   ),
                 ),
               ]
@@ -76,6 +89,11 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
       body: Obx(() {
         if (controller.isLoadingRequirements.value) {
           return const Center(child: CircularProgressIndicator());
+        }
+
+        // If no required documents, show empty state
+        if (controller.requiredDocuments.isEmpty) {
+          return _buildEmptyRequiredDoc();
         }
 
         return Column(
@@ -110,7 +128,41 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
           ],
         );
       }),
-      bottomNavigationBar: _buildSubmitButton(controller, widget.onSkip),
+      bottomNavigationBar: Obx(() => controller.requiredDocuments.isEmpty
+          ? const SizedBox.shrink()
+          : _buildSubmitButton(controller, widget.onSkip)),
+    );
+  }
+
+  _buildEmptyRequiredDoc() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 30),
+            child: Image.asset(
+              "assets/images/Door Icon.png",
+              height: 110,
+              width: 100,
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Center(
+            child: Text(
+              "Please come back later. The required documents for \n KYC will be available shortly"
+                  .tr,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: notifire.getgreycolor,
+                fontFamily: FontFamily.gilroyBold,
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -212,7 +264,7 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
                   'Complete KYC verification to list your properties. Unverified partners\' listings will not be visible to users.',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[800],
+                    color: darkMode ? Colors.grey[200] : Colors.grey[800],
                     height: 1.4,
                   ),
                 ),
@@ -233,7 +285,7 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: darkMode ? Color.fromARGB(255, 47, 47, 44) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -254,18 +306,18 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
                   children: [
                     Text(
                       doc.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: darkMode ? Colors.white : Colors.black87),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       doc.description,
                       style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                          fontSize: 12,
+                          color:
+                              darkMode ? Colors.grey[300] : Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -598,7 +650,7 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: darkMode ? notifire.getbgcolor : Colors.white,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -611,8 +663,10 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
           child: ElevatedButton(
             onPressed: canSubmit && !controller.isUploading.value
                 ? () => controller.submitAllDocuments(widget.userId).then((_) {
-                      log('closing!!');
-                      Navigator.of(context).pop();
+                      // log('closing!!');
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
                     })
                 : null,
             style: ElevatedButton.styleFrom(
@@ -626,12 +680,14 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
               elevation: 0,
             ),
             child: controller.isUploading.value
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(darkMode
+                          ? notifire.getwhiteblackcolor
+                          : Colors.white),
                     ),
                   )
                 : const Text(
@@ -710,14 +766,16 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.red[50],
+        color: darkMode ? Colors.red[100] : Colors.red[50],
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.red[200]!),
+        border:
+            Border.all(color: darkMode ? Colors.red[900]! : Colors.red[200]!),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.error_outline, color: Colors.red[700], size: 20),
+          Icon(Icons.error_outline,
+              color: darkMode ? Colors.red[900] : Colors.red[700], size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Column(

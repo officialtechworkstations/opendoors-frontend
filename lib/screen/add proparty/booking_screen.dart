@@ -9,6 +9,7 @@ import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -186,8 +187,14 @@ class _BookingScreenState extends State<BookingScreen>
                                               placeholder:
                                                   "assets/images/ezgif.com-crop.gif",
                                               height: 140,
-                                              imageErrorBuilder: (context, error, stackTrace) {
-                                                return Image.asset("assets/images/ezgif.com-crop.gif",height: 48,width: 48,fit: BoxFit.cover,);
+                                              imageErrorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Image.asset(
+                                                  "assets/images/ezgif.com-crop.gif",
+                                                  height: 48,
+                                                  width: 48,
+                                                  fit: BoxFit.cover,
+                                                );
                                               },
                                               image:
                                                   "${Config.imageUrl}${bookingController.proStatusWiseInfo?.statuswise![index].propImg ?? ""}",
@@ -249,7 +256,8 @@ class _BookingScreenState extends State<BookingScreen>
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             bookingController
@@ -260,8 +268,7 @@ class _BookingScreenState extends State<BookingScreen>
                                             maxLines: 2,
                                             style: TextStyle(
                                               fontSize: 17,
-                                              fontFamily:
-                                                  FontFamily.gilroyBold,
+                                              fontFamily: FontFamily.gilroyBold,
                                               color:
                                                   notifire.getwhiteblackcolor,
                                               overflow: TextOverflow.ellipsis,
@@ -273,7 +280,8 @@ class _BookingScreenState extends State<BookingScreen>
                                           Row(
                                             children: [
                                               Text(
-                                                "${currency}${int.parse(bookingController.proStatusWiseInfo?.statuswise![index].propPrice ?? "") * int.parse(bookingController.proStatusWiseInfo?.statuswise![index].totalDay ?? "")}",
+                                                "${currency}${AppFormater.formatAmount((double.tryParse(bookingController.proStatusWiseInfo?.statuswise![index].propPrice ?? "0") ?? 0) * (double.tryParse(bookingController.proStatusWiseInfo?.statuswise![index].totalDay ?? "0") ?? 0))}",
+                                                // "${currency}${int.parse(bookingController.proStatusWiseInfo?.statuswise![index].propPrice ?? "") * int.parse(bookingController.proStatusWiseInfo?.statuswise![index].totalDay ?? "")}",
                                                 style: TextStyle(
                                                   fontFamily:
                                                       FontFamily.gilroyBold,
@@ -408,7 +416,9 @@ class _BookingScreenState extends State<BookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(color: Darkblue,),
+                  child: CircularProgressIndicator(
+                    color: Darkblue,
+                  ),
                 ),
         ),
       );
@@ -439,9 +449,7 @@ class _BookingScreenState extends State<BookingScreen>
                         return Column(
                           children: [
                             InkWell(
-                              onTap: () async {
-
-                              },
+                              onTap: () async {},
                               child: Container(
                                 height: 155,
                                 margin: EdgeInsets.all(10),
@@ -461,8 +469,14 @@ class _BookingScreenState extends State<BookingScreen>
                                               placeholder:
                                                   "assets/images/ezgif.com-crop.gif",
                                               height: 140,
-                                              imageErrorBuilder: (context, error, stackTrace) {
-                                                return Image.asset("assets/images/ezgif.com-crop.gif",height: 48,width: 48,fit: BoxFit.cover,);
+                                              imageErrorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Image.asset(
+                                                  "assets/images/ezgif.com-crop.gif",
+                                                  height: 48,
+                                                  width: 48,
+                                                  fit: BoxFit.cover,
+                                                );
                                               },
                                               image:
                                                   "${Config.imageUrl}${bookingController.proStatusWiseInfo?.statuswise![index].propImg ?? ""}",
@@ -524,7 +538,8 @@ class _BookingScreenState extends State<BookingScreen>
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             bookingController
@@ -535,8 +550,7 @@ class _BookingScreenState extends State<BookingScreen>
                                             maxLines: 2,
                                             style: TextStyle(
                                               fontSize: 17,
-                                              fontFamily:
-                                                  FontFamily.gilroyBold,
+                                              fontFamily: FontFamily.gilroyBold,
                                               color:
                                                   notifire.getwhiteblackcolor,
                                               overflow: TextOverflow.ellipsis,
@@ -548,7 +562,8 @@ class _BookingScreenState extends State<BookingScreen>
                                           Row(
                                             children: [
                                               Text(
-                                                "${currency}${int.parse(bookingController.proStatusWiseInfo?.statuswise![index].propPrice ?? "") * int.parse(bookingController.proStatusWiseInfo?.statuswise![index].totalDay ?? "")}",
+                                                "${currency}${AppFormater.formatAmount((double.tryParse(bookingController.proStatusWiseInfo?.statuswise![index].propPrice ?? "0") ?? 0) * (double.tryParse(bookingController.proStatusWiseInfo?.statuswise![index].totalDay ?? "0") ?? 0))}",
+                                                // "${currency}${int.parse(bookingController.proStatusWiseInfo?.statuswise![index].propPrice ?? "") * int.parse(bookingController.proStatusWiseInfo?.statuswise![index].totalDay ?? "")}",
                                                 style: TextStyle(
                                                   fontFamily:
                                                       FontFamily.gilroyBold,
@@ -647,7 +662,9 @@ class _BookingScreenState extends State<BookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(color: Darkblue,),
+                  child: CircularProgressIndicator(
+                    color: Darkblue,
+                  ),
                 ),
         ),
       );

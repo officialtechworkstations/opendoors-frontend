@@ -31,14 +31,14 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  requestPermission();
-  handleFCMNavigation();
   await Permission.phone.request();
   await requestStoragePermission();
+  requestPermission();
   // await Permission.notification.request();
   await getLocation();
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  handleFCMNavigation();
   listenFCM();
   loadFCM();
   initializeNotifications();

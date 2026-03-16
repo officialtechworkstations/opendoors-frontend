@@ -160,13 +160,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: IntlPhoneField(
-                    disableLengthCheck: true,
+                    disableLengthCheck: false,
+                    // disableLengthCheck: true,
                     initialCountryCode: "NG", //"IN",
                     keyboardType: TextInputType.number,
                     cursorColor: notifire.getwhiteblackcolor,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     controller: loginController.number,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
+                    invalidNumberMessage:
+                        'Please enter a valid phone number'.tr,
                     dropdownIcon: Icon(
                       Icons.arrow_drop_down,
                       color: notifire.getgreycolor,
@@ -196,7 +199,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       cuntryCode = value.countryCode;
                     },
                     decoration: InputDecoration(
-                      helperText: null,
+                      counterText: '',
+                      helperText: '',
                       labelText: "Mobile Number".tr,
                       labelStyle: TextStyle(
                         color: notifire.getgreycolor,
@@ -224,18 +228,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    invalidNumberMessage: "Please enter your mobile number".tr,
+                    // invalidNumberMessage: "Please enter your mobile number".tr,
                     validator: (p0) {
-                      if (loginController.number.text.isEmpty) {
+                      if (p0 == null || loginController.number.text.isEmpty) {
                         return 'Please enter your number';
+                      }
+                      if (!p0.isValidNumber()) {
+                        return 'Please enter a valid phone number'.tr;
                       } else {}
                       return null;
                     },
                   ),
                 ),
-                SizedBox(
-                  height: 20,
-                ),
+                // SizedBox(
+                //   height: 20,
+                // ),
                 GetBuilder<LoginController>(builder: (context) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -336,12 +343,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                 },
                               ),
                             ),
-                            Text(
-                              "Remember me".tr,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontFamily: "Gilroy Medium",
-                                color: notifire.getwhiteblackcolor,
+                            InkWell(
+                              onTap: () async {
+                                loginController.changeRememberMe(
+                                    !loginController.isChecked);
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setBool(
+                                    'Remember', !loginController.isChecked);
+                              },
+                              child: Text(
+                                "Remember me".tr,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: "Gilroy Medium",
+                                  color: notifire.getwhiteblackcolor,
+                                ),
                               ),
                             ),
                           ],
@@ -398,6 +415,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           _formKey.currentState?.validate();
 
                           if (_formKey.currentState?.validate() ?? false) {
+                            if (loginController.number.text.isEmpty) {
+                              return showToastMessage(
+                                  "Please enter valid phone number".tr);
+                            }
                             initPlatformState();
                             loginController
                                 .getLoginApiData(cuntryCode, context)

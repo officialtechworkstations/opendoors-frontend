@@ -1,4 +1,4 @@
-package opendoorsapp.com;
+package com.opendoors.newapp;
 
 import io.flutter.embedding.android.FlutterActivity;
 

@@ -16,6 +16,7 @@ import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -314,7 +315,9 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                 ),
                                 Spacer(),
                                 Text(
-                                  "${currency}${(int.parse(bookingDetailsController.bookDetailsInfo?.bookdetails!.propPrice ?? "") * int.parse(bookingDetailsController.bookDetailsInfo?.bookdetails!.totalDay ?? ""))} ",
+                                  "$currency${AppFormater.formatAmount((double.tryParse(bookingDetailsController.bookDetailsInfo?.bookdetails!.propPrice ?? "0") ?? 0) * (double.tryParse(bookingDetailsController.bookDetailsInfo?.bookdetails!.totalDay ?? "0") ?? 0))}",
+
+                                  // "${currency}${(int.parse(bookingDetailsController.bookDetailsInfo?.bookdetails!.propPrice ?? "") * int.parse(bookingDetailsController.bookDetailsInfo?.bookdetails!.totalDay ?? ""))} ",
                                   style: TextStyle(
                                     fontFamily: FontFamily.gilroyBold,
                                     fontSize: 15,
@@ -344,7 +347,9 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                 ),
                                 Spacer(),
                                 Text(
-                                  "${currency}${bookingDetailsController.bookDetailsInfo?.bookdetails!.tax ?? ""} ",
+                                  "$currency${AppFormater.formatAmount(double.tryParse(bookingDetailsController.bookDetailsInfo?.bookdetails!.tax ?? "0") ?? 0)}",
+
+                                  // "${currency}${bookingDetailsController.bookDetailsInfo?.bookdetails!.tax ?? ""} ",
                                   style: TextStyle(
                                     fontFamily: FontFamily.gilroyBold,
                                     fontSize: 15,
@@ -410,7 +415,8 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    "${currency}${bookingDetailsController.bookDetailsInfo?.bookdetails!.couAmt ?? ""} ",
+                                    "${currency}${AppFormater.formatAmount(double.tryParse(bookingDetailsController.bookDetailsInfo?.bookdetails!.couAmt ?? "0") ?? 0)}",
+                                    // "${currency}${bookingDetailsController.bookDetailsInfo?.bookdetails!.couAmt ?? ""} ",
                                     style: TextStyle(
                                       fontFamily: FontFamily.gilroyBold,
                                       fontSize: 15,
@@ -451,7 +457,8 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    "${currency}${bookingDetailsController.bookDetailsInfo?.bookdetails!.wallAmt ?? ""}",
+                                    "${currency}${AppFormater.formatAmount(double.tryParse(bookingDetailsController.bookDetailsInfo?.bookdetails!.wallAmt ?? "0") ?? 0)}",
+                                    // "${currency}${bookingDetailsController.bookDetailsInfo?.bookdetails!.wallAmt ?? ""}",
                                     style: TextStyle(
                                       fontFamily: FontFamily.gilroyBold,
                                       fontSize: 15,
@@ -491,7 +498,8 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                                 ),
                                 Spacer(),
                                 Text(
-                                  "${currency}${bookingDetailsController.bookDetailsInfo?.bookdetails!.total ?? ""} ",
+                                  "$currency${AppFormater.formatAmount(double.tryParse(bookingDetailsController.bookDetailsInfo?.bookdetails!.total ?? "0") ?? 0)}",
+                                  // "${currency}${bookingDetailsController.bookDetailsInfo?.bookdetails!.total ?? ""} ",
                                   style: TextStyle(
                                     fontFamily: FontFamily.gilroyBold,
                                     fontSize: 15,

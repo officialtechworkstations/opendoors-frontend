@@ -24,7 +24,7 @@ class PayoutInfo {
 
   factory PayoutInfo.fromJson(Map<String, dynamic> json) => PayoutInfo(
         responseCode: json["ResponseCode"],
-        result: json["Result"],
+        result: json["Result"].toString(),
         responseMsg: json["ResponseMsg"],
         payoutlist: List<Payoutlist>.from(
             json["Payoutlist"].map((x) => Payoutlist.fromJson(x))),
@@ -71,15 +71,15 @@ class Payoutlist {
         payoutId: json["payout_id"],
         amt: json["amt"],
         status: json["status"],
-        proof: json["proof"],
+        proof: json["proof"] ?? '',
         rDate: DateTime.parse(json["r_date"]),
-        rType: json["r_type"],
-        accNumber: json["acc_number"],
-        bankName: json["bank_name"],
-        accName: json["acc_name"],
-        ifscCode: json["ifsc_code"],
-        upiId: json["upi_id"],
-        paypalId: json["paypal_id"],
+        rType: json["r_type"] ?? '',
+        accNumber: json["acc_number"] ?? '',
+        bankName: json["bank_name"] ?? '',
+        accName: json["acc_name"] ?? '',
+        ifscCode: json["ifsc_code"] ?? '',
+        upiId: json["upi_id"] ?? '',
+        paypalId: json["paypal_id"] ?? '',
       );
 
   Map<String, dynamic> toJson() => {

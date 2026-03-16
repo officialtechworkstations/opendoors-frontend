@@ -156,6 +156,7 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
                 Button(
                   Width: Get.size.width,
                   buttoncolor: Darkblue,
+                  // buttontext: "Login With Email".tr,
                   buttontext: "Login With Phone Number".tr,
                   onclick: () {
                     Get.to(LoginScreen());

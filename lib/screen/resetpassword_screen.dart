@@ -35,6 +35,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   bool isvalidate = false;
 
   late ColorNotifire notifire;
+  bool isLoading = false;
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -117,95 +118,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 autovalidateMode: AutovalidateMode.always,
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: TextFormField(
-                        controller: signUpController.email,
-                        cursorColor: notifire.getwhiteblackcolor,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        style: TextStyle(
-                          fontFamily: FontFamily.gilroyBold,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: notifire.getwhiteblackcolor,
-                        ),
-                        decoration: InputDecoration(
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide:
-                                BorderSide(color: notifire.getborderColor),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: notifire.getborderColor,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          prefixIcon: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Image.asset(
-                              "assets/images/email.png",
-                              height: 10,
-                              width: 10,
-                              color: notifire.getgreycolor,
-                            ),
-                          ),
-                          labelText: "Email Address".tr,
-                          labelStyle: TextStyle(
-                            color: notifire.getgreycolor,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email'.tr;
-                          }
-                          if (!RegExp(
-                                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                              .hasMatch(value.trim())) {
-                            return 'Please enter a valid email address';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
                     // Padding(
                     //   padding: const EdgeInsets.symmetric(horizontal: 15),
-                    //   child: IntlPhoneField(
-                    //     disableLengthCheck: true,
-                    //     keyboardType: TextInputType.number,
+                    //   child: TextFormField(
+                    //     controller: signUpController.email,
                     //     cursorColor: notifire.getwhiteblackcolor,
-                    //     inputFormatters: [
-                    //       FilteringTextInputFormatter.digitsOnly
-                    //     ],
-                    //     initialCountryCode: 'NG',
-                    //     controller: number,
-                    //     onChanged: (value) {
-                    //       setState(() {
-                    //         if (number.text.isNotEmpty) {
-                    //           isvalidate = false;
-                    //         } else {
-                    //           isvalidate = true;
-                    //         }
-                    //       });
-                    //       cuntryCode = value.countryCode;
-                    //     },
-                    //     onCountryChanged: (value) {
-                    //       number.text = '';
-                    //     },
-                    //     dropdownIcon: Icon(
-                    //       Icons.arrow_drop_down,
-                    //       color: notifire.getgreycolor,
-                    //     ),
-                    //     dropdownTextStyle: TextStyle(
-                    //       color: notifire.getgreycolor,
-                    //     ),
+                    //     autovalidateMode: AutovalidateMode.onUserInteraction,
                     //     style: TextStyle(
                     //       fontFamily: FontFamily.gilroyBold,
                     //       fontSize: 14,
@@ -213,140 +131,286 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     //       color: notifire.getwhiteblackcolor,
                     //     ),
                     //     decoration: InputDecoration(
-                    //       helperText: null,
-                    //       labelText: "Mobile Number".tr,
-                    //       labelStyle: TextStyle(
-                    //         color: notifire.getborderColor,
-                    //       ),
                     //       focusedBorder: OutlineInputBorder(
                     //         borderRadius: BorderRadius.circular(15),
-                    //         borderSide: BorderSide(
-                    //           color:
-                    //               isvalidate ? Colors.red.shade700 : blueColor,
-                    //         ),
+                    //         borderSide: BorderSide(color: blueColor),
+                    //       ),
+                    //       border: OutlineInputBorder(
+                    //         borderRadius: BorderRadius.circular(15),
+                    //         borderSide:
+                    //             BorderSide(color: notifire.getborderColor),
                     //       ),
                     //       enabledBorder: OutlineInputBorder(
                     //         borderSide: BorderSide(
-                    //           color: isvalidate
-                    //               ? Colors.red.shade700
-                    //               : notifire.getborderColor,
+                    //           color: notifire.getborderColor,
                     //         ),
                     //         borderRadius: BorderRadius.circular(15),
                     //       ),
-                    //       border: OutlineInputBorder(
-                    //         borderSide: BorderSide(
-                    //           color: isvalidate
-                    //               ? Colors.red.shade700
-                    //               : notifire.getborderColor,
+                    //       prefixIcon: Padding(
+                    //         padding: const EdgeInsets.all(10),
+                    //         child: Image.asset(
+                    //           "assets/images/email.png",
+                    //           height: 10,
+                    //           width: 10,
+                    //           color: notifire.getgreycolor,
                     //         ),
-                    //         borderRadius: BorderRadius.circular(15),
+                    //       ),
+                    //       labelText: "Email Address".tr,
+                    //       labelStyle: TextStyle(
+                    //         color: notifire.getgreycolor,
                     //       ),
                     //     ),
-                    //     validator: (p0) {
-                    //       if (p0!.completeNumber.isEmpty) {
-                    //         return 'Please enter your number'.tr;
-                    //       } else {}
+                    //     validator: (value) {
+                    //       if (value == null || value.isEmpty) {
+                    //         return 'Please enter your email'.tr;
+                    //       }
+                    //       if (!RegExp(
+                    //               r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                    //           .hasMatch(value.trim())) {
+                    //         return 'Please enter a valid email address';
+                    //       }
                     //       return null;
                     //     },
                     //   ),
                     // ),
+                    // SizedBox(
+                    //   height: 20,
+                    // ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: IntlPhoneField(
+                        disableLengthCheck: false,
+                        keyboardType: TextInputType.number,
+                        cursorColor: notifire.getwhiteblackcolor,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        initialCountryCode: 'NG',
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        controller: number,
+                        onChanged: (value) {
+                          setState(() {
+                            if (number.text.isNotEmpty) {
+                              isvalidate = false;
+                            } else {
+                              isvalidate = true;
+                            }
+                          });
+                          cuntryCode = value.countryCode;
+                        },
+                        onCountryChanged: (value) {
+                          number.text = '';
+                        },
+                        invalidNumberMessage:
+                            'Please enter a valid phone number'.tr,
+                        dropdownIcon: Icon(
+                          Icons.arrow_drop_down,
+                          color: notifire.getgreycolor,
+                        ),
+                        dropdownTextStyle: TextStyle(
+                          color: notifire.getgreycolor,
+                        ),
+                        style: TextStyle(
+                          fontFamily: FontFamily.gilroyBold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: notifire.getwhiteblackcolor,
+                        ),
+                        decoration: InputDecoration(
+                          counterText: '',
+                          helperText: '',
+                          labelText: "Mobile Number".tr,
+                          labelStyle: TextStyle(
+                            color: notifire.getborderColor,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide(
+                              color:
+                                  isvalidate ? Colors.red.shade700 : blueColor,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: isvalidate
+                                  ? Colors.red.shade700
+                                  : notifire.getborderColor,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: isvalidate
+                                  ? Colors.red.shade700
+                                  : notifire.getborderColor,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        validator: (p0) {
+                          if (p0 == null || p0.completeNumber.isEmpty) {
+                            return 'Please enter your number'.tr;
+                          }
+                          if (!p0.isValidNumber()) {
+                            return 'Please enter a valid phone number'.tr;
+                          }
+                          if (p0.countryCode == 'NG' &&
+                              (p0.number.length < 10 ||
+                                  p0.number.length > 11)) {
+                            return 'Please enter a valid phone number'.tr;
+                          } else {}
+                          return null;
+                        },
+                        // validator: (p0) {
+                        //   if (p0!.completeNumber.isEmpty) {
+                        //     return 'Please enter your number'.tr;
+                        //   } else {}
+                        //   return null;
+                        // },
+                      ),
+                    ),
                   ],
                 ),
               ),
               SizedBox(
                 height: 30,
               ),
-              GestButton(
-                Width: Get.size.width,
-                height: 50,
-                buttoncolor: blueColor,
-                margin: EdgeInsets.only(top: 15, left: 30, right: 30),
-                buttontext: "Request OTP".tr,
-                style: TextStyle(
-                  fontFamily: "Gilroy Bold",
-                  color: WhiteColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                onclick: () async {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // setState(() {
-                    // if (number.text.isNotEmpty) {
-                    //   isvalidate = false;
-                    signUpController.smstype().then((msgType) {
-                      signUpController
-                          .emailOtp(signUpController.email.text.trim())
-                          .then((res) {
-                        if (res["Result"] == "true") {
-                          Get.toNamed(Routes.otpScreen, arguments: {
-                            "number": "",
-                            "cuntryCode": "",
-                            "route": "resetScreen",
-                            "email": signUpController.email.text.trim(),
-                            "otpCode": res["otp"].toString(),
+              isLoading
+                  ? Center(
+                      child: SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: CircularProgressIndicator(
+                        color: Darkblue,
+                      ),
+                    ))
+                  : GestButton(
+                      Width: Get.size.width,
+                      height: 50,
+                      buttoncolor: blueColor,
+                      margin: EdgeInsets.only(top: 15, left: 30, right: 30),
+                      buttontext: "Request OTP".tr,
+                      style: TextStyle(
+                        fontFamily: "Gilroy Bold",
+                        color: WhiteColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      onclick: () async {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          if (number.text.isEmpty) {
+                            return showToastMessage(
+                                "Please enter valid phone number".tr);
+                          }
+                          setState(() {
+                            isLoading = true;
+                          });
+                          // setState(() {
+                          // if (number.text.isNotEmpty) {
+                          //   isvalidate = false;
+                          signUpController.smstype().then((msgType) {
+                            // signUpController
+                            //     .emailOtp(signUpController.email.text.trim())
+                            //     .then((res) {
+                            //   if (res["Result"] == "true") {
+                            //     Get.toNamed(Routes.otpScreen, arguments: {
+                            //       "number": "",
+                            //       "cuntryCode": "",
+                            //       "route": "resetScreen",
+                            //       "email": signUpController.email.text.trim(),
+                            //       "otpCode": res["otp"].toString(),
+                            //     });
+                            //   } else {
+                            //     showToastMessage(
+                            //         'Something went wrong. Try again'.tr);
+                            //   }
+                            // });
+
+                            signUpController
+                                .checkMobileInResetPassword(
+                                    number: number.text, cuntryCode: cuntryCode)
+                                .then((value) {
+                              if (value == "false") {
+                                if (msgType["otp_auth"] == "No") {
+                                  forgetPasswordBottomSheet();
+                                  turnOffLoading();
+                                } else {
+                                  if (msgType["SMS_TYPE"] == "Msg91") {
+                                    signUpController
+                                        .sendOtp(cuntryCode, number.text)
+                                        .then((value) {
+                                      if (value["Result"] == "true") {
+                                        Get.toNamed(Routes.otpScreen,
+                                            arguments: {
+                                              "number": number.text,
+                                              "cuntryCode": cuntryCode,
+                                              "route": "resetScreen",
+                                              "otpCode":
+                                                  value["otp"].toString(),
+                                            });
+                                        turnOffLoading();
+                                      } else {
+                                        showToastMessage(
+                                            'Invalid Mobile Number'.tr);
+                                        turnOffLoading();
+                                      }
+                                    });
+                                  } else if (msgType["SMS_TYPE"] == "Twilio") {
+                                    signUpController
+                                        .twilloOtp(cuntryCode, number.text)
+                                        .then((value) {
+                                      if (value != null &&
+                                          value["Result"] == "true") {
+                                        Get.toNamed(Routes.otpScreen,
+                                            arguments: {
+                                              "number": number.text,
+                                              "cuntryCode": cuntryCode,
+                                              "route": "resetScreen",
+                                              "otpCode":
+                                                  value["otp"].toString(),
+                                            });
+                                      } else {
+                                        showToastMessage(
+                                            'Invalid Mobile Number'.tr);
+                                        turnOffLoading();
+                                      }
+                                    });
+                                  } else if (msgType["SMS_TYPE"] == "Termii") {
+                                    signUpController
+                                        .termiOtp(cuntryCode, number.text)
+                                        .then((value) {
+                                      if (value?["Result"] == "true") {
+                                        Get.toNamed(Routes.otpScreen,
+                                            arguments: {
+                                              "number": number.text,
+                                              "cuntryCode": cuntryCode,
+                                              "route": "resetScreen",
+                                              "otpCode":
+                                                  value["otp"].toString(),
+                                            });
+                                        turnOffLoading();
+                                      } else {
+                                        showToastMessage(
+                                            'Invalid Mobile Number'.tr);
+                                        turnOffLoading();
+                                      }
+                                    });
+                                  }
+                                }
+                              } else {
+                                showToastMessage('Invalid Mobile Number'.tr);
+                                turnOffLoading();
+                              }
+                            });
                           });
                         } else {
-                          showToastMessage(
-                              'Something went wrong. Try again'.tr);
+                          isvalidate = true;
                         }
-                      });
-
-                      // signUpController
-                      //     .checkMobileInResetPassword(
-                      //         number: number.text, cuntryCode: cuntryCode)
-                      //     .then((value) {
-                      //   if (value == "false") {
-                      //     if (msgType["otp_auth"] == "No") {
-                      //       forgetPasswordBottomSheet();
-                      //     } else {
-                      //       if (msgType["SMS_TYPE"] == "Msg91") {
-                      //         signUpController
-                      //             .sendOtp(cuntryCode, number.text)
-                      //             .then((value) {
-                      //           if (value["Result"] == "true") {
-                      //             Get.toNamed(Routes.otpScreen, arguments: {
-                      //               "number": number.text,
-                      //               "cuntryCode": cuntryCode,
-                      //               "route": "resetScreen",
-                      //               "otpCode": value["otp"].toString(),
-                      //             });
-                      //           } else {
-                      //             showToastMessage(
-                      //                 'Invalid Mobile Number'.tr);
-                      //           }
-                      //         });
-                      //       } else if (msgType["SMS_TYPE"] == "Twilio") {
-                      //         signUpController
-                      //             .twilloOtp(cuntryCode, number.text)
-                      //             .then((value) {
-                      //           if (value != null &&
-                      //               value["Result"] == "true") {
-                      //             Get.toNamed(Routes.otpScreen, arguments: {
-                      //               "number": number.text,
-                      //               "cuntryCode": cuntryCode,
-                      //               "route": "resetScreen",
-                      //               "otpCode": value["otp"].toString(),
-                      //             });
-                      //           } else {
-                      //             showToastMessage(
-                      //                 'Invalid Mobile Number'.tr);
-                      //           }
-                      //         });
-                      //       }
-                      //     }
-                      //   } else {
-                      //     showToastMessage('Invalid Mobile Number'.tr);
-                      //   }
-                      // });
-                      // });
-                      // } else {
-                      //   isvalidate = true;
-                      // }
-                    });
-                  }
-                  // if (_formKey.currentState?.validate() ?? false) {}
-                },
-              ),
+                        //   });
+                        // }
+                        // if (_formKey.currentState?.validate() ?? false) {}
+                      },
+                    ),
               Expanded(
                 flex: 1,
                 child: Padding(
@@ -383,6 +447,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         ),
       ),
     );
+  }
+
+  turnOffLoading() {
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future forgetPasswordBottomSheet() {

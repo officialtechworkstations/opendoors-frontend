@@ -54,7 +54,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
   String otpCode = Get.arguments["otpCode"].toString();
 
-  String email = Get.arguments["email"];
+  String email = Get.arguments?["email"] ?? "";
 
   late ColorNotifire notifire;
 
@@ -173,8 +173,8 @@ class _OtpScreenState extends State<OtpScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 15),
                     child: Text(
-                      // "${"We have sent the code verification to".tr}\n${countryCode} ${phoneNumber}",
-                      message,
+                      "${"We have sent the code verification to".tr}\n${countryCode} ${phoneNumber}",
+                      // message,
 
                       maxLines: 3,
                       style: TextStyle(
@@ -255,20 +255,66 @@ class _OtpScreenState extends State<OtpScreen> {
                                   //     },);
                                   //   }
                                   // });
+
+                                  // =========sms method setup=========
                                   setState(() {
                                     isResending = true;
                                   });
-                                  signUpController.emailOtp(email).then((res) {
-                                    if (res["Result"] == "true") {
-                                      setState(() {
-                                        otpCode = res["otp"].toString();
-                                      });
+                                  signUpController.smstype().then((value) {
+                                    if (value["SMS_TYPE"] == "Msg91") {
+                                      signUpController
+                                          .sendOtp(countryCode, phoneNumber)
+                                          .then(
+                                        (value) {
+                                          setState(() {
+                                            otpCode = value["otp"].toString();
+                                          });
+                                        },
+                                      );
+                                    } else if (value["SMS_TYPE"] == "Twilio") {
+                                      signUpController
+                                          .twilloOtp(countryCode, phoneNumber)
+                                          .then(
+                                        (value) {
+                                          setState(() {
+                                            otpCode = value["otp"].toString();
+                                          });
+                                        },
+                                      );
+                                    } else if (value["SMS_TYPE"] == "Termii") {
+                                      signUpController
+                                          .termiOtp(countryCode, phoneNumber)
+                                          .then(
+                                        (res) {
+                                          setState(() {
+                                            otpCode = res["otp"].toString();
+                                          });
+                                        },
+                                      );
                                     }
                                   }).whenComplete(() {
                                     setState(() {
                                       isResending = false;
                                     });
                                   });
+                                  // =========sms method setup=========
+
+                                  // // =========email method setup=========
+                                  // setState(() {
+                                  //   isResending = true;
+                                  // });
+                                  // signUpController.emailOtp(email).then((res) {
+                                  //   if (res["Result"] == "true") {
+                                  //     setState(() {
+                                  //       otpCode = res["otp"].toString();
+                                  //     });
+                                  //   }
+                                  // }).whenComplete(() {
+                                  //   setState(() {
+                                  //     isResending = false;
+                                  //   });
+                                  // });
+                                  //  // =========email method setup=========
 
                                   pinPutController.text = "";
                                 },
@@ -617,9 +663,10 @@ class _OtpScreenState extends State<OtpScreen> {
                               loginController.newConformPassword.text) {
                             log('message');
                             loginController.setForgetPasswordApi(
-                                ccode: countryCode,
-                                mobile: phoneNumber,
-                                email: email);
+                              ccode: countryCode,
+                              mobile: phoneNumber,
+                              // email: email
+                            );
                           } else {
                             showToastMessage("Please Enter Valid Password".tr,
                                 ToastGravity.TOP);

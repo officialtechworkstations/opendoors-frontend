@@ -24,6 +24,7 @@ class SignUpController extends GetxController implements GetxService {
 
   bool showPassword = true;
   bool chack = false;
+  bool newsletter = false;
   int currentIndex = 0;
 
   String userMessage = "";
@@ -37,6 +38,11 @@ class SignUpController extends GetxController implements GetxService {
 
   checkTermsAndCondition(bool? newbool) {
     chack = newbool ?? false;
+    update();
+  }
+
+  newsLetterCheck(bool? newbool) {
+    newsletter = newbool ?? false;
     update();
   }
 
@@ -61,6 +67,10 @@ class SignUpController extends GetxController implements GetxService {
       'Content-Type': 'application/json',
     });
 
+    print('=======================smstype======================');
+    print(response.body.toString());
+    print('=======================smstype======================');
+
     if (response.statusCode == 200) {
       var smsdecode = jsonDecode(response.body);
       update();
@@ -84,10 +94,15 @@ class SignUpController extends GetxController implements GetxService {
         body: jsonEncode(map),
       );
 
+      print('=======================checkMobileNumber======================');
+      print(response.body.toString());
+      print('=======================checkMobileNumber======================');
+
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
         userMessage = result["ResponseMsg"];
         resultCheck = result["Result"];
+        print(userMessage.toString());
         print("MMMMMMMMMMMMMMMMMM$result");
         return resultCheck;
       }
@@ -186,6 +201,32 @@ class SignUpController extends GetxController implements GetxService {
     }
   }
 
+  Future termiOtp(cuntryCode, number) async {
+    Map body = {"mobile": cuntryCode + number};
+
+    var response = await http.post(Uri.parse(Config.path + Config.termiotp),
+        body: jsonEncode(body),
+        headers: {
+          'Content-Type': 'application/json',
+        });
+    print("><<<<<<<<<<<<<<<<<<$body");
+
+    if (response.statusCode == 200) {
+      var msgdecode = jsonDecode(response.body);
+      print(" OTP CODE : >>> ${response.body}");
+
+      if (msgdecode["Result"] == "true") {
+        update();
+        showToastMessage(msgdecode["ResponseMsg"]);
+        return msgdecode;
+      } else {
+        showToastMessage(msgdecode["ResponseMsg"]);
+      }
+    } else {
+      showToastMessage("Something went wrong!");
+    }
+  }
+
   Future emailOtp(email) async {
     Map body = {"email": email};
 
@@ -221,7 +262,8 @@ class SignUpController extends GetxController implements GetxService {
       "email": email.text,
       "mobile": number.text,
       "ccode": cuntryCode,
-      "password": password.text
+      "password": password.text,
+      "accept_newsletter": newsletter ? "1" : "0",
     };
     log('-----------------------------------');
     // log(map.toString());

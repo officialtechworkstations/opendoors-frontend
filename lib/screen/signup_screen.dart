@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:opendoors/controller/signup_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/screen/login_screen.dart';
+import 'package:opendoors/screen/webview_page.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
@@ -115,12 +116,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 15),
-                        child: Text(
-                          "Get Started!".tr,
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontFamily: FontFamily.gilroyBold,
-                            color: notifire.getwhiteblackcolor,
+                        child: GestureDetector(
+                          onTap: () {
+                            // setState(() {
+                            //   isLoading = false;
+                            // });
+                          },
+                          child: Text(
+                            "Get Started!".tr,
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontFamily: FontFamily.gilroyBold,
+                              color: notifire.getwhiteblackcolor,
+                            ),
                           ),
                         ),
                       ),
@@ -254,7 +262,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: IntlPhoneField(
-                          disableLengthCheck: true,
+                          disableLengthCheck: false,
+
                           keyboardType: TextInputType.number,
                           cursorColor: notifire.getwhiteblackcolor,
                           inputFormatters: [
@@ -263,10 +272,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           controller: signUpController.number,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           initialCountryCode: "NG", //"IN",
+
                           dropdownIcon: Icon(
                             Icons.arrow_drop_down,
                             color: notifire.getgreycolor,
                           ),
+
                           dropdownTextStyle: TextStyle(
                             color: notifire.getgreycolor,
                           ),
@@ -289,8 +300,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onCountryChanged: (value) {
                             signUpController.number.text = '';
                           },
+
+                          invalidNumberMessage:
+                              'Please enter a valid phone number'.tr,
                           decoration: InputDecoration(
-                            helperText: null,
+                            counterText: '',
+                            helperText: '',
                             labelText: "Mobile Number".tr,
                             labelStyle: TextStyle(
                               color: notifire.getgreycolor,
@@ -320,9 +335,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
+
                           validator: (p0) {
-                            if (p0!.completeNumber.isEmpty) {
+                            if (p0 == null || p0.completeNumber.isEmpty) {
                               return 'Please enter your number'.tr;
+                            }
+                            if (!p0.isValidNumber()) {
+                              return 'Please enter a valid phone number'.tr;
+                            }
+                            if (p0.countryCode == 'NG' &&
+                                (p0.number.length < 10 ||
+                                    p0.number.length > 11)) {
+                              return 'Please enter a valid phone number'.tr;
                             } else {}
                             return null;
                           },
@@ -457,52 +481,119 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(
                         height: 10,
                       ),
-                      GetBuilder<SignUpController>(builder: (context) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                      GetBuilder<SignUpController>(builder: (ctx) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Transform.scale(
-                              scale: 1,
-                              child: Checkbox(
-                                value: signUpController.chack,
-                                side:
-                                    const BorderSide(color: Color(0xffC5CAD4)),
-                                activeColor: blueColor,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5)),
-                                onChanged: (newbool) async {
-                                  signUpController
-                                      .checkTermsAndCondition(newbool);
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-                                  await prefs.setBool('Remember', true);
-                                },
-                              ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text(
-                                  "By creating an account,you agree to our".tr,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: notifire.getgreycolor,
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    overflow: TextOverflow.ellipsis,
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Transform.scale(
+                                  scale: 1,
+                                  child: Checkbox(
+                                    value: signUpController.chack,
+                                    side: const BorderSide(
+                                        color: Color(0xffC5CAD4)),
+                                    activeColor: blueColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
+                                    onChanged: (newbool) async {
+                                      signUpController
+                                          .checkTermsAndCondition(newbool);
+                                      final prefs =
+                                          await SharedPreferences.getInstance();
+                                      await prefs.setBool('Remember', true);
+                                    },
                                   ),
                                 ),
-                                Text(
-                                  "Terms and Condition".tr,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: blueColor,
-                                    fontFamily: FontFamily.gilroyBold,
-                                    overflow: TextOverflow.ellipsis,
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => WebviewPage(
+                                                url:
+                                                    "https://opendoors-tc.netlify.app/")));
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "By creating an account,you agree to our"
+                                            .tr,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: notifire.getgreycolor,
+                                          fontFamily: FontFamily.gilroyMedium,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Terms and Condition".tr,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: blueColor,
+                                          fontFamily: FontFamily.gilroyBold,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                )
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Transform.scale(
+                                  scale: 1,
+                                  child: Checkbox(
+                                    value: signUpController.newsletter,
+                                    side: const BorderSide(
+                                        color: Color(0xffC5CAD4)),
+                                    activeColor: blueColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
+                                    onChanged: (newbool) async {
+                                      signUpController.newsLetterCheck(newbool);
+                                    },
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Text(
+                                    //   "By creating an account,you agree to our"
+                                    //       .tr,
+                                    //   style: TextStyle(
+                                    //     fontSize: 12,
+                                    //     color: notifire.getgreycolor,
+                                    //     fontFamily: FontFamily.gilroyMedium,
+                                    //     overflow: TextOverflow.ellipsis,
+                                    //   ),
+                                    // ),
+                                    Text(
+                                      "Subscribe to Our Newsletter".tr,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: (notifire.getblackblue as Color)
+                                            .withOpacity(0.6),
+                                        fontFamily: FontFamily.gilroyBold,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ],
                             ),
                           ],
@@ -530,152 +621,200 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           });
                           if ((_formKey.currentState?.validate() ?? false) &&
                               (signUpController.chack == true)) {
+                            if (signUpController.number.text.isEmpty) {
+                              return showToastMessage(
+                                  "Please enter valid phone number".tr);
+                            }
                             setState(() {
                               isLoading = true;
                             });
+
                             signUpController.smstype().then((msgtype) {
                               signUpController
                                   .checkMobileNumber(cuntryCode)
                                   .then((value) {
                                 if (value == "true") {
-                                  signUpController
-                                      .emailOtp(
-                                          signUpController.email.text.trim())
-                                      .then((res) {
-                                    if (res["Result"] == "true") {
-                                      Get.toNamed(Routes.otpScreen, arguments: {
-                                        "number": signUpController.number.text,
-                                        "cuntryCode": cuntryCode,
-                                        "route": "signUpScreen",
-                                        "email":
-                                            signUpController.email.text.trim(),
-                                        "otpCode": res["otp"]
-                                      });
-                                      setState(() {
-                                        isLoading = false;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        isLoading = false;
-                                      });
-                                      showToastMessage(
-                                          'Invalid Mobile Number'.tr);
-                                    }
-                                  });
+                                  // print(
+                                  //     '=======================signup======================');
+                                  // print('here now');
+                                  // print(
+                                  //     '=======================signup======================');
 
-                                  // if (msgtype["otp_auth"] == "No") {
-                                  //   signUpController
-                                  //       .setUserApiData(cuntryCode)
-                                  //       .then(
-                                  //     (value) {
-                                  //       if (value["Result"] == "true") {
-                                  //         setState(() {
-                                  //           save(
-                                  //               "countryId",
-                                  //               selectCountryController
-                                  //                       .countryInfo
-                                  //                       ?.countryData![
-                                  //                           countrySelected]
-                                  //                       .id ??
-                                  //                   "");
-                                  //           save(
-                                  //               "countryName",
-                                  //               selectCountryController
-                                  //                       .countryInfo
-                                  //                       ?.countryData![
-                                  //                           countrySelected]
-                                  //                       .title ??
-                                  //                   "");
-                                  //         });
-                                  //         selectCountryController
-                                  //             .changeCountryIndex(
-                                  //                 countrySelected);
-                                  //         homePageController.getHomeDataApi(
-                                  //             countryId:
-                                  //                 getData.read("countryId"));
-                                  //         homePageController.getCatWiseData(
-                                  //             countryId:
-                                  //                 getData.read("countryId"),
-                                  //             cId: "0");
-                                  //         searchController.getSearchData(
-                                  //             countryId:
-                                  //                 getData.read("countryId"));
-                                  //         Get.offAndToNamed(
-                                  //             Routes.bottoBarScreen);
-                                  //         initPlatformState();
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //       } else {
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //         showToastMessage(
-                                  //             value["ResponseMsg"]);
-                                  //       }
-                                  //     },
-                                  //   );
-                                  // }
-                                  // else {
-                                  //   if (msgtype["SMS_TYPE"] == "Msg91") {
-                                  //     signUpController
-                                  //         .sendOtp(cuntryCode,
-                                  //             signUpController.number.text)
-                                  //         .then((value) {
-                                  //       if (value["Result"] == "true") {
-                                  //         Get.toNamed(Routes.otpScreen,
-                                  //             arguments: {
-                                  //               "number": signUpController
-                                  //                   .number.text,
-                                  //               "cuntryCode": cuntryCode,
-                                  //               "route": "signUpScreen",
-                                  //               "otpCode":
-                                  //                   value["otp"].toString(),
-                                  //             });
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //       } else {
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //         showToastMessage(
-                                  //             'Invalid Mobile Number'.tr);
-                                  //       }
+                                  // print(
+                                  //     '=======================otp with email======================');
+                                  // signUpController
+                                  //     .emailOtp(
+                                  //         signUpController.email.text.trim())
+                                  //     .then((res) {
+                                  //   if (res["Result"] == "true") {
+                                  //     Get.toNamed(Routes.otpScreen, arguments: {
+                                  //       "number": signUpController.number.text,
+                                  //       "cuntryCode": cuntryCode,
+                                  //       "route": "signUpScreen",
+                                  //       "email":
+                                  //           signUpController.email.text.trim(),
+                                  //       "otpCode": res["otp"]
                                   //     });
-                                  //   } else if (msgtype["SMS_TYPE"] ==
-                                  //       "Twilio") {
-                                  //     signUpController
-                                  //         .twilloOtp(cuntryCode,
-                                  //             signUpController.number.text)
-                                  //         .then((value) {
-                                  //       if (value == null) {
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //       }
-                                  //       if (value["Result"] == "true") {
-                                  //         Get.toNamed(Routes.otpScreen,
-                                  //             arguments: {
-                                  //               "number": signUpController
-                                  //                   .number.text,
-                                  //               "cuntryCode": cuntryCode,
-                                  //               "route": "signUpScreen",
-                                  //               "otpCode": value["otp"]
-                                  //             });
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //       } else {
-                                  //         setState(() {
-                                  //           isLoading = false;
-                                  //         });
-                                  //         showToastMessage(
-                                  //             'Invalid Mobile Number'.tr);
-                                  //       }
+                                  //     setState(() {
+                                  //       isLoading = false;
                                   //     });
+                                  //   } else {
+                                  //     setState(() {
+                                  //       isLoading = false;
+                                  //     });
+                                  //     showToastMessage(
+                                  //         'Invalid Mobile Number'.tr);
                                   //   }
-                                  // }
+                                  // });
+                                  // print('=============otp with email============');
+
+                                  // print('=============otp with sms============');
+                                  if (msgtype["otp_auth"] == "No") {
+                                    signUpController
+                                        .setUserApiData(cuntryCode)
+                                        .then(
+                                      (value) {
+                                        if (value["Result"] == "true") {
+                                          setState(() {
+                                            save(
+                                                "countryId",
+                                                selectCountryController
+                                                        .countryInfo
+                                                        ?.countryData![
+                                                            countrySelected]
+                                                        .id ??
+                                                    "");
+                                            save(
+                                                "countryName",
+                                                selectCountryController
+                                                        .countryInfo
+                                                        ?.countryData![
+                                                            countrySelected]
+                                                        .title ??
+                                                    "");
+                                          });
+                                          selectCountryController
+                                              .changeCountryIndex(
+                                                  countrySelected);
+                                          homePageController.getHomeDataApi(
+                                              countryId:
+                                                  getData.read("countryId"));
+                                          homePageController.getCatWiseData(
+                                              countryId:
+                                                  getData.read("countryId"),
+                                              cId: "0");
+                                          searchController.getSearchData(
+                                              countryId:
+                                                  getData.read("countryId"));
+                                          Get.offAndToNamed(
+                                              Routes.bottoBarScreen);
+                                          initPlatformState();
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          showToastMessage(
+                                              value["ResponseMsg"]);
+                                        }
+                                      },
+                                    );
+                                  } else {
+                                    if (msgtype["SMS_TYPE"] == "Msg91") {
+                                      signUpController
+                                          .sendOtp(cuntryCode,
+                                              signUpController.number.text)
+                                          .then((value) {
+                                        if (value["Result"] == "true") {
+                                          Get.toNamed(Routes.otpScreen,
+                                              arguments: {
+                                                "number": signUpController
+                                                    .number.text,
+                                                "cuntryCode": cuntryCode,
+                                                "route": "signUpScreen",
+                                                "otpCode":
+                                                    value["otp"].toString(),
+                                              });
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          showToastMessage(
+                                              'Invalid Mobile Number'.tr);
+                                        }
+                                      });
+                                    } else if (msgtype["SMS_TYPE"] ==
+                                        "Twilio") {
+                                      signUpController
+                                          .twilloOtp(cuntryCode,
+                                              signUpController.number.text)
+                                          .then((value) {
+                                        if (value == null) {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        }
+                                        if (value["Result"] == "true") {
+                                          Get.toNamed(Routes.otpScreen,
+                                              arguments: {
+                                                "number": signUpController
+                                                    .number.text,
+                                                "cuntryCode": cuntryCode,
+                                                "route": "signUpScreen",
+                                                "otpCode": value["otp"]
+                                              });
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          showToastMessage(
+                                              'Invalid Mobile Number'.tr);
+                                        }
+                                      });
+                                    } else if (msgtype["SMS_TYPE"] ==
+                                        "Termii") {
+                                      signUpController
+                                          .termiOtp(cuntryCode,
+                                              signUpController.number.text)
+                                          .then((value) {
+                                        if (value == null) {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          return;
+                                        }
+
+                                        if (value?["Result"] == "true") {
+                                          Get.toNamed(Routes.otpScreen,
+                                              arguments: {
+                                                "number": signUpController
+                                                    .number.text,
+                                                "cuntryCode": cuntryCode,
+                                                "route": "signUpScreen",
+                                                "otpCode": value["otp"]
+                                              });
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          showToastMessage(
+                                              'Invalid Mobile Number'.tr);
+                                        }
+                                      });
+                                    }
+                                  }
+                                  // print('=============otp with sms============');
                                 } else {
                                   showToastMessage(
                                       signUpController.userMessage);

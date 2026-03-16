@@ -1,6 +1,5 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors, unnecessary_brace_in_string_interps, avoid_print, prefer_interpolation_to_compose_strings
 
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +27,7 @@ import 'package:opendoors/screen/paypal/flutter_paypal.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,10 +45,9 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
   WalletController walletController = Get.find();
   ReviewSummaryController reviewSummaryController = Get.find();
   HomePageController homePageController = Get.find();
-  PaystackController paystackController  = Get.put(PaystackController());
+  PaystackController paystackController = Get.put(PaystackController());
 
   late Razorpay _razorpay;
-
 
   int? _groupValue;
   String? selectidPay = "0";
@@ -137,7 +136,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 10, left: 15),
                         child: Text(
-                          "${currency}${walletController.walletInfo?.wallet}",
+                          "${currency}${AppFormater.formatAmount(double.tryParse(walletController.walletInfo?.wallet ?? "0") ?? 0)}",
                           textAlign: TextAlign.start,
                           style: TextStyle(
                             fontSize: 45,
@@ -194,11 +193,10 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                     ),
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(
-                          color: notifire.getborderColor,
-                        )
-                      ),
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(
+                            color: notifire.getborderColor,
+                          )),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide(
@@ -462,15 +460,13 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                   SizedBox(width: Get.width / 14),
                   Text("Select Payment Method".tr,
                       style: TextStyle(
-                          color: notifire.getwhiteblackcolor,
-                          fontSize: Get.height / 40,
-                          fontFamily: FontFamily.gilroyMedium,
+                        color: notifire.getwhiteblackcolor,
+                        fontSize: Get.height / 40,
+                        fontFamily: FontFamily.gilroyMedium,
                         fontWeight: FontWeight.w600,
                       )),
                 ]),
                 SizedBox(height: Get.height / 50),
-
-
                 SizedBox(
                   height: Get.height * 0.50,
                   child:
@@ -485,92 +481,136 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                                           .paymentInfo?.paymentdata![i].pShow !=
                                       "0"
                                   ? Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 10),
-                                child: InkWell(
-                                  onTap: () async {
-                                    setState(() {
-
-                                      paystackID = reviewSummaryController.paymentInfo!.paymentdata![i].attributes.toString().split(",").last;
-                                      print(">>>>>>>>>>>>>>>> >>>>>>>>>>>>>>>>> >>>>>>>>>>>>>>>>> >>>>>${paystackID}");
-                                      razorpaykey = "${reviewSummaryController.paymentInfo!.paymentdata![i].attributes}";
-                                      paymenttital =
-                                          reviewSummaryController
-                                              .paymentInfo!
-                                              .paymentdata![i]
-                                              .title;
-                                      selectidPay =
-                                          reviewSummaryController
-                                              .paymentInfo
-                                              ?.paymentdata![i]
-                                              .id ??
-                                              "";
-                                      _groupValue = i;
-                                    });
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        border: Border.all(color: selectidPay ==
-                                            reviewSummaryController
-                                                .paymentInfo
-                                                ?.paymentdata![i]
-                                                .id
-                                            ? buttonColor
-                                            : notifire.getborderColor,)
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(10),
-                                            child: Image.network(Config.imageUrl + "${reviewSummaryController.paymentInfo!.paymentdata![i].img}", height: 75,),
-                                          ),
-                                        ),
-                                        Flexible(
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8, horizontal: 10),
+                                      child: InkWell(
+                                        onTap: () async {
+                                          setState(() {
+                                            paystackID = reviewSummaryController
+                                                .paymentInfo!
+                                                .paymentdata![i]
+                                                .attributes
+                                                .toString()
+                                                .split(",")
+                                                .last;
+                                            print(
+                                                ">>>>>>>>>>>>>>>> >>>>>>>>>>>>>>>>> >>>>>>>>>>>>>>>>> >>>>>${paystackID}");
+                                            razorpaykey =
+                                                "${reviewSummaryController.paymentInfo!.paymentdata![i].attributes}";
+                                            paymenttital =
+                                                reviewSummaryController
+                                                    .paymentInfo!
+                                                    .paymentdata![i]
+                                                    .title;
+                                            selectidPay =
+                                                reviewSummaryController
+                                                        .paymentInfo
+                                                        ?.paymentdata![i]
+                                                        .id ??
+                                                    "";
+                                            _groupValue = i;
+                                          });
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              border: Border.all(
+                                                color: selectidPay ==
+                                                        reviewSummaryController
+                                                            .paymentInfo
+                                                            ?.paymentdata![i]
+                                                            .id
+                                                    ? buttonColor
+                                                    : notifire.getborderColor,
+                                              )),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(reviewSummaryController
-                                                  .paymentInfo
-                                                  ?.paymentdata![i]
-                                                  .title ??
-                                                  "", style: TextStyle(fontSize: 18,fontFamily: FontFamily.gilroyMedium, fontWeight: FontWeight.w600, color: notifire.getwhiteblackcolor)),
-                                              SizedBox(height: 5,),
-                                              Text(reviewSummaryController
-                                                  .paymentInfo
-                                                  ?.paymentdata![i]
-                                                  .subtitle ??
-                                                  "", style: TextStyle(fontFamily: FontFamily.gilroyLight, color: notifire.getgreycolor, fontSize: 14),maxLines: 3,overflow: TextOverflow.ellipsis,),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  child: Image.network(
+                                                    Config.imageUrl +
+                                                        "${reviewSummaryController.paymentInfo!.paymentdata![i].img}",
+                                                    height: 75,
+                                                  ),
+                                                ),
+                                              ),
+                                              Flexible(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                        reviewSummaryController
+                                                                .paymentInfo
+                                                                ?.paymentdata![
+                                                                    i]
+                                                                .title ??
+                                                            "",
+                                                        style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontFamily: FontFamily
+                                                                .gilroyMedium,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: notifire
+                                                                .getwhiteblackcolor)),
+                                                    SizedBox(
+                                                      height: 5,
+                                                    ),
+                                                    Text(
+                                                      reviewSummaryController
+                                                              .paymentInfo
+                                                              ?.paymentdata![i]
+                                                              .subtitle ??
+                                                          "",
+                                                      style: TextStyle(
+                                                          fontFamily: FontFamily
+                                                              .gilroyLight,
+                                                          color: notifire
+                                                              .getgreycolor,
+                                                          fontSize: 14),
+                                                      maxLines: 3,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Radio(
+                                                fillColor: WidgetStateProperty
+                                                    .resolveWith((states) =>
+                                                        i == _groupValue
+                                                            ? blueColor
+                                                            : notifire
+                                                                .getborderColor),
+                                                activeColor: buttonColor,
+                                                value: i,
+                                                groupValue: _groupValue,
+                                                onChanged: (value) {
+                                                  setState(() {});
+                                                },
+                                              ),
                                             ],
                                           ),
                                         ),
-                                        Radio(
-                                          fillColor:
-                                          WidgetStateProperty.resolveWith(
-                                                  (states) => i == _groupValue
-                                                  ? blueColor
-                                                  : notifire
-                                                  .getborderColor),
-                                          activeColor: buttonColor,
-                                          value: i,
-                                          groupValue: _groupValue,
-                                          onChanged: (value) {
-                                            setState(() {});
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ) : SizedBox();
+                                      ),
+                                    )
+                                  : SizedBox();
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(color: Darkblue,),
+                            child: CircularProgressIndicator(
+                              color: Darkblue,
+                            ),
                           );
                   }),
                 ),
@@ -608,21 +648,29 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         Get.back();
                         stripePayment();
                       } else if (paymenttital == "PayStack") {
-
-                        paystackController.paystack(walletController.amount.text).then((value) {
-                        print(">>>>>>>>>>>>>>>> URL >>>>>>>>>>>>>>>>> >>>>>>>>>>>>>>>>> >>>>>${paystackController.paystackData!.data!.authorizationUrl}");
-                          Get.to(() => Paystackweb(url: paystackController.paystackData!.data!.authorizationUrl, skID: paystackID,))!.then((value) {
-                                if (verifyPaystack == 1) {
-                              walletController.getWalletUpdateData();
-                              walletController.amount.text = "";
-                              showToastMessage("Payment Successfully");
-                              Get.back();
-                            } else {
-                              Get.back();
-                            }
-                          });
-                        },);
-
+                        paystackController
+                            .paystack(walletController.amount.text)
+                            .then(
+                          (value) {
+                            print(
+                                ">>>>>>>>>>>>>>>> URL >>>>>>>>>>>>>>>>> >>>>>>>>>>>>>>>>> >>>>>${paystackController.paystackData!.data!.authorizationUrl}");
+                            Get.to(() => Paystackweb(
+                                      url: paystackController
+                                          .paystackData!.data!.authorizationUrl,
+                                      skID: paystackID,
+                                    ))!
+                                .then((value) {
+                              if (verifyPaystack == 1) {
+                                walletController.getWalletUpdateData();
+                                walletController.amount.text = "";
+                                showToastMessage("Payment Successfully");
+                                Get.back();
+                              } else {
+                                Get.back();
+                              }
+                            });
+                          },
+                        );
                       } else if (paymenttital == "FlutterWave") {
                         Get.to(() => FlutterWave(
                                   totalAmount: walletController.amount.text,
@@ -658,20 +706,28 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                           }
                         });
                       } else if (paymenttital == "SenangPay") {
-
                         Get.to(() => Senangpay(
-                          email: getData.read("UserLogin")["email"].toString(),
-                          name: getData.read("UserLogin")["name"].toString(),
-                          phone: getData.read("UserLogin")["mobile"].toString(),
-                          totalAmount: walletController.amount.text,
-                        ))!.then((otid) {
-                          if (otid != null) {
-                            walletController.getWalletUpdateData();
-                            showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        },);
+                                  email: getData
+                                      .read("UserLogin")["email"]
+                                      .toString(),
+                                  name: getData
+                                      .read("UserLogin")["name"]
+                                      .toString(),
+                                  phone: getData
+                                      .read("UserLogin")["mobile"]
+                                      .toString(),
+                                  totalAmount: walletController.amount.text,
+                                ))!
+                            .then(
+                          (otid) {
+                            if (otid != null) {
+                              walletController.getWalletUpdateData();
+                              showToastMessage("Payment Successfully");
+                            } else {
+                              Get.back();
+                            }
+                          },
+                        );
                       } else if (paymenttital == "Midtrans") {
                         Get.to(() => MidTrans(
                                   phonNumber: getData
@@ -722,7 +778,6 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         });
                       } else if (paymenttital == "2checkout") {
                         Get.to(() => CheckOutPayment(
-
                                   totalAmount: walletController.amount.text,
                                   email: getData
                                       .read("UserLogin")["email"]
@@ -811,8 +866,9 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                     height: Get.height / 12,
                     width: Get.width / 5.5,
                     decoration: BoxDecoration(
-                        color: const Color(0xffF2F4F9),
-                        borderRadius: BorderRadius.circular(10),),
+                      color: const Color(0xffF2F4F9),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Center(
                       child: FadeInImage(
                           height: Get.height / 12,
@@ -820,7 +876,13 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                           placeholder:
                               const AssetImage("assets/images/loading2.gif"),
                           imageErrorBuilder: (context, error, stackTrace) {
-                          return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                            return Center(
+                              child: Image.asset(
+                                "assets/images/emty.gif",
+                                fit: BoxFit.cover,
+                                height: Get.height,
+                              ),
+                            );
                           },
                           image: image),
                       // Image.network(image, height: Get.height / 08)
@@ -957,7 +1019,6 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
       ),
     );
   }
-
 
   final _formKey = GlobalKey<FormState>();
   var numberController = TextEditingController();
@@ -1224,7 +1285,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                                       },
                                       color: buttonColor,
                                       child: Text(
-                                        "Pay ${currency}${walletController.amount.text}",
+                                        "Pay ${currency}${AppFormater.formatAmount(double.tryParse(walletController.amount.text) ?? 0)}",
+                                        // "Pay ${currency}${walletController.amount.text}",
                                         style: TextStyle(fontSize: 17.0),
                                       ),
                                     ),
@@ -1265,11 +1327,14 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
       _paymentCard.amount = walletController.amount.text;
       form.save();
       print("PHASE ! 1");
-      Get.to(() =>  StripePaymentWeb(url: 'stripe/index.php?name=${_paymentCard.name}&email=${_paymentCard.email}&cardno=${_paymentCard.number}&cvc=${_paymentCard.cvv}&amt=${_paymentCard.amount}&mm=${_paymentCard.month}&yyyy=${_paymentCard.year}',))!.then((otid) {
+      Get.to(() => StripePaymentWeb(
+                url:
+                    'stripe/index.php?name=${_paymentCard.name}&email=${_paymentCard.email}&cardno=${_paymentCard.number}&cvc=${_paymentCard.cvv}&amt=${_paymentCard.amount}&mm=${_paymentCard.month}&yyyy=${_paymentCard.year}',
+              ))!
+          .then((otid) {
         Get.back();
 
         if (otid != null) {
-
           walletController.getWalletUpdateData();
 
           walletController.amount.text = "";
@@ -1282,7 +1347,5 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
   }
 
   //!-------- PayStack ----------//
-  chargeCard(int amount, String email) async {
-
-  }
+  chargeCard(int amount, String email) async {}
 }

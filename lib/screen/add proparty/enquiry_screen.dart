@@ -87,13 +87,19 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                     child: FadeInImage.assetNetwork(
                                       fadeInCurve: Curves.easeInCirc,
                                       placeholder:
-                                      "assets/images/ezgif.com-crop.gif",
+                                          "assets/images/ezgif.com-crop.gif",
                                       height: 140,
-                                      imageErrorBuilder: (context, error, stackTrace) {
-                                        return Image.asset("assets/images/ezgif.com-crop.gif",height: 48,width: 48,fit: BoxFit.cover,);
+                                      imageErrorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Image.asset(
+                                          "assets/images/ezgif.com-crop.gif",
+                                          height: 48,
+                                          width: 48,
+                                          fit: BoxFit.cover,
+                                        );
                                       },
                                       image:
-                                      "${Config.imageUrl}${enquiryController.enquiryInfo?.enquiryData![index].image ?? ""}",
+                                          "${Config.imageUrl}${enquiryController.enquiryInfo?.enquiryData![index].image ?? ""}",
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -104,48 +110,53 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                 enquiryController.enquiryInfo
                                             ?.enquiryData![index].isSell ==
                                         "0"
-                                    ? Positioned(
-                                        top: 15,
-                                        right: 20,
-                                        child: Container(
-                                          height: 27,
-                                          width: 45,
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            "BUY".tr,
-                                            style: TextStyle(
-                                              color: blueColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFedeeef),
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                        ),
-                                      )
-                                    : Positioned(
-                                        top: 15,
-                                        right: 20,
-                                        child: Container(
-                                          height: 27,
-                                          width: 45,
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            "SOLD".tr,
-                                            style: TextStyle(
-                                              color: Color(0xFFEA1E61),
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFedeeef),
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                        ),
-                                      )
+                                    ? SizedBox.shrink()
+                                    // REMOVE THE BOOK TAG
+                                    //  Positioned(
+                                    //     top: 15,
+                                    //     right: 20,
+                                    //     child: Container(
+                                    //       height: 27,
+                                    //       width: 45,
+                                    //       alignment: Alignment.center,
+                                    //       child: Text(
+                                    //         "BOOK".tr,
+                                    //         // "BUY".tr,
+                                    //         style: TextStyle(
+                                    //           color: blueColor,
+                                    //           fontWeight: FontWeight.w500,
+                                    //         ),
+                                    //       ),
+                                    //       decoration: BoxDecoration(
+                                    //         color: Color(0xFFedeeef),
+                                    //         borderRadius:
+                                    //             BorderRadius.circular(15),
+                                    //       ),
+                                    //     ),
+                                    //   )
+                                    : SizedBox.shrink(),
+                                // REMOVE THE BOOK TAG
+                                // Positioned(
+                                //     top: 15,
+                                //     right: 20,
+                                //     child: Container(
+                                //       height: 27,
+                                //       width: 45,
+                                //       alignment: Alignment.center,
+                                //       child: Text(
+                                //         "RESERVED".tr,
+                                //         style: TextStyle(
+                                //           color: Color(0xFFEA1E61),
+                                //           fontWeight: FontWeight.w500,
+                                //         ),
+                                //       ),
+                                //       decoration: BoxDecoration(
+                                //         color: Color(0xFFedeeef),
+                                //         borderRadius:
+                                //             BorderRadius.circular(15),
+                                //       ),
+                                //     ),
+                                //   )
                               ],
                             ),
                             SizedBox(
@@ -160,24 +171,23 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          enquiryController
-                                                  .enquiryInfo
-                                                  ?.enquiryData![index]
-                                                  .title ??
+                                          enquiryController.enquiryInfo
+                                                  ?.enquiryData![index].title ??
                                               "",
                                           maxLines: 2,
                                           style: TextStyle(
                                             fontSize: 17,
                                             fontFamily: FontFamily.gilroyBold,
-                                            color:
-                                                notifire.getwhiteblackcolor,
+                                            color: notifire.getwhiteblackcolor,
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 5,),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
                                   Row(
                                     children: [
                                       Text(
@@ -194,17 +204,19 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                                   ?.enquiryData![index].name ??
                                               "",
                                           maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                             fontSize: 15,
                                             fontFamily: FontFamily.gilroyMedium,
                                             color: notifire.getwhiteblackcolor,
-                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 5,),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
                                   Row(
                                     children: [
                                       Text(
@@ -215,16 +227,20 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                           color: notifire.getwhiteblackcolor,
                                         ),
                                       ),
-                                      Text(
-                                        enquiryController.enquiryInfo
-                                                ?.enquiryData![index].mobile ??
-                                            "",
-                                        maxLines: 2,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontFamily: FontFamily.gilroyMedium,
-                                          color: notifire.getwhiteblackcolor,
+                                      Expanded(
+                                        child: Text(
+                                          enquiryController
+                                                  .enquiryInfo
+                                                  ?.enquiryData![index]
+                                                  .mobile ??
+                                              "",
+                                          maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            color: notifire.getwhiteblackcolor,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -267,7 +283,9 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                     ),
                   )
             : Center(
-                child: CircularProgressIndicator(color: Darkblue,),
+                child: CircularProgressIndicator(
+                  color: Darkblue,
+                ),
               );
       }),
     );

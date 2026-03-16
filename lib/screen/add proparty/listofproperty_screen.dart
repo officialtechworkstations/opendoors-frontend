@@ -12,6 +12,7 @@ import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -334,72 +335,80 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                                                     index]
                                                                 .isSell ==
                                                             "0"
-                                                        ? Positioned(
-                                                            top: 15,
-                                                            right: 20,
-                                                            child: Container(
-                                                              height: 27,
-                                                              width: 45,
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
-                                                              child: Text(
-                                                                "BUY".tr,
-                                                                style:
-                                                                    TextStyle(
-                                                                  color:
-                                                                      blueColor,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                ),
-                                                              ),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: Color(
-                                                                    0xFFedeeef),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            15),
-                                                              ),
-                                                            ),
-                                                          )
-                                                        : Positioned(
-                                                            top: 15,
-                                                            right: 20,
-                                                            child: Container(
-                                                              height: 27,
-                                                              width: 45,
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
-                                                              child: Text(
-                                                                "SOLD".tr,
-                                                                maxLines: 1,
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Color(
-                                                                      0xFFEA1E61),
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                ),
-                                                              ),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: Color(
-                                                                    0xFFedeeef),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            15),
-                                                              ),
-                                                            ),
-                                                          )
+                                                        ? SizedBox.shrink()
+                                                        // REMOVE THE BOOK TAG
+                                                        //  Positioned(
+                                                        //     top: 15,
+                                                        //     right: 20,
+                                                        //     child: Container(
+                                                        //       height: 27,
+                                                        //       width: 45,
+                                                        //       alignment:
+                                                        //           Alignment
+                                                        //               .center,
+                                                        //       child: Text(
+                                                        //         "BOOK".tr,
+                                                        //         // "Available".tr,
+                                                        //         // "BUY".tr,
+                                                        //         style:
+                                                        //             TextStyle(
+                                                        //           color:
+                                                        //               blueColor,
+                                                        //           fontWeight:
+                                                        //               FontWeight
+                                                        //                   .w500,
+                                                        //         ),
+                                                        //       ),
+                                                        //       decoration:
+                                                        //           BoxDecoration(
+                                                        //         color: Color(
+                                                        //             0xFFedeeef),
+                                                        //         borderRadius:
+                                                        //             BorderRadius
+                                                        //                 .circular(
+                                                        //                     15),
+                                                        //       ),
+                                                        //     ),
+                                                        //   )
+                                                        : SizedBox.shrink(),
+                                                // REMOVE THE BOOK TAG
+                                                //  Positioned(
+                                                //     top: 15,
+                                                //     right: 20,
+                                                //     child: Container(
+                                                //       height: 27,
+                                                //       width: 45,
+                                                //       alignment:
+                                                //           Alignment
+                                                //               .center,
+                                                //       child: Text(
+                                                //         "BOOKED".tr,
+                                                //         // "SOLD".tr,
+                                                //         // "SOLD".tr,
+                                                //         maxLines: 1,
+                                                //         style:
+                                                //             TextStyle(
+                                                //           color: Color(
+                                                //               0xFFEA1E61),
+                                                //           fontWeight:
+                                                //               FontWeight
+                                                //                   .w500,
+                                                //           overflow:
+                                                //               TextOverflow
+                                                //                   .ellipsis,
+                                                //         ),
+                                                //       ),
+                                                //       decoration:
+                                                //           BoxDecoration(
+                                                //         color: Color(
+                                                //             0xFFedeeef),
+                                                //         borderRadius:
+                                                //             BorderRadius
+                                                //                 .circular(
+                                                //                     15),
+                                                //       ),
+                                                //     ),
+                                                //   )
                                               ],
                                             ),
                                             SizedBox(
@@ -474,7 +483,7 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                                   Row(
                                                     children: [
                                                       Text(
-                                                        "${currency}${listOfPropertiController.propListInfo?.proplist![index].price ?? ""}",
+                                                        "${currency}${AppFormater.formatAmount(double.tryParse(listOfPropertiController.propListInfo?.proplist![index].price ?? "0") ?? 0)}",
                                                         style: TextStyle(
                                                           fontSize: 17,
                                                           fontFamily: FontFamily

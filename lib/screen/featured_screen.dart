@@ -10,6 +10,7 @@ import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -78,17 +79,15 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                     itemBuilder: (context, index1) {
                       return InkWell(
                         onTap: () async {
-                          Get.toNamed(
-                            Routes.viewDataScreen,
-                            arguments: {
-                              "id" : homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].id
-                            }
-                          );
+                          Get.toNamed(Routes.viewDataScreen, arguments: {
+                            "id": homePageController.homeDatatInfo?.homeData!
+                                .featuredProperty![index1].id
+                          });
                           setState(() {
                             homePageController.rate = homePageController
                                     .homeDatatInfo
-                                    ?.homeData
-                                    !.featuredProperty![index1]
+                                    ?.homeData!
+                                    .featuredProperty![index1]
                                     .rate ??
                                 "";
                           });
@@ -113,8 +112,15 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                                         placeholder:
                                             "assets/images/ezgif.com-crop.gif",
                                         height: 140,
-                                        imageErrorBuilder: (context, error, stackTrace) {
-                                        return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
+                                        imageErrorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Center(
+                                            child: Image.asset(
+                                              "assets/images/emty.gif",
+                                              fit: BoxFit.cover,
+                                              height: Get.height,
+                                            ),
+                                          );
                                         },
                                         image:
                                             "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].image ?? ""}",
@@ -127,8 +133,8 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                                   ),
                                   homePageController
                                               .homeDatatInfo
-                                              ?.homeData
-                                              !.featuredProperty![index1]
+                                              ?.homeData!
+                                              .featuredProperty![index1]
                                               .buyorrent ==
                                           "1"
                                       ? Positioned(
@@ -154,8 +160,8 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                                                 Text(
                                                   homePageController
                                                           .homeDatatInfo
-                                                          ?.homeData
-                                                          !.featuredProperty![
+                                                          ?.homeData!
+                                                          .featuredProperty![
                                                               index1]
                                                           .rate ??
                                                       "",
@@ -174,26 +180,29 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                                             ),
                                           ),
                                         )
-                                      : Positioned(
-                                          top: 15,
-                                          right: 20,
-                                          child: Container(
-                                            height: 20,
-                                            width: 45,
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              "BUY".tr,
-                                              style: TextStyle(
-                                                  color: blueColor,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Color(0xFFedeeef),
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                            ),
-                                          ),
-                                        ),
+                                      : SizedBox.shrink(),
+                                  // REMOVE THE BOOK TAG
+                                  // Positioned(
+                                  //     top: 15,
+                                  //     right: 20,
+                                  //     child: Container(
+                                  //       height: 20,
+                                  //       width: 45,
+                                  //       alignment: Alignment.center,
+                                  //       child: Text(
+                                  //         "BOOK".tr,
+                                  //         // "BUY".tr,
+                                  //         style: TextStyle(
+                                  //             color: blueColor,
+                                  //             fontWeight: FontWeight.w600),
+                                  //       ),
+                                  //       decoration: BoxDecoration(
+                                  //         color: Color(0xFFedeeef),
+                                  //         borderRadius:
+                                  //             BorderRadius.circular(15),
+                                  //       ),
+                                  //     ),
+                                  //   ),
                                 ],
                               ),
                               SizedBox(
@@ -210,47 +219,60 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                                           child: Text(
                                             homePageController
                                                     .homeDatatInfo
-                                                    ?.homeData
-                                                    !.featuredProperty![index1]
+                                                    ?.homeData!
+                                                    .featuredProperty![index1]
                                                     .title ??
                                                 "",
                                             maxLines: 2,
                                             style: TextStyle(
                                               fontSize: 18,
-                                              fontFamily:
-                                              FontFamily.gilroyBold,
+                                              fontFamily: FontFamily.gilroyBold,
                                               color:
-                                              notifire.getwhiteblackcolor,
+                                                  notifire.getwhiteblackcolor,
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 5,),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
                                     Row(
                                       children: [
                                         Expanded(
                                           child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
                                             children: [
-                                              SvgPicture.asset("assets/images/location.svg",height: 14,colorFilter: ColorFilter.mode(notifire.getwhiteblackcolor, BlendMode.srcIn),),
-                                              SizedBox(width: 2,),
+                                              SvgPicture.asset(
+                                                "assets/images/location.svg",
+                                                height: 14,
+                                                colorFilter: ColorFilter.mode(
+                                                    notifire.getwhiteblackcolor,
+                                                    BlendMode.srcIn),
+                                              ),
+                                              SizedBox(
+                                                width: 2,
+                                              ),
                                               Flexible(
                                                 child: Text(
                                                   homePageController
                                                           .homeDatatInfo
-                                                          ?.homeData
-                                                          !.featuredProperty![index1]
+                                                          ?.homeData!
+                                                          .featuredProperty![
+                                                              index1]
                                                           .city ??
                                                       "",
                                                   maxLines: 1,
                                                   style: TextStyle(
                                                     fontSize: 16,
-                                                    color: notifire.getgreycolor,
+                                                    color:
+                                                        notifire.getgreycolor,
                                                     fontFamily:
-                                                    FontFamily.gilroyMedium,
-                                                    overflow: TextOverflow.ellipsis,
+                                                        FontFamily.gilroyMedium,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ),
@@ -262,33 +284,34 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 7,),
+                                    SizedBox(
+                                      height: 7,
+                                    ),
                                     Row(
                                       children: [
                                         Text(
-                                          "${currency}${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].price ?? ""}",
+                                          "$currency${AppFormater.formatAmount(double.tryParse(homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].price ?? "0") ?? 0)}",
+                                          // "${currency}${homePageController.homeDatatInfo?.homeData!.featuredProperty![index1].price ?? ""}",
                                           style: TextStyle(
                                             fontSize: 14,
-                                            fontFamily:
-                                            FontFamily.gilroyBold,
+                                            fontFamily: FontFamily.gilroyBold,
                                             color: blueColor,
                                           ),
                                         ),
                                         homePageController
-                                            .homeDatatInfo
-                                            ?.homeData
-                                            !.featuredProperty![index1]
-                                            .buyorrent ==
-                                            "1"
+                                                    .homeDatatInfo
+                                                    ?.homeData!
+                                                    .featuredProperty![index1]
+                                                    .buyorrent ==
+                                                "1"
                                             ? Text(
-                                          "/night".tr,
-                                          style: TextStyle(
-                                            color:
-                                            notifire.getgreycolor,
-                                            fontFamily: FontFamily
-                                                .gilroyMedium,
-                                          ),
-                                        )
+                                                "/night".tr,
+                                                style: TextStyle(
+                                                  color: notifire.getgreycolor,
+                                                  fontFamily:
+                                                      FontFamily.gilroyMedium,
+                                                ),
+                                              )
                                             : Text(""),
                                       ],
                                     ),

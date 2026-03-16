@@ -61,7 +61,6 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-    <!-- Add this -->
     <key>UIBackgroundModes</key>
     <array>
         <string>remote-notification</string>

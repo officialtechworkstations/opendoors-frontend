@@ -1380,7 +1380,8 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                     child: Row(
                                       children: [
                                         Text(
-                                          "${currency}${homePageController.propetydetailsInfo?.propetydetails!.price ?? ""}",
+                                          "${currency}${AppFormater.formatAmount(double.tryParse(homePageController.propetydetailsInfo?.propetydetails!.price ?? "0") ?? 0)}",
+                                          // "${currency}${homePageController.propetydetailsInfo?.propetydetails!.price ?? ""}",
                                           style: TextStyle(
                                             color: Darkblue,
                                             fontFamily: FontFamily.gilroyBold,
@@ -1423,7 +1424,8 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                             buttoncolor: Darkblue,
                                             margin: EdgeInsets.only(
                                                 top: 10, right: 10, bottom: 10),
-                                            buttontext: "Book".tr,
+                                            buttontext: "Reserve".tr,
+                                            // buttontext: "Book".tr,
                                             onclick: () {
                                               Get.toNamed(
                                                   Routes.bookRealEstate);
