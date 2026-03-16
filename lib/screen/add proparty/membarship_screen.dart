@@ -18,6 +18,7 @@ import 'package:opendoors/screen/kyc/widget2/kyc_controller.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -467,7 +468,8 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                                   : EdgeInsets.only(left: 15),
                                               child: index / 5 == 1
                                                   ? Text(
-                                                      "${currency}${dashBoardController.dashBoardInfo?.reportData[index].reportData ?? ""}",
+                                                      "${currency}${AppFormater.formatAmount(double.tryParse(dashBoardController.dashBoardInfo?.reportData[index].reportData ?? '0') ?? 0)}",
+                                                      // "${currency}${dashBoardController.dashBoardInfo?.reportData[index].reportData ?? ""}",
                                                       style: TextStyle(
                                                         fontSize: 25,
                                                         color: notifire
@@ -478,7 +480,8 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                                     )
                                                   : index / 8 == 1
                                                       ? Text(
-                                                          "${currency}${dashBoardController.dashBoardInfo?.reportData[index].reportData ?? ""}",
+                                                          "${currency}${AppFormater.formatAmount(double.tryParse(dashBoardController.dashBoardInfo?.reportData[index].reportData ?? "0") ?? 0)}",
+                                                          // "${currency}${dashBoardController.dashBoardInfo?.reportData[index].reportData ?? ""}",
                                                           style: TextStyle(
                                                             fontSize: 25,
                                                             color: notifire

@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:opendoors/controller/signup_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/screen/login_screen.dart';
+import 'package:opendoors/screen/webview_page.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
@@ -480,52 +481,119 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(
                         height: 10,
                       ),
-                      GetBuilder<SignUpController>(builder: (context) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                      GetBuilder<SignUpController>(builder: (ctx) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Transform.scale(
-                              scale: 1,
-                              child: Checkbox(
-                                value: signUpController.chack,
-                                side:
-                                    const BorderSide(color: Color(0xffC5CAD4)),
-                                activeColor: blueColor,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5)),
-                                onChanged: (newbool) async {
-                                  signUpController
-                                      .checkTermsAndCondition(newbool);
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-                                  await prefs.setBool('Remember', true);
-                                },
-                              ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text(
-                                  "By creating an account,you agree to our".tr,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: notifire.getgreycolor,
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    overflow: TextOverflow.ellipsis,
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Transform.scale(
+                                  scale: 1,
+                                  child: Checkbox(
+                                    value: signUpController.chack,
+                                    side: const BorderSide(
+                                        color: Color(0xffC5CAD4)),
+                                    activeColor: blueColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
+                                    onChanged: (newbool) async {
+                                      signUpController
+                                          .checkTermsAndCondition(newbool);
+                                      final prefs =
+                                          await SharedPreferences.getInstance();
+                                      await prefs.setBool('Remember', true);
+                                    },
                                   ),
                                 ),
-                                Text(
-                                  "Terms and Condition".tr,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: blueColor,
-                                    fontFamily: FontFamily.gilroyBold,
-                                    overflow: TextOverflow.ellipsis,
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => WebviewPage(
+                                                url:
+                                                    "https://opendoors-tc.netlify.app/")));
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "By creating an account,you agree to our"
+                                            .tr,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: notifire.getgreycolor,
+                                          fontFamily: FontFamily.gilroyMedium,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Terms and Condition".tr,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: blueColor,
+                                          fontFamily: FontFamily.gilroyBold,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                )
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Transform.scale(
+                                  scale: 1,
+                                  child: Checkbox(
+                                    value: signUpController.newsletter,
+                                    side: const BorderSide(
+                                        color: Color(0xffC5CAD4)),
+                                    activeColor: blueColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
+                                    onChanged: (newbool) async {
+                                      signUpController.newsLetterCheck(newbool);
+                                    },
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Text(
+                                    //   "By creating an account,you agree to our"
+                                    //       .tr,
+                                    //   style: TextStyle(
+                                    //     fontSize: 12,
+                                    //     color: notifire.getgreycolor,
+                                    //     fontFamily: FontFamily.gilroyMedium,
+                                    //     overflow: TextOverflow.ellipsis,
+                                    //   ),
+                                    // ),
+                                    Text(
+                                      "Subscribe to Our Newsletter".tr,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: (notifire.getblackblue as Color)
+                                            .withOpacity(0.6),
+                                        fontFamily: FontFamily.gilroyBold,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ],
                             ),
                           ],
@@ -721,8 +789,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                           setState(() {
                                             isLoading = false;
                                           });
+                                          return;
                                         }
-                                        if (value["Result"] == "true") {
+
+                                        if (value?["Result"] == "true") {
                                           Get.toNamed(Routes.otpScreen,
                                               arguments: {
                                                 "number": signUpController

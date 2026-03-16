@@ -12,6 +12,7 @@ import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -540,7 +541,7 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    "${currency}${(int.parse(bookingController.proDetailsInfo?.bookdetails!.propPrice ?? "") * int.parse(bookingController.proDetailsInfo?.bookdetails!.totalDay ?? ""))}  ",
+                                    "${currency}${AppFormater.formatAmount((double.tryParse(bookingController.proDetailsInfo?.bookdetails!.propPrice ?? "0") ?? 0) * (double.tryParse(bookingController.proDetailsInfo?.bookdetails!.totalDay ?? "0") ?? 0))}  ",
                                     style: TextStyle(
                                       fontFamily: FontFamily.gilroyBold,
                                       fontSize: 15,
@@ -570,7 +571,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    "${currency}${bookingController.proDetailsInfo?.bookdetails!.tax ?? ""}  ",
+                                    "${currency}${AppFormater.formatAmount(double.tryParse(bookingController.proDetailsInfo?.bookdetails!.tax ?? "") ?? 0)}  ",
+                                    // "${currency}${bookingController.proDetailsInfo?.bookdetails!.tax ?? ""}  ",
                                     style: TextStyle(
                                       fontFamily: FontFamily.gilroyBold,
                                       fontSize: 15,
@@ -636,7 +638,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                     ),
                                     Spacer(),
                                     Text(
-                                      "${currency}${bookingController.proDetailsInfo?.bookdetails!.couAmt ?? ""}  ",
+                                      "${currency}${AppFormater.formatAmount(double.tryParse(bookingController.proDetailsInfo?.bookdetails!.couAmt ?? "0") ?? 0)}  ",
+                                      // "${currency}${bookingController.proDetailsInfo?.bookdetails!.couAmt ?? ""}  ",
                                       style: TextStyle(
                                         fontFamily: FontFamily.gilroyBold,
                                         fontSize: 15,
@@ -677,7 +680,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                     ),
                                     Spacer(),
                                     Text(
-                                      "${currency}${bookingController.proDetailsInfo?.bookdetails!.wallAmt ?? ""}  ",
+                                      "${currency}${AppFormater.formatAmount(double.tryParse(bookingController.proDetailsInfo?.bookdetails!.wallAmt ?? "0") ?? 0)}  ",
+                                      // "${currency}${bookingController.proDetailsInfo?.bookdetails!.wallAmt ?? ""}  ",
                                       style: TextStyle(
                                         fontFamily: FontFamily.gilroyBold,
                                         fontSize: 15,
@@ -717,7 +721,8 @@ class _EReceiptProScreenState extends State<EReceiptProScreen> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    "${currency}${bookingController.proDetailsInfo?.bookdetails!.total ?? ""}  ",
+                                    "${currency}${AppFormater.formatAmount(double.tryParse(bookingController.proDetailsInfo?.bookdetails!.total ?? "0") ?? 0)}  ",
+                                    // "${currency}${bookingController.proDetailsInfo?.bookdetails!.total ?? ""}  ",
                                     style: TextStyle(
                                       fontFamily: FontFamily.gilroyBold,
                                       fontSize: 15,

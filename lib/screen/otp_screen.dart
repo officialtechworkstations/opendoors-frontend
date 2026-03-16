@@ -663,9 +663,10 @@ class _OtpScreenState extends State<OtpScreen> {
                               loginController.newConformPassword.text) {
                             log('message');
                             loginController.setForgetPasswordApi(
-                                ccode: countryCode,
-                                mobile: phoneNumber,
-                                email: email);
+                              ccode: countryCode,
+                              mobile: phoneNumber,
+                              // email: email
+                            );
                           } else {
                             showToastMessage("Please Enter Valid Password".tr,
                                 ToastGravity.TOP);

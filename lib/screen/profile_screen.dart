@@ -57,6 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     getdarkmodepreviousstate();
     super.initState();
+    initCall();
     getData.read("UserLogin") != null
         ? setState(() {
             userName = getData.read("UserLogin")["name"] ?? "";
@@ -68,6 +69,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 : const SizedBox();
           })
         : null;
+  }
+
+  initCall() async {
+    await loginController.fetchProfileData();
   }
 
   late ColorNotifire notifire;
@@ -400,6 +405,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(
                     height: 10,
                   ),
+                  newsletterWidget(),
+                  SizedBox(
+                    height: 10,
+                  ),
                   GetBuilder<PageListController>(builder: (context) {
                     return pageListController.isLodding
                         ? ListView.builder(
@@ -661,6 +670,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  Widget newsletterWidget() {
+    return Obx(() => SizedBox(
+          height: 40,
+          width: Get.size.width,
+          child: Row(
+            children: [
+              SizedBox(
+                width: 20,
+              ),
+              Icon(
+                Icons.email_outlined,
+                color: notifire.getwhiteblackcolor,
+                size: 30,
+              ),
+              // Image.asset(
+              //   "assets/images/sun.png",
+              //   height: 35,
+              //   width: 30,
+              //   color: notifire.getwhiteblackcolor,
+              // ),
+              SizedBox(
+                width: 15,
+              ),
+              Text(
+                "Newsletter Subscription".tr,
+                style: TextStyle(
+                  fontFamily: FontFamily.gilroyMedium,
+                  fontSize: 16,
+                  color: notifire.getwhiteblackcolor,
+                ),
+              ),
+              Spacer(),
+              Transform.scale(
+                scale: 0.7,
+                child: CupertinoSwitch(
+                  activeColor: Darkblue,
+                  value: loginController.hasNewsletter.value,
+                  onChanged: (value) async {
+                    loginController.toggleProfileData();
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+            ],
+          ),
+        ));
   }
 
   Future logoutSheet() {

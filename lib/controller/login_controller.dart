@@ -45,8 +45,16 @@ class LoginController extends GetxController implements GetxService {
 
   bool isSending = false;
 
+// observable variables
+  Rx<bool> hasNewsletter = false.obs;
+
   SelectCountryController selectCountryController =
       Get.put(SelectCountryController());
+
+  switchNewsletter(bool value) {
+    hasNewsletter.value = value;
+    update();
+  }
 
   showOfPassword() {
     showPassword = !showPassword;
@@ -140,16 +148,16 @@ class LoginController extends GetxController implements GetxService {
   setForgetPasswordApi({
     String? mobile,
     String? ccode,
-    String? email,
+    // String? email,
   }) async {
     try {
       Map map = {
-        // "mobile": mobile,
-        // "ccode": ccode,
-        "email": email,
+        "mobile": mobile,
+        "ccode": ccode,
         "password": newPassword.text,
+        // "email": email,
       };
-      log(map.toString());
+      // log(map.toString());
 
       isSending = true;
       update();
@@ -159,7 +167,7 @@ class LoginController extends GetxController implements GetxService {
         uri,
         body: jsonEncode(map),
       );
-      log(response.body.toString());
+      // log(response.body.toString());
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
         forgetPasswprdResult = result["Result"];
@@ -198,6 +206,64 @@ class LoginController extends GetxController implements GetxService {
         save("UserLogin", result["UserLogin"]);
         isUserOnlie(getData.read("UserLogin")["id"],
             getData.read("UserLogin")["pro_pic"]);
+      }
+      update();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  fetchProfileData() async {
+    try {
+      Map map = {
+        "uid": getData.read("UserLogin")["id"].toString(),
+      };
+      Uri uri = Uri.parse(Config.path + Config.fetchUserData);
+      var response = await http.post(
+        uri,
+        body: jsonEncode(map),
+      );
+      if (response.statusCode == 200) {
+        var result = jsonDecode(response.body);
+
+        // log("FETCH PROFILE DATA ${result.toString()}");
+        // log("${result["data"]?["accept_newsletter"].runtimeType.toString()}");
+
+        hasNewsletter.value =
+            result["data"]?["accept_newsletter"] == "1" ? true : false;
+      }
+      update();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  toggleProfileData() async {
+    try {
+      Map map = {
+        "uid": getData.read("UserLogin")["id"].toString(),
+      };
+      Uri uri = Uri.parse(Config.path + Config.toggleNewsletter);
+      var response = await http.post(
+        uri,
+        body: jsonEncode(map),
+      );
+      if (response.statusCode == 200) {
+        var result = jsonDecode(response.body);
+
+        // log("FETCH PROFILE newsletter toggle ${result.toString()}");
+        // log("${result?["accept_newsletter"].runtimeType.toString()}");
+
+        final res = result?["accept_newsletter"] == 1 ? true : false;
+
+        final mssg = res
+            ? 'You have successfully subscribed to our newsletter.'
+            : 'You have successfully unsubscribed from our newsletter.';
+
+        // log("newsletter toggle ${res.toString()}");
+        switchNewsletter(res);
+
+        showToastMessage(mssg, ToastGravity.TOP);
       }
       update();
     } catch (e) {

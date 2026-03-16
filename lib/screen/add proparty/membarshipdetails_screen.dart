@@ -9,6 +9,7 @@ import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -167,11 +168,13 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                                     Row(
                                       children: [
                                         Text(
-                                          dashBoardController
-                                                  .subDetailsInfo
-                                                  ?.subscribedetails![0]
-                                                  .amount ??
-                                              "",
+                                          AppFormater.formatAmount(double
+                                                  .tryParse(dashBoardController
+                                                          .subDetailsInfo
+                                                          ?.subscribedetails![0]
+                                                          .amount ??
+                                                      "0") ??
+                                              0),
                                           style: TextStyle(
                                             fontSize: 30,
                                             fontFamily: FontFamily.gilroyBold,
@@ -286,7 +289,8 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                                 ),
                                 Spacer(),
                                 Text(
-                                  "${currency}${dashBoardController.subDetailsInfo?.subscribedetails![0].amount ?? ""}",
+                                  "${currency}${AppFormater.formatAmount(double.tryParse(dashBoardController.subDetailsInfo?.subscribedetails![0].amount ?? "0") ?? 0)}",
+                                  // "${currency}${dashBoardController.subDetailsInfo?.subscribedetails![0].amount ?? ""}",
                                   style: TextStyle(
                                     color: notifire.getwhiteblackcolor,
                                     fontFamily: FontFamily.gilroyBold,
@@ -339,7 +343,9 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                         ),
                       )
                 : Center(
-                    child: CircularProgressIndicator(color: Darkblue,),
+                    child: CircularProgressIndicator(
+                      color: Darkblue,
+                    ),
                   );
           }),
         ),

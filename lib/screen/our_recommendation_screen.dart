@@ -12,6 +12,7 @@ import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,9 +46,11 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
       notifire.setIsDark = previusstate;
     }
   }
+
   @override
   void initState() {
-    homePageController.getCatWiseData(countryId: getData.read("countryId"),cId: "0");
+    homePageController.getCatWiseData(
+        countryId: getData.read("countryId"), cId: "0");
     super.initState();
   }
 
@@ -65,7 +68,7 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
           elevation: 0,
           leading: IconButton(
             onPressed: () {
-                Get.back();
+              Get.back();
             },
             icon: Icon(
               Icons.arrow_back,
@@ -81,376 +84,459 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
             ),
           ),
         ),
-        body: homePageController.isCatWise ? GetBuilder<HomePageController>(builder: (context) {
-          return Column(
-            children: [
-              SizedBox(
-                height: 55,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: ListView.builder(
-                    itemCount: homePageController
-                        .homeDatatInfo?.homeData!.catlist!.length,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        onTap: () {
-                          setState(() {
-                            ourCurrentIndex = index;
-                          });
-                          homePageController.getCatWiseData(
-                            cId: homePageController
-                                .homeDatatInfo?.homeData!.catlist![index].id,
-                            countryId: getData.read("countryId"),
-                          );
-                        },
-                        child: Container(
-                          height: 50,
-                          padding: EdgeInsets.all(8),
-                          margin: EdgeInsets.only(
-                              left: 5, right: 5, top: 7, bottom: 7),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              FadeInImage.assetNetwork(
-                                imageErrorBuilder: (context, error, stackTrace) {
-                                return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
-                                },
-                                image:
-                                "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img ?? ""}",
-                                placeholder:  "assets/images/ezgif.com-crop.gif",
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                homePageController.homeDatatInfo?.homeData
-                                        !.catlist![index].title ??
-                                    "",
-                                style: TextStyle(
-                                  fontFamily: FontFamily.gilroyBold,
-                                  color: ourCurrentIndex ==
-                                          index
-                                      ? WhiteColor
-                                      : blueColor,
+        body: homePageController.isCatWise
+            ? GetBuilder<HomePageController>(builder: (context) {
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: 55,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: ListView.builder(
+                          itemCount: homePageController
+                              .homeDatatInfo?.homeData!.catlist!.length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  ourCurrentIndex = index;
+                                });
+                                homePageController.getCatWiseData(
+                                  cId: homePageController.homeDatatInfo
+                                      ?.homeData!.catlist![index].id,
+                                  countryId: getData.read("countryId"),
+                                );
+                              },
+                              child: Container(
+                                height: 50,
+                                padding: EdgeInsets.all(8),
+                                margin: EdgeInsets.only(
+                                    left: 5, right: 5, top: 7, bottom: 7),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    FadeInImage.assetNetwork(
+                                      imageErrorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Center(
+                                          child: Image.asset(
+                                            "assets/images/emty.gif",
+                                            fit: BoxFit.cover,
+                                            height: Get.height,
+                                          ),
+                                        );
+                                      },
+                                      image:
+                                          "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img ?? ""}",
+                                      placeholder:
+                                          "assets/images/ezgif.com-crop.gif",
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      homePageController
+                                              .homeDatatInfo
+                                              ?.homeData!
+                                              .catlist![index]
+                                              .title ??
+                                          "",
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.gilroyBold,
+                                        color: ourCurrentIndex == index
+                                            ? WhiteColor
+                                            : blueColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: blueColor, width: 2),
+                                  borderRadius: BorderRadius.circular(25),
+                                  color: ourCurrentIndex == index
+                                      ? blueColor
+                                      : notifire.getbgcolor,
                                 ),
                               ),
-                            ],
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: blueColor, width: 2),
-                            borderRadius: BorderRadius.circular(25),
-                            color: ourCurrentIndex == index
-                                ? blueColor
-                                : notifire.getbgcolor,
-                          ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              homePageController.isCatWise
-                  ? Expanded(
-                      child: homePageController
-                              .catWiseInfo!.propertyCat!.isNotEmpty
-                          ? Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                            child: GridView.builder(
-                                itemCount: homePageController
-                                    .catWiseInfo?.propertyCat!.length,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisExtent: 250,
-                                ),
-                                itemBuilder: (context, index1) {
-                                  return InkWell(
-                                    onTap: () async {
-                                      Get.toNamed(
-                                        Routes.viewDataScreen,
-                                        arguments: {
-                                          "id" : homePageController.catWiseInfo?.propertyCat![index1].id
-                                        }
-                                      );
-                                      setState(() {
-                                        homePageController.rate =
-                                            homePageController.catWiseInfo
-                                                    ?.propertyCat![index1].rate ??
-                                                "";
-                                      });
-                                      homePageController.chnageObjectIndex(index1);
-                                    },
-                                    child: Container(
-                                      height: 250,
-                                      margin: EdgeInsets.all(8),
-                                      child: Column(
-                                        children: [
-                                          Stack(
-                                            children: [
-                                              Container(
-                                                height: 140,
-                                                width: Get.size.width,
-                                                margin: EdgeInsets.only(right: 8,left: 8,top: 8,),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  child: FadeInImage.assetNetwork(
-                                                    fadeInCurve:
-                                                        Curves.easeInCirc,
-                                                    placeholder:
-                                                        "assets/images/ezgif.com-crop.gif",
-                                                    height: 130,
-                                                    width: Get.size.width,
-                                                    imageErrorBuilder: (context, error, stackTrace) {
-                                                    return Center(child: Image.asset("assets/images/emty.gif",fit: BoxFit.cover,height: Get.height,),);
-                                                    },
-                                                    image:
-                                                        "${Config.imageUrl}${homePageController.catWiseInfo?.propertyCat![index1].image ?? ""}",
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              ),
-                                              homePageController
+                      ),
+                    ),
+                    homePageController.isCatWise
+                        ? Expanded(
+                            child: homePageController
+                                    .catWiseInfo!.propertyCat!.isNotEmpty
+                                ? Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 10, bottom: 10),
+                                    child: GridView.builder(
+                                      itemCount: homePageController
+                                          .catWiseInfo?.propertyCat!.length,
+                                      gridDelegate:
+                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        mainAxisExtent: 250,
+                                      ),
+                                      itemBuilder: (context, index1) {
+                                        return InkWell(
+                                          onTap: () async {
+                                            Get.toNamed(Routes.viewDataScreen,
+                                                arguments: {
+                                                  "id": homePageController
+                                                      .catWiseInfo
+                                                      ?.propertyCat![index1]
+                                                      .id
+                                                });
+                                            setState(() {
+                                              homePageController.rate =
+                                                  homePageController
                                                           .catWiseInfo
                                                           ?.propertyCat![index1]
-                                                          .buyorrent ==
-                                                      "1"
-                                                  ? Positioned(
-                                                      top: 15,
-                                                      right: 20,
-                                                      child: Container(
-                                                        height: 30,
-                                                        width: 45,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Container(
-                                                              margin:
-                                                                  const EdgeInsets
-                                                                      .fromLTRB(
-                                                                      0, 0, 3, 0),
-                                                              child: Image.asset(
-                                                                "assets/images/Rating.png",
-                                                                height: 15,
-                                                                width: 15,
+                                                          .rate ??
+                                                      "";
+                                            });
+                                            homePageController
+                                                .chnageObjectIndex(index1);
+                                          },
+                                          child: Container(
+                                            height: 250,
+                                            margin: EdgeInsets.all(8),
+                                            child: Column(
+                                              children: [
+                                                Stack(
+                                                  children: [
+                                                    Container(
+                                                      height: 140,
+                                                      width: Get.size.width,
+                                                      margin: EdgeInsets.only(
+                                                        right: 8,
+                                                        left: 8,
+                                                        top: 8,
+                                                      ),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        child: FadeInImage
+                                                            .assetNetwork(
+                                                          fadeInCurve:
+                                                              Curves.easeInCirc,
+                                                          placeholder:
+                                                              "assets/images/ezgif.com-crop.gif",
+                                                          height: 130,
+                                                          width: Get.size.width,
+                                                          imageErrorBuilder:
+                                                              (context, error,
+                                                                  stackTrace) {
+                                                            return Center(
+                                                              child:
+                                                                  Image.asset(
+                                                                "assets/images/emty.gif",
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                                height:
+                                                                    Get.height,
+                                                              ),
+                                                            );
+                                                          },
+                                                          image:
+                                                              "${Config.imageUrl}${homePageController.catWiseInfo?.propertyCat![index1].image ?? ""}",
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    homePageController
+                                                                .catWiseInfo
+                                                                ?.propertyCat![
+                                                                    index1]
+                                                                .buyorrent ==
+                                                            "1"
+                                                        ? Positioned(
+                                                            top: 15,
+                                                            right: 20,
+                                                            child: Container(
+                                                              height: 30,
+                                                              width: 45,
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Container(
+                                                                    margin: const EdgeInsets
+                                                                        .fromLTRB(
+                                                                        0,
+                                                                        0,
+                                                                        3,
+                                                                        0),
+                                                                    child: Image
+                                                                        .asset(
+                                                                      "assets/images/Rating.png",
+                                                                      height:
+                                                                          15,
+                                                                      width: 15,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    "${homePageController.catWiseInfo?.propertyCat![index1].rate ?? ""}",
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontFamily:
+                                                                          FontFamily
+                                                                              .gilroyMedium,
+                                                                      color:
+                                                                          blueColor,
+                                                                    ),
+                                                                  )
+                                                                ],
+                                                              ),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Color(
+                                                                    0xFFedeeef),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15),
                                                               ),
                                                             ),
-                                                            Text(
-                                                              "${homePageController.catWiseInfo?.propertyCat![index1].rate ?? ""}",
-                                                              style: TextStyle(
-                                                                fontFamily: FontFamily
-                                                                    .gilroyMedium,
-                                                                color: blueColor,
-                                                              ),
-                                                            )
-                                                          ],
-                                                        ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              Color(0xFFedeeef),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(15),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  : Positioned(
-                                                      top: 15,
-                                                      right: 20,
-                                                      child: Container(
-                                                        height: 30,
-                                                        width: 60,
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: Text(
-                                                          "BUY".tr,
-                                                          style: TextStyle(
-                                                              color: blueColor,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600),
-                                                        ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              Color(0xFFedeeef),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(15),
-                                                        ),
-                                                      ),
-                                                    ),
-                                            ],
-                                          ),
-                                          Expanded(
-                                            child: Container(
-                                              height: 128,
-                                              width: Get.size.width,
-                                              margin: EdgeInsets.all(5),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10),
-                                                    child: Text(
-                                                      homePageController
-                                                              .catWiseInfo
-                                                              ?.propertyCat![index1]
-                                                              .title ??
-                                                          "",
-                                                      maxLines: 1,
-                                                      style: TextStyle(
-                                                        fontSize: 17,
-                                                        fontFamily:
-                                                        FontFamily
-                                                            .gilroyBold,
-                                                        color: notifire
-                                                            .getwhiteblackcolor,
-                                                        overflow:
-                                                        TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10, top: 6),
-                                                    child: Row(
-                                                      children: [
-                                                        SvgPicture.asset("assets/images/location.svg",height: 12,colorFilter: ColorFilter.mode(notifire.getwhiteblackcolor, BlendMode.srcIn),),
-                                                        SizedBox(width: 2),
-                                                        Flexible(
-                                                          child: Text(
-                                                            homePageController
-                                                                    .catWiseInfo
-                                                                    ?.propertyCat![index1]
-                                                                    .city ??
-                                                                "",
-                                                            maxLines: 1,
-                                                            style: TextStyle(
-                                                              color: notifire
-                                                                  .getgreycolor,
-                                                              fontFamily: FontFamily
-                                                                  .gilroyMedium,
-                                                              overflow:
-                                                              TextOverflow
-                                                                  .ellipsis,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10),
-                                                    child: Row(
+                                                          )
+                                                        : SizedBox.shrink(),
+                                                    // REMOVE THE BOOK TAG
+                                                    // Positioned(
+                                                    //     top: 15,
+                                                    //     right: 20,
+                                                    //     child:
+                                                    //         Container(
+                                                    //       height: 30,
+                                                    //       width: 60,
+                                                    //       alignment:
+                                                    //           Alignment
+                                                    //               .center,
+                                                    //       child: Text(
+                                                    //         "BOOK".tr,
+                                                    //         // "BUY".tr,
+                                                    //         style: TextStyle(
+                                                    //             color:
+                                                    //                 blueColor,
+                                                    //             fontWeight:
+                                                    //                 FontWeight.w600),
+                                                    //       ),
+                                                    //       decoration:
+                                                    //           BoxDecoration(
+                                                    //         color: Color(
+                                                    //             0xFFedeeef),
+                                                    //         borderRadius:
+                                                    //             BorderRadius.circular(
+                                                    //                 15),
+                                                    //       ),
+                                                    //     ),
+                                                    //   ),
+                                                  ],
+                                                ),
+                                                Expanded(
+                                                  child: Container(
+                                                    height: 128,
+                                                    width: Get.size.width,
+                                                    margin: EdgeInsets.all(5),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
                                                         Padding(
                                                           padding:
                                                               const EdgeInsets
-                                                                  .only(top: 7),
+                                                                  .only(
+                                                                  left: 10),
                                                           child: Text(
-                                                            "${currency}${homePageController.catWiseInfo?.propertyCat![index1].price ?? ""}",
-                                                            style: TextStyle(
-                                                              color: blueColor,
-                                                              fontFamily:
-                                                              FontFamily
-                                                                  .gilroyBold,
-                                                              fontSize: 17,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        homePageController
+                                                            homePageController
                                                                     .catWiseInfo
                                                                     ?.propertyCat![
                                                                         index1]
-                                                                    .buyorrent ==
-                                                                "1"
-                                                            ? Padding(
+                                                                    .title ??
+                                                                "",
+                                                            maxLines: 1,
+                                                            style: TextStyle(
+                                                              fontSize: 17,
+                                                              fontFamily:
+                                                                  FontFamily
+                                                                      .gilroyBold,
+                                                              color: notifire
+                                                                  .getwhiteblackcolor,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 10,
+                                                                  top: 6),
+                                                          child: Row(
+                                                            children: [
+                                                              SvgPicture.asset(
+                                                                "assets/images/location.svg",
+                                                                height: 12,
+                                                                colorFilter: ColorFilter.mode(
+                                                                    notifire
+                                                                        .getwhiteblackcolor,
+                                                                    BlendMode
+                                                                        .srcIn),
+                                                              ),
+                                                              SizedBox(
+                                                                  width: 2),
+                                                              Flexible(
+                                                                child: Text(
+                                                                  homePageController
+                                                                          .catWiseInfo
+                                                                          ?.propertyCat![
+                                                                              index1]
+                                                                          .city ??
+                                                                      "",
+                                                                  maxLines: 1,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: notifire
+                                                                        .getgreycolor,
+                                                                    fontFamily:
+                                                                        FontFamily
+                                                                            .gilroyMedium,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 10),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
                                                                 padding:
                                                                     const EdgeInsets
                                                                         .only(
-                                                                        left: 8,
                                                                         top: 7),
                                                                 child: Text(
-                                                                  "/night".tr,
+                                                                  "${currency}${AppFormater.formatAmount(double.tryParse(homePageController.catWiseInfo?.propertyCat![index1].price ?? "0") ?? 0)}",
+                                                                  // "${currency}${homePageController.catWiseInfo?.propertyCat![index1].price ?? ""}",
                                                                   style:
                                                                       TextStyle(
-                                                                        color: notifire
-                                                                            .getgreycolor,
-                                                                        fontFamily:
-                                                                        FontFamily.gilroyMedium,
+                                                                    color:
+                                                                        blueColor,
+                                                                    fontFamily:
+                                                                        FontFamily
+                                                                            .gilroyBold,
+                                                                    fontSize:
+                                                                        17,
                                                                   ),
                                                                 ),
-                                                              )
-                                                            : Text(""),
+                                                              ),
+                                                              homePageController
+                                                                          .catWiseInfo
+                                                                          ?.propertyCat![
+                                                                              index1]
+                                                                          .buyorrent ==
+                                                                      "1"
+                                                                  ? Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              8,
+                                                                          top:
+                                                                              7),
+                                                                      child:
+                                                                          Text(
+                                                                        "/night"
+                                                                            .tr,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              notifire.getgreycolor,
+                                                                          fontFamily:
+                                                                              FontFamily.gilroyMedium,
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                  : Text(""),
+                                                            ],
+                                                          ),
+                                                        )
                                                       ],
                                                     ),
-                                                  )
-                                                ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              border: Border.all(
+                                                color: notifire.getborderColor,
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        border: Border.all(
-                                          color: notifire.getborderColor,
-                                        ),
-                                      ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
-                              ),
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 5),
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: Get.height * 0.10),
+                                        Image(
+                                          image: AssetImage(
+                                            "assets/images/Door Icon.png",
+                                          ),
+                                          height: 110,
+                                          width: 110,
+                                        ),
+                                        Center(
+                                          child: SizedBox(
+                                            width: Get.width * 0.80,
+                                            child: Text(
+                                              "Nothing here yet,\n but your next move could change that"
+                                                  .tr,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: notifire.getgreycolor,
+                                                fontFamily:
+                                                    FontFamily.gilroyBold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                           )
-                          : Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 5),
-                              child: Column(
-                                children: [
-                                  SizedBox(height: Get.height * 0.10),
-                                  Image(
-                                    image: AssetImage(
-                                      "assets/images/Door Icon.png",
-                                    ),
-                                    height: 110,
-                                    width: 110,
-                                  ),
-                                  Center(
-                                    child: SizedBox(
-                                      width: Get.width * 0.80,
-                                      child: Text(
-                                        "Nothing here yet,\n but your next move could change that"
-                                            .tr,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: notifire.getgreycolor,
-                                          fontFamily: FontFamily.gilroyBold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                        : Expanded(
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: Darkblue,
                               ),
                             ),
-                    )
-                  : Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(color: Darkblue,),
-                      ),
-                    ),
-            ],
-          );
-        }) : CircularProgressIndicator(color: Darkblue,),
+                          ),
+                  ],
+                );
+              })
+            : CircularProgressIndicator(
+                color: Darkblue,
+              ),
       ),
     );
   }

@@ -127,7 +127,7 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 10, left: 15),
                       child: Text(
-                        "${currency}${dashBoardController.payOut}",
+                        "${currency}${AppFormater.formatAmount(double.tryParse(dashBoardController.payOut) ?? 0)}",
                         textAlign: TextAlign.start,
                         style: TextStyle(
                           fontSize: 45,
@@ -347,7 +347,7 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                                                     ),
                                                     Spacer(),
                                                     Text(
-                                                      "${currency}${payOutController.payoutInfo?.payoutlist[index].amt}",
+                                                      "${currency}${AppFormater.formatAmount(double.tryParse(payOutController.payoutInfo?.payoutlist[index].amt ?? "0") ?? 0)}",
                                                       style: TextStyle(
                                                         color: notifire
                                                             .getwhiteblackcolor,
@@ -497,7 +497,8 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                                       trailing: TextButton(
                                         onPressed: () {},
                                         child: Text(
-                                          "${payOutController.payoutInfo?.payoutlist[index].amt}${currency}",
+                                          "${AppFormater.formatAmount(double.tryParse(payOutController.payoutInfo?.payoutlist[index].amt ?? "0") ?? 0)}${currency}",
+                                          // "${payOutController.payoutInfo?.payoutlist[index].amt}${currency}",
                                           style: TextStyle(
                                             fontFamily: FontFamily.gilroyBold,
                                             color: payOutController
@@ -651,6 +652,7 @@ class _MyPayoutScreenState extends State<MyPayoutScreen> {
                     // ${"Minimum amount:".tr}
                     // ${dashBoardController.dashBoardInfo?.withdrawLimit}${currency}",
                     "${"Maximum payout amount:".tr} ${AppFormater.formatAmount(double.tryParse(dashBoardController.dashBoardInfo?.withdrawLimit != null ? dashBoardController.dashBoardInfo!.withdrawLimit : "0") ?? 0)} ${currency}",
+
                     style: TextStyle(
                       color: notifire.getwhiteblackcolor,
                       fontFamily: FontFamily.gilroyMedium,

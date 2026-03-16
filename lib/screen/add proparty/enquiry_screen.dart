@@ -110,48 +110,53 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                 enquiryController.enquiryInfo
                                             ?.enquiryData![index].isSell ==
                                         "0"
-                                    ? Positioned(
-                                        top: 15,
-                                        right: 20,
-                                        child: Container(
-                                          height: 27,
-                                          width: 45,
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            "BUY".tr,
-                                            style: TextStyle(
-                                              color: blueColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFedeeef),
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                        ),
-                                      )
-                                    : Positioned(
-                                        top: 15,
-                                        right: 20,
-                                        child: Container(
-                                          height: 27,
-                                          width: 45,
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            "SOLD".tr,
-                                            style: TextStyle(
-                                              color: Color(0xFFEA1E61),
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFedeeef),
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                        ),
-                                      )
+                                    ? SizedBox.shrink()
+                                    // REMOVE THE BOOK TAG
+                                    //  Positioned(
+                                    //     top: 15,
+                                    //     right: 20,
+                                    //     child: Container(
+                                    //       height: 27,
+                                    //       width: 45,
+                                    //       alignment: Alignment.center,
+                                    //       child: Text(
+                                    //         "BOOK".tr,
+                                    //         // "BUY".tr,
+                                    //         style: TextStyle(
+                                    //           color: blueColor,
+                                    //           fontWeight: FontWeight.w500,
+                                    //         ),
+                                    //       ),
+                                    //       decoration: BoxDecoration(
+                                    //         color: Color(0xFFedeeef),
+                                    //         borderRadius:
+                                    //             BorderRadius.circular(15),
+                                    //       ),
+                                    //     ),
+                                    //   )
+                                    : SizedBox.shrink(),
+                                // REMOVE THE BOOK TAG
+                                // Positioned(
+                                //     top: 15,
+                                //     right: 20,
+                                //     child: Container(
+                                //       height: 27,
+                                //       width: 45,
+                                //       alignment: Alignment.center,
+                                //       child: Text(
+                                //         "RESERVED".tr,
+                                //         style: TextStyle(
+                                //           color: Color(0xFFEA1E61),
+                                //           fontWeight: FontWeight.w500,
+                                //         ),
+                                //       ),
+                                //       decoration: BoxDecoration(
+                                //         color: Color(0xFFedeeef),
+                                //         borderRadius:
+                                //             BorderRadius.circular(15),
+                                //       ),
+                                //     ),
+                                //   )
                               ],
                             ),
                             SizedBox(

@@ -464,9 +464,38 @@ class _ChatPageState extends State<ChatPage> {
   }
 }
 
-void requestPermission() async {
+// void requestPermission() async {
+//   FirebaseMessaging messaging = FirebaseMessaging.instance;
+//   // log(messaging.toString());
+
+//   NotificationSettings settings = await messaging.requestPermission(
+//     alert: true,
+//     announcement: false,
+//     badge: true,
+//     carPlay: false,
+//     criticalAlert: false,
+//     provisional: false,
+//     sound: true,
+//   );
+
+//   if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+//     print('User granted permission');
+//   } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+//     print('User granted provisional permission');
+//   } else {
+//     print('User declined or has not accepted permission');
+//   }
+// }
+
+Future<void> requestPermission() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  // log(messaging.toString());
+
+  // Skip if already granted
+  NotificationSettings current = await messaging.getNotificationSettings();
+  if (current.authorizationStatus == AuthorizationStatus.authorized) {
+    print('Permission already granted');
+    return;
+  }
 
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,

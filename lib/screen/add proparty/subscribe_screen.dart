@@ -25,6 +25,7 @@ import 'package:opendoors/screen/paypal/flutter_paypal.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -98,7 +99,10 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
           onPressed: () {
             Get.back();
           },
-          icon: Icon(Icons.arrow_back, color: notifire.getwhiteblackcolor,),
+          icon: Icon(
+            Icons.arrow_back,
+            color: notifire.getwhiteblackcolor,
+          ),
         ),
         elevation: 0,
         backgroundColor: notifire.getbgcolor,
@@ -110,281 +114,324 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
               color: notifire.getwhiteblackcolor),
         ),
       ),
-      body: subscribeController.isPlanLoading ? Center(
-        child: CircularProgressIndicator(color: Darkblue,),
-      ) : SafeArea(
-       child: Stack(
-          children: [
-             SizedBox(
-              height: Get.size.height,
-              width: Get.size.width,
-              child: Column(
+      body: subscribeController.isPlanLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Darkblue,
+              ),
+            )
+          : SafeArea(
+              child: Stack(
                 children: [
                   SizedBox(
-                    height: 10,
-                  ),
-                  GetBuilder<SubscribeController>(builder: (context) {
-                    return Expanded(
-                      child: subscribeController.isLoading
-                          ? ListView.builder(
-                              itemCount: subscribeController
-                                  .subscribeInfo?.packageData!.length,
-                              physics: BouncingScrollPhysics(),
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                return InkWell(
-                                  onTap: () {
-                                    subscribeController.changeSubscribe(index);
-                                    subscribeController.price =
-                                        subscribeController.subscribeInfo
-                                                ?.packageData![index].price ??
-                                            "";
-                                    subscribeController.planId =
-                                        subscribeController.subscribeInfo
-                                                ?.packageData![index].id ??
-                                            "";
-                                  },
-                                  child: Container(
-                                    height: 90,
-                                    width: Get.size.width,
-                                    margin: EdgeInsets.all(10),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
+                    height: Get.size.height,
+                    width: Get.size.width,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        GetBuilder<SubscribeController>(builder: (context) {
+                          return Expanded(
+                            child: subscribeController.isLoading
+                                ? ListView.builder(
+                                    itemCount: subscribeController
+                                        .subscribeInfo?.packageData!.length,
+                                    physics: BouncingScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      return InkWell(
+                                        onTap: () {
+                                          subscribeController
+                                              .changeSubscribe(index);
+                                          subscribeController.price =
+                                              subscribeController
+                                                      .subscribeInfo
+                                                      ?.packageData![index]
+                                                      .price ??
+                                                  "";
+                                          subscribeController.planId =
+                                              subscribeController
+                                                      .subscribeInfo
+                                                      ?.packageData![index]
+                                                      .id ??
+                                                  "";
+                                        },
+                                        child: Container(
+                                          height: 90,
+                                          width: Get.size.width,
+                                          margin: EdgeInsets.all(10),
                                           child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              subscribeController.currentIndex ==
-                                                      index
-                                                  ? Image.asset(
-                                                      "assets/images/Shape (1).png",
-                                                      height: 17,
-                                                      width: 17,
-                                                color: Darkblue,
-                                                    )
-                                                  : Image.asset(
-                                                      "assets/images/Shape.png",
-                                                      height: 17,
-                                                      width: 17,
-                                                    ),
-                                              SizedBox(
-                                                width: 15,
-                                              ),
-                                              Flexible(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                              Expanded(
+                                                child: Row(
                                                   children: [
-                                                    Text(
-                                                      "${subscribeController.subscribeInfo?.packageData![index].title ?? ""} ${"Plan".tr}",
-                                                      style: TextStyle(
-                                                        color: notifire.getwhiteblackcolor,
-                                                        fontFamily:
-                                                            FontFamily.gilroyBold,
-                                                        fontSize: 16,
-                                                      ),
-                                                      maxLines: 2,
-                                                    ),
                                                     SizedBox(
-                                                      height: 3,
+                                                      width: 10,
                                                     ),
-                                                    Text(
-                                                      "${subscribeController.subscribeInfo?.packageData![index].day ?? ""} ${"days".tr}",
-                                                      style: TextStyle(
-                                                        color: Colors.grey.shade400,
-                                                        fontFamily:
-                                                            FontFamily.gilroyBold,
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
+                                                    subscribeController
+                                                                .currentIndex ==
+                                                            index
+                                                        ? Image.asset(
+                                                            "assets/images/Shape (1).png",
+                                                            height: 17,
+                                                            width: 17,
+                                                            color: Darkblue,
+                                                          )
+                                                        : Image.asset(
+                                                            "assets/images/Shape.png",
+                                                            height: 17,
+                                                            width: 17,
+                                                          ),
                                                     SizedBox(
-                                                      height: 3,
+                                                      width: 15,
                                                     ),
-                                                    InkWell(
-                                                      onTap: () {
-                                                        knowMoreSheet(
-                                                          discription:
-                                                              subscribeController
-                                                                      .subscribeInfo
-                                                                      ?.packageData![
-                                                                          index]
-                                                                      .description ??
-                                                                  "",
-                                                          day: subscribeController
-                                                                  .subscribeInfo
-                                                                  ?.packageData![index]
-                                                                  .day ??
-                                                              "",
-                                                          image: subscribeController
-                                                                  .subscribeInfo
-                                                                  ?.packageData![index]
-                                                                  .image ??
-                                                              "",
-                                                        );
-                                                      },
-                                                      child: Text(
-                                                        "Know More".tr,
-                                                        style: TextStyle(
-                                                          decoration:
-                                                              TextDecoration.underline,
-                                                          fontFamily:
-                                                              FontFamily.gilroyMedium,
-                                                          fontSize: 13,
-                                                          color: notifire.getwhiteblackcolor,
-                                                        ),
+                                                    Flexible(
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "${subscribeController.subscribeInfo?.packageData![index].title ?? ""} ${"Plan".tr}",
+                                                            style: TextStyle(
+                                                              color: notifire
+                                                                  .getwhiteblackcolor,
+                                                              fontFamily:
+                                                                  FontFamily
+                                                                      .gilroyBold,
+                                                              fontSize: 16,
+                                                            ),
+                                                            maxLines: 2,
+                                                          ),
+                                                          SizedBox(
+                                                            height: 3,
+                                                          ),
+                                                          Text(
+                                                            "${subscribeController.subscribeInfo?.packageData![index].day ?? ""} ${"days".tr}",
+                                                            style: TextStyle(
+                                                              color: Colors.grey
+                                                                  .shade400,
+                                                              fontFamily:
+                                                                  FontFamily
+                                                                      .gilroyBold,
+                                                              fontSize: 16,
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 3,
+                                                          ),
+                                                          InkWell(
+                                                            onTap: () {
+                                                              knowMoreSheet(
+                                                                discription: subscribeController
+                                                                        .subscribeInfo
+                                                                        ?.packageData![
+                                                                            index]
+                                                                        .description ??
+                                                                    "",
+                                                                day: subscribeController
+                                                                        .subscribeInfo
+                                                                        ?.packageData![
+                                                                            index]
+                                                                        .day ??
+                                                                    "",
+                                                                image: subscribeController
+                                                                        .subscribeInfo
+                                                                        ?.packageData![
+                                                                            index]
+                                                                        .image ??
+                                                                    "",
+                                                              );
+                                                            },
+                                                            child: Text(
+                                                              "Know More".tr,
+                                                              style: TextStyle(
+                                                                decoration:
+                                                                    TextDecoration
+                                                                        .underline,
+                                                                fontFamily:
+                                                                    FontFamily
+                                                                        .gilroyMedium,
+                                                                fontSize: 13,
+                                                                color: notifire
+                                                                    .getwhiteblackcolor,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                               ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Text(
+                                                    AppFormater.formatAmount(
+                                                        double.tryParse(subscribeController
+                                                                    .subscribeInfo
+                                                                    ?.packageData![
+                                                                        index]
+                                                                    .price ??
+                                                                "0") ??
+                                                            0),
+                                                    style: TextStyle(
+                                                      fontSize: 30,
+                                                      fontFamily:
+                                                          FontFamily.gilroyBold,
+                                                      color: notifire
+                                                          .getwhiteblackcolor,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 3,
+                                                  ),
+                                                  Text(
+                                                    "${currency}",
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontFamily:
+                                                          FontFamily.gilroyBold,
+                                                      color: notifire
+                                                          .getwhiteblackcolor,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 10,
+                                                  )
+                                                ],
+                                              ),
                                             ],
                                           ),
+                                          decoration: BoxDecoration(
+                                            border: subscribeController
+                                                        .currentIndex ==
+                                                    index
+                                                ? Border.all(color: Darkblue)
+                                                : Border.all(
+                                                    color: notifire
+                                                        .getborderColor),
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
                                         ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            SizedBox(
-                                              width: 10,
-                                            ),
-                                            Text(
-                                              "${subscribeController.subscribeInfo?.packageData![index].price}",
-                                              style: TextStyle(
-                                                fontSize: 30,
-                                                fontFamily:
-                                                    FontFamily.gilroyBold,
-                                                color: notifire.getwhiteblackcolor,
-                                              ),
-                                            ),
-                                            SizedBox(width: 3,),
-                                            Text(
-                                              "${currency}",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontFamily:
-                                                    FontFamily.gilroyBold,
-                                                color: notifire.getwhiteblackcolor,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 10,
-                                            )
-                                          ],
-                                        ),
-
-                                      ],
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: subscribeController.currentIndex == index
-                                          ? Border.all(color: Darkblue)
-                                          : Border.all(
-                                              color: notifire.getborderColor),
-                                      borderRadius: BorderRadius.circular(15),
+                                      );
+                                    },
+                                  )
+                                : Center(
+                                    child: CircularProgressIndicator(
+                                      color: Darkblue,
                                     ),
                                   ),
-                                );
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    child: Container(
+                      height: 70,
+                      width: Get.size.width,
+                      child: Row(
+                        children: [
+                          GetBuilder<SubscribeController>(builder: (context) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: Text(
+                                    "Selected Plan".tr,
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.gilroyBold,
+                                      fontSize: 12,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: Text(
+                                    "${currency} ${AppFormater.formatAmount(double.tryParse(subscribeController.price) ?? 0)}",
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.gilroyBold,
+                                      fontSize: 20,
+                                      color: Darkblue,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {});
+                                walletSwitch = false;
+                                if (subscribeController.price != "") {
+                                  walletMain = double.parse(
+                                      "${walletController.walletInfo!.wallet}");
+                                  totalPayment =
+                                      double.parse(subscribeController.price);
+                                  if (subscribeController.price != "0") {
+                                    paymentSheett();
+                                  } else {
+                                    print("FAFA F ");
+                                    getpackagePurchase("0");
+                                    subscribeController.currentIndex = null;
+                                    subscribeController.price = "";
+                                  }
+                                } else {
+                                  showToastMessage(
+                                      "Please Select Subscribe Plan".tr);
+                                }
                               },
-                            )
-                          : Center(
-                              child: CircularProgressIndicator(color: Darkblue,),
+                              child: Container(
+                                height: 70,
+                                margin: EdgeInsets.all(10),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Continue".tr,
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.gilroyBold,
+                                    color: WhiteColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Darkblue,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
                             ),
-                    );
-                  }),
+                          )
+                        ],
+                      ),
+                      decoration: BoxDecoration(
+                        color: notifire.getblackwhitecolor,
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
-            Positioned(
-              bottom: 0,
-              child: Container(
-                height: 70,
-                width: Get.size.width,
-                child: Row(
-                  children: [
-                    GetBuilder<SubscribeController>(builder: (context) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20),
-                            child: Text(
-                              "Selected Plan".tr,
-                              style: TextStyle(
-                                fontFamily: FontFamily.gilroyBold,
-                                fontSize: 12,
-                                color: Colors.grey.shade400,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20),
-                            child: Text(
-                              "${currency} ${subscribeController.price}",
-                              style: TextStyle(
-                                fontFamily: FontFamily.gilroyBold,
-                                fontSize: 20,
-                                color: Darkblue,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }),
-                    SizedBox(width: 20,),
-                    Expanded(
-                      flex: 2,
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {});
-                          walletSwitch = false;
-                          if (subscribeController.price != "") {
-                          walletMain = double.parse("${walletController.walletInfo!.wallet}");
-                          totalPayment = double.parse(subscribeController.price);
-                            if (subscribeController.price != "0") {
-                              paymentSheett();
-                            } else {
-                               print("FAFA F ");
-                              getpackagePurchase("0");
-                               subscribeController.currentIndex = null;
-                              subscribeController.price = "";
-                            }
-                          } else {
-                            showToastMessage("Please Select Subscribe Plan".tr);
-                          }
-                        },
-                        child: Container(
-                          height: 70,
-                          margin: EdgeInsets.all(10),
-                          alignment: Alignment.center,
-                          child: Text(
-                            "Continue".tr,
-                            style: TextStyle(
-                              fontFamily: FontFamily.gilroyBold,
-                              color: WhiteColor,
-                              fontSize: 16,
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            color: Darkblue,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                decoration: BoxDecoration(
-                  color: notifire.getblackwhitecolor,
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
     );
   }
 
@@ -485,453 +532,608 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
       ),
       context: context,
       builder: (context) {
-        return walletController.isLoading ? Wrap(children: [
-          StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: 10),
-                Center(
-                  child: Container(
-                    height: Get.height / 80,
-                    width: Get.width / 5,
-                    decoration: const BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.all(Radius.circular(20))),
-                  ),
-                ),
-                SizedBox(height: Get.height / 50),
-                Row(
+        return walletController.isLoading
+            ? Wrap(children: [
+                StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                  SizedBox(width: Get.width / 14),
-                  Text("Select Payment Method".tr,
-                      style: TextStyle(
-                          color: notifire.getwhiteblackcolor,
-                          fontSize: Get.height / 40,
-                          fontFamily: FontFamily.gilroyBold)),
-                  ],
-                ),
-                SizedBox(height: Get.height / 50),
-                walletController.walletInfo!.wallet == "0" ? SizedBox() : Container(
-                  margin: EdgeInsets.only(top: 10, left: 30, right: 30),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                      SizedBox(height: 10),
+                      Center(
+                        child: Container(
+                          height: Get.height / 80,
+                          width: Get.width / 5,
+                          decoration: const BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20))),
+                        ),
+                      ),
+                      SizedBox(height: Get.height / 50),
                       Row(
                         children: [
-                          Image.asset("assets/images/walletIcon.png",height: 30, color: Darkblue),
-                          SizedBox(width: 5,),
-                          Text("My Wallet (${currency}${walletMain})",
+                          SizedBox(width: Get.width / 14),
+                          Text("Select Payment Method".tr,
                               style: TextStyle(
                                   color: notifire.getwhiteblackcolor,
-                                  fontSize: 17,
-                                  fontFamily: FontFamily.gilroyMedium),
-                          ),
+                                  fontSize: Get.height / 40,
+                                  fontFamily: FontFamily.gilroyBold)),
                         ],
                       ),
-                      FlutterSwitch(
-                        height: 24.0,
-                        padding: 1.0,
-                        toggleSize: 18.0,
-                        borderRadius: 15.0,
-                        width: 40,
-                        inactiveToggleColor: notifire.getdarkwhitecolor,
-                        activeColor: blueColor,
-                        inactiveColor: greyColor2,
-                        value: walletSwitch,
-                        onToggle: (bool value) {
-                          setState(() {
-                            walletSwitch = value;
-                            walletMain = double.parse("${walletController.walletInfo!.wallet}");
-
-                            if(walletSwitch) {
-                              paymenttital = "Wallet";
-                              if (totalPayment > walletMain) {
-                                walletValue = walletMain;
-                                totalPayment -= walletValue;
-                                walletMain = 0;
-                              } else {
-                                walletValue = totalPayment;
-                                totalPayment -= totalPayment;
-                                double good = double.parse("${walletController.walletInfo!.wallet}");
-                                walletMain = (good - walletValue);
-                              }
-                            }else{
-                              // isOnlyWallet = false;
-                              walletValue = 0;
-                              walletMain = double.parse("${walletController.walletInfo!.wallet}");
-                              totalPayment = double.parse(subscribeController.price);
-
-                            }
-
-                            print("WALLLET AMOUNT > > > > > ${walletMain}");
-                            print("WALLLET Value > > > > > ${walletValue}");
-                            print("MainAmount AMOUNT > > > > > ${totalPayment}");
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: Get.height * 0.50,
-                  child:
-                      GetBuilder<ReviewSummaryController>(builder: (context) {
-                    return reviewSummaryController.isLodding
-                        ? ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: reviewSummaryController
-                                .paymentInfo?.paymentdata!.length,
-                            itemBuilder: (ctx, i) {
-                              return reviewSummaryController
-                                          .paymentInfo?.paymentdata![i].sShow !=
-                                      "0"
-                                  ? totalPayment == 0 ? Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 10),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      border: Border.all(color: notifire.getborderColor,)
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      SizedBox(height: Get.height / 50),
+                      walletController.walletInfo!.wallet == "0"
+                          ? SizedBox()
+                          : Container(
+                              margin:
+                                  EdgeInsets.only(top: 10, left: 30, right: 30),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(10),
-                                          child: Image.network(Config.imageUrl + "${reviewSummaryController.paymentInfo!.paymentdata![i].img}", height: 75,),
-                                        ),
+                                      Image.asset(
+                                          "assets/images/walletIcon.png",
+                                          height: 30,
+                                          color: Darkblue),
+                                      SizedBox(
+                                        width: 5,
                                       ),
-                                      Flexible(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(reviewSummaryController
-                                                .paymentInfo
-                                                ?.paymentdata![i]
-                                                .title ??
-                                                "", style: TextStyle(fontSize: 18,fontFamily: FontFamily.gilroyMedium, fontWeight: FontWeight.w600, color: notifire.getwhiteblackcolor)),
-                                            SizedBox(height: 5,),
-                                            Text(reviewSummaryController
-                                                .paymentInfo
-                                                ?.paymentdata![i]
-                                                .subtitle ??
-                                                "", style: TextStyle(fontFamily: FontFamily.gilroyLight, color: notifire.getgreycolor, fontSize: 14),maxLines: 3,overflow: TextOverflow.ellipsis,),
-                                          ],
-                                        ),
-                                      ),
-                                      Radio(
-                                        fillColor:
-                                        WidgetStateColor.resolveWith(
-                                                (states) => notifire.getborderColor),
-                                        activeColor: buttonColor,
-                                        value: i,
-                                        groupValue: _groupValue,
-                                        onChanged: (value) {
-                                          setState(() {});
-                                        },
+                                      Text(
+                                        "My Wallet (${currency}${AppFormater.formatAmount(walletMain)})",
+                                        style: TextStyle(
+                                            color: notifire.getwhiteblackcolor,
+                                            fontSize: 17,
+                                            fontFamily:
+                                                FontFamily.gilroyMedium),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ) : Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8, horizontal: 10),
-                                      child: InkWell(
-                                        onTap: () async {
-                                          setState(() {
-                                            paystackID = reviewSummaryController
-                                                .paymentInfo!
-                                                .paymentdata![i]
-                                                .attributes.toString().split(",").last;
-                                            razorpaykey = "${reviewSummaryController.paymentInfo!.paymentdata![i].attributes}";
-                                            paymenttital =
-                                                reviewSummaryController
-                                                    .paymentInfo!
-                                                    .paymentdata![i]
-                                                    .title;
-                                            selectidPay =
-                                                reviewSummaryController
-                                                    .paymentInfo
-                                                    ?.paymentdata![i]
-                                                    .id ??
-                                                    "";
-                                            _groupValue = i;
-                                          });
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(15),
-                                              border: Border.all(color: selectidPay ==
-                                                  reviewSummaryController
-                                                      .paymentInfo
-                                                      ?.paymentdata![i]
-                                                      .id
-                                                  ? buttonColor
-                                                  : notifire.getborderColor,)
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.all(10),
-                                                child: ClipRRect(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  child: Image.network(Config.imageUrl + "${reviewSummaryController.paymentInfo!.paymentdata![i].img}", height: 75,),
-                                                ),
-                                              ),
-                                              Flexible(
-                                                child: Column(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(reviewSummaryController
-                                                        .paymentInfo
-                                                        ?.paymentdata![i]
-                                                        .title ??
-                                                        "", style: TextStyle(fontSize: 18,fontFamily: FontFamily.gilroyMedium, fontWeight: FontWeight.w600, color: notifire.getwhiteblackcolor)),
-                                                    SizedBox(height: 5,),
-                                                    Text(reviewSummaryController
-                                                        .paymentInfo
-                                                        ?.paymentdata![i]
-                                                        .subtitle ??
-                                                        "", style: TextStyle(fontFamily: FontFamily.gilroyLight, color: notifire.getgreycolor, fontSize: 14),maxLines: 3,overflow: TextOverflow.ellipsis,),
-                                                  ],
-                                                ),
-                                              ),
-                                              Radio(
-                                                fillColor:
-                                                WidgetStateColor.resolveWith(
-                                                        (states) => i == _groupValue
-                                                        ? blueColor
-                                                        : notifire
-                                                        .getborderColor),
-                                                activeColor: buttonColor,
-                                                value: i,
-                                                groupValue: _groupValue,
-                                                onChanged: (value) {
-                                                  setState(() {});
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : SizedBox();
-                            },
-                          )
-                        : Center(
-                            child: CircularProgressIndicator(color: Darkblue,),
-                          );
-                  }),
-                ),
-                Container(
-                  height: 80,
-                  width: Get.size.width,
-                  alignment: Alignment.center,
-                  child: GestButton(
-                    Width: Get.size.width,
-                    height: 50,
-                    buttoncolor: blueColor,
-                    margin: EdgeInsets.only(top: 10, left: 30, right: 30),
-                    buttontext: "Continue".tr,
-                    style: TextStyle(
-                      fontFamily: FontFamily.gilroyBold,
-                      color: WhiteColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onclick: () async {
-                      //!---- Stripe Payment ------
-                      if(totalPayment == 0){
-                        getpackagePurchase("5");
-                        showToastMessage("Payment Successfully");
-                      } else if (paymenttital == "Razorpay") {
-                        Get.back();
-                        openCheckout();
-                      } else if (paymenttital == "Pay TO Owner") {
-                      } else if (paymenttital == "Paypal") {
-                        List<String> keyList = razorpaykey.split(",");
-                        print(keyList.toString());
-                        paypalPayment(
-                          totalPayment.toString(),
-                          keyList[0],
-                          keyList[1],
-                        );
-                      } else if (paymenttital == "Stripe") {
-                        Get.back();
-                        stripePayment();
-                      } else if (paymenttital == "PayStack") {
-                        // String key = razorpaykey.split(",").first;
-                        // await plugin.initialize(publicKey: key);
-                        paystackController.paystack(totalPayment.toString()).then((value) {
-                          print("TOTAL PAYMENT ${paystackController.paystackData!.data!.authorizationUrl}");
-                          Get.to(() => Paystackweb(url: paystackController.paystackData!.data!.authorizationUrl, skID: paystackID,))!.then((otid) {
-                            if (verifyPaystack == 1) {
-                              getpackagePurchase(otid);
-                              // homePageController.getHomeDataApi();
-                              showToastMessage("Payment Successfully");
-                            } else {
-                              Get.back();
-                            }
-                          });
-                        },);
+                                  FlutterSwitch(
+                                    height: 24.0,
+                                    padding: 1.0,
+                                    toggleSize: 18.0,
+                                    borderRadius: 15.0,
+                                    width: 40,
+                                    inactiveToggleColor:
+                                        notifire.getdarkwhitecolor,
+                                    activeColor: blueColor,
+                                    inactiveColor: greyColor2,
+                                    value: walletSwitch,
+                                    onToggle: (bool value) {
+                                      setState(() {
+                                        walletSwitch = value;
+                                        walletMain = double.parse(
+                                            "${walletController.walletInfo!.wallet}");
 
-                      } else if (paymenttital == "FlutterWave") {
-                        Get.to(() => FlutterWave(
-                                  totalAmount: totalPayment.toString(),
-                                  email: getData
-                                      .read("UserLogin")["email"]
-                                      .toString(),
-                                ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            getpackagePurchase(otid);
-                            // homePageController.getHomeDataApi();
-                            subscribeController.price = "";
-                            showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } else if (paymenttital == "Paytm") {
-                        Get.to(() => PayTmPayment(
-                                  totalAmount: totalPayment.toString(),
-                                  uid: getData
-                                      .read("UserLogin")["id"]
-                                      .toString(),
-                                ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            getpackagePurchase(otid);
-                            subscribeController.price = "";
-                            showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } else if (paymenttital == "SenangPay") {
-                        Get.to(() => Senangpay(
-                          email: getData.read("UserLogin")["email"].toString(),
-                          name: getData.read("UserLogin")["name"].toString(),
-                          phone: getData.read("UserLogin")["mobile"].toString(),
-                          totalAmount: totalPayment.toString(),
-                        ))!.then((otid) {
-                          if (otid != null) {
-                            getpackagePurchase(otid);
-                            showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        },);
-                      } else if (paymenttital == "Midtrans") {
-                        Get.to(() => MidTrans(
-                          phonNumber: getData
-                              .read("UserLogin")["mobile"]
-                              .toString(),
-                          totalAmount: totalPayment.toString(),
-                          email: getData
-                              .read("UserLogin")["email"]
-                              .toString(),
-                        ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            getpackagePurchase(otid);
-                            showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } 
-                      else if (paymenttital == "MercadoPago") {
-                        Get.to(() => MercadoPago(
-                          totalAmount: totalPayment.toString(),
-                          email: getData
-                              .read("UserLogin")["email"]
-                              .toString(),
-                        ))!
-                            .then((otid) {
-                          if (otid != null) {
-                             getpackagePurchase(otid);
-                             showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } 
-                      else if (paymenttital == "Khalti Payment") {
-                        Get.to(() => Khalti(
-                          // phonNumber: getData
-                          //     .read("UserLogin")["mobile"]
-                          //     .toString(),
-                          totalAmount: totalPayment.toString(),
-                          email: getData
-                              .read("UserLogin")["email"]
-                              .toString(),
-                        ))!
-                            .then((otid) {
-                          if (otid != null) {
-                             getpackagePurchase(otid);
-                             showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } 
-                      else if (paymenttital == "2checkout") {
-                        Get.to(() => CheckOutPayment(
-                          totalAmount: totalPayment.toString(),
-                          email: getData
-                              .read("UserLogin")["email"]
-                              .toString(),
-                        ))!
-                            .then((otid) {
-                          if (otid != null) {
-                             getpackagePurchase(otid);
-                             showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } 
-                      else if (paymenttital == "Payfast") {
-                        Get.to(() => PayFast(
-                          totalAmount: totalPayment.toString(),
-                          email: getData
-                              .read("UserLogin")["email"]
-                              .toString(),
-                        ))!
-                            .then((otid) {
-                          if (otid != null) {
-                             getpackagePurchase(otid);
-                             showToastMessage("Payment Successfully");
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      }
-                    },
+                                        if (walletSwitch) {
+                                          paymenttital = "Wallet";
+                                          if (totalPayment > walletMain) {
+                                            walletValue = walletMain;
+                                            totalPayment -= walletValue;
+                                            walletMain = 0;
+                                          } else {
+                                            walletValue = totalPayment;
+                                            totalPayment -= totalPayment;
+                                            double good = double.parse(
+                                                "${walletController.walletInfo!.wallet}");
+                                            walletMain = (good - walletValue);
+                                          }
+                                        } else {
+                                          // isOnlyWallet = false;
+                                          walletValue = 0;
+                                          walletMain = double.parse(
+                                              "${walletController.walletInfo!.wallet}");
+                                          totalPayment = double.parse(
+                                              subscribeController.price);
+                                        }
+
+                                        print(
+                                            "WALLLET AMOUNT > > > > > ${walletMain}");
+                                        print(
+                                            "WALLLET Value > > > > > ${walletValue}");
+                                        print(
+                                            "MainAmount AMOUNT > > > > > ${totalPayment}");
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                      SizedBox(
+                        height: Get.height * 0.50,
+                        child: GetBuilder<ReviewSummaryController>(
+                            builder: (context) {
+                          return reviewSummaryController.isLodding
+                              ? ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: reviewSummaryController
+                                      .paymentInfo?.paymentdata!.length,
+                                  itemBuilder: (ctx, i) {
+                                    return reviewSummaryController.paymentInfo
+                                                ?.paymentdata![i].sShow !=
+                                            "0"
+                                        ? totalPayment == 0
+                                            ? Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 8,
+                                                        horizontal: 10),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                      border: Border.all(
+                                                        color: notifire
+                                                            .getborderColor,
+                                                      )),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          child: Image.network(
+                                                            Config.imageUrl +
+                                                                "${reviewSummaryController.paymentInfo!.paymentdata![i].img}",
+                                                            height: 75,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Flexible(
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                                reviewSummaryController
+                                                                        .paymentInfo
+                                                                        ?.paymentdata![
+                                                                            i]
+                                                                        .title ??
+                                                                    "",
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontFamily:
+                                                                        FontFamily
+                                                                            .gilroyMedium,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    color: notifire
+                                                                        .getwhiteblackcolor)),
+                                                            SizedBox(
+                                                              height: 5,
+                                                            ),
+                                                            Text(
+                                                              reviewSummaryController
+                                                                      .paymentInfo
+                                                                      ?.paymentdata![
+                                                                          i]
+                                                                      .subtitle ??
+                                                                  "",
+                                                              style: TextStyle(
+                                                                  fontFamily:
+                                                                      FontFamily
+                                                                          .gilroyLight,
+                                                                  color: notifire
+                                                                      .getgreycolor,
+                                                                  fontSize: 14),
+                                                              maxLines: 3,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Radio(
+                                                        fillColor: WidgetStateColor
+                                                            .resolveWith((states) =>
+                                                                notifire
+                                                                    .getborderColor),
+                                                        activeColor:
+                                                            buttonColor,
+                                                        value: i,
+                                                        groupValue: _groupValue,
+                                                        onChanged: (value) {
+                                                          setState(() {});
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            : Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 8,
+                                                        horizontal: 10),
+                                                child: InkWell(
+                                                  onTap: () async {
+                                                    setState(() {
+                                                      paystackID =
+                                                          reviewSummaryController
+                                                              .paymentInfo!
+                                                              .paymentdata![i]
+                                                              .attributes
+                                                              .toString()
+                                                              .split(",")
+                                                              .last;
+                                                      razorpaykey =
+                                                          "${reviewSummaryController.paymentInfo!.paymentdata![i].attributes}";
+                                                      paymenttital =
+                                                          reviewSummaryController
+                                                              .paymentInfo!
+                                                              .paymentdata![i]
+                                                              .title;
+                                                      selectidPay =
+                                                          reviewSummaryController
+                                                                  .paymentInfo
+                                                                  ?.paymentdata![
+                                                                      i]
+                                                                  .id ??
+                                                              "";
+                                                      _groupValue = i;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        border: Border.all(
+                                                          color: selectidPay ==
+                                                                  reviewSummaryController
+                                                                      .paymentInfo
+                                                                      ?.paymentdata![
+                                                                          i]
+                                                                      .id
+                                                              ? buttonColor
+                                                              : notifire
+                                                                  .getborderColor,
+                                                        )),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(10),
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            child:
+                                                                Image.network(
+                                                              Config.imageUrl +
+                                                                  "${reviewSummaryController.paymentInfo!.paymentdata![i].img}",
+                                                              height: 75,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Flexible(
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                  reviewSummaryController
+                                                                          .paymentInfo
+                                                                          ?.paymentdata![
+                                                                              i]
+                                                                          .title ??
+                                                                      "",
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          18,
+                                                                      fontFamily:
+                                                                          FontFamily
+                                                                              .gilroyMedium,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      color: notifire
+                                                                          .getwhiteblackcolor)),
+                                                              SizedBox(
+                                                                height: 5,
+                                                              ),
+                                                              Text(
+                                                                reviewSummaryController
+                                                                        .paymentInfo
+                                                                        ?.paymentdata![
+                                                                            i]
+                                                                        .subtitle ??
+                                                                    "",
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        FontFamily
+                                                                            .gilroyLight,
+                                                                    color: notifire
+                                                                        .getgreycolor,
+                                                                    fontSize:
+                                                                        14),
+                                                                maxLines: 3,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Radio(
+                                                          fillColor: WidgetStateColor
+                                                              .resolveWith((states) => i ==
+                                                                      _groupValue
+                                                                  ? blueColor
+                                                                  : notifire
+                                                                      .getborderColor),
+                                                          activeColor:
+                                                              buttonColor,
+                                                          value: i,
+                                                          groupValue:
+                                                              _groupValue,
+                                                          onChanged: (value) {
+                                                            setState(() {});
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                        : SizedBox();
+                                  },
+                                )
+                              : Center(
+                                  child: CircularProgressIndicator(
+                                    color: Darkblue,
+                                  ),
+                                );
+                        }),
+                      ),
+                      Container(
+                        height: 80,
+                        width: Get.size.width,
+                        alignment: Alignment.center,
+                        child: GestButton(
+                          Width: Get.size.width,
+                          height: 50,
+                          buttoncolor: blueColor,
+                          margin: EdgeInsets.only(top: 10, left: 30, right: 30),
+                          buttontext: "Continue".tr,
+                          style: TextStyle(
+                            fontFamily: FontFamily.gilroyBold,
+                            color: WhiteColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          onclick: () async {
+                            //!---- Stripe Payment ------
+                            if (totalPayment == 0) {
+                              getpackagePurchase("5");
+                              showToastMessage("Payment Successfully");
+                            } else if (paymenttital == "Razorpay") {
+                              Get.back();
+                              openCheckout();
+                            } else if (paymenttital == "Pay TO Owner") {
+                            } else if (paymenttital == "Paypal") {
+                              List<String> keyList = razorpaykey.split(",");
+                              print(keyList.toString());
+                              paypalPayment(
+                                totalPayment.toString(),
+                                keyList[0],
+                                keyList[1],
+                              );
+                            } else if (paymenttital == "Stripe") {
+                              Get.back();
+                              stripePayment();
+                            } else if (paymenttital == "PayStack") {
+                              // String key = razorpaykey.split(",").first;
+                              // await plugin.initialize(publicKey: key);
+                              paystackController
+                                  .paystack(totalPayment.toString())
+                                  .then(
+                                (value) {
+                                  print(
+                                      "TOTAL PAYMENT ${paystackController.paystackData!.data!.authorizationUrl}");
+                                  Get.to(() => Paystackweb(
+                                            url: paystackController
+                                                .paystackData!
+                                                .data!
+                                                .authorizationUrl,
+                                            skID: paystackID,
+                                          ))!
+                                      .then((otid) {
+                                    if (verifyPaystack == 1) {
+                                      getpackagePurchase(otid);
+                                      // homePageController.getHomeDataApi();
+                                      showToastMessage("Payment Successfully");
+                                    } else {
+                                      Get.back();
+                                    }
+                                  });
+                                },
+                              );
+                            } else if (paymenttital == "FlutterWave") {
+                              Get.to(() => FlutterWave(
+                                        totalAmount: totalPayment.toString(),
+                                        email: getData
+                                            .read("UserLogin")["email"]
+                                            .toString(),
+                                      ))!
+                                  .then((otid) {
+                                if (otid != null) {
+                                  getpackagePurchase(otid);
+                                  // homePageController.getHomeDataApi();
+                                  subscribeController.price = "";
+                                  showToastMessage("Payment Successfully");
+                                } else {
+                                  Get.back();
+                                }
+                              });
+                            } else if (paymenttital == "Paytm") {
+                              Get.to(() => PayTmPayment(
+                                        totalAmount: totalPayment.toString(),
+                                        uid: getData
+                                            .read("UserLogin")["id"]
+                                            .toString(),
+                                      ))!
+                                  .then((otid) {
+                                if (otid != null) {
+                                  getpackagePurchase(otid);
+                                  subscribeController.price = "";
+                                  showToastMessage("Payment Successfully");
+                                } else {
+                                  Get.back();
+                                }
+                              });
+                            } else if (paymenttital == "SenangPay") {
+                              Get.to(() => Senangpay(
+                                        email: getData
+                                            .read("UserLogin")["email"]
+                                            .toString(),
+                                        name: getData
+                                            .read("UserLogin")["name"]
+                                            .toString(),
+                                        phone: getData
+                                            .read("UserLogin")["mobile"]
+                                            .toString(),
+                                        totalAmount: totalPayment.toString(),
+                                      ))!
+                                  .then(
+                                (otid) {
+                                  if (otid != null) {
+                                    getpackagePurchase(otid);
+                                    showToastMessage("Payment Successfully");
+                                  } else {
+                                    Get.back();
+                                  }
+                                },
+                              );
+                            } else if (paymenttital == "Midtrans") {
+                              Get.to(() => MidTrans(
+                                        phonNumber: getData
+                                            .read("UserLogin")["mobile"]
+                                            .toString(),
+                                        totalAmount: totalPayment.toString(),
+                                        email: getData
+                                            .read("UserLogin")["email"]
+                                            .toString(),
+                                      ))!
+                                  .then((otid) {
+                                if (otid != null) {
+                                  getpackagePurchase(otid);
+                                  showToastMessage("Payment Successfully");
+                                } else {
+                                  Get.back();
+                                }
+                              });
+                            } else if (paymenttital == "MercadoPago") {
+                              Get.to(() => MercadoPago(
+                                        totalAmount: totalPayment.toString(),
+                                        email: getData
+                                            .read("UserLogin")["email"]
+                                            .toString(),
+                                      ))!
+                                  .then((otid) {
+                                if (otid != null) {
+                                  getpackagePurchase(otid);
+                                  showToastMessage("Payment Successfully");
+                                } else {
+                                  Get.back();
+                                }
+                              });
+                            } else if (paymenttital == "Khalti Payment") {
+                              Get.to(() => Khalti(
+                                        // phonNumber: getData
+                                        //     .read("UserLogin")["mobile"]
+                                        //     .toString(),
+                                        totalAmount: totalPayment.toString(),
+                                        email: getData
+                                            .read("UserLogin")["email"]
+                                            .toString(),
+                                      ))!
+                                  .then((otid) {
+                                if (otid != null) {
+                                  getpackagePurchase(otid);
+                                  showToastMessage("Payment Successfully");
+                                } else {
+                                  Get.back();
+                                }
+                              });
+                            } else if (paymenttital == "2checkout") {
+                              Get.to(() => CheckOutPayment(
+                                        totalAmount: totalPayment.toString(),
+                                        email: getData
+                                            .read("UserLogin")["email"]
+                                            .toString(),
+                                      ))!
+                                  .then((otid) {
+                                if (otid != null) {
+                                  getpackagePurchase(otid);
+                                  showToastMessage("Payment Successfully");
+                                } else {
+                                  Get.back();
+                                }
+                              });
+                            } else if (paymenttital == "Payfast") {
+                              Get.to(() => PayFast(
+                                        totalAmount: totalPayment.toString(),
+                                        email: getData
+                                            .read("UserLogin")["email"]
+                                            .toString(),
+                                      ))!
+                                  .then((otid) {
+                                if (otid != null) {
+                                  getpackagePurchase(otid);
+                                  showToastMessage("Payment Successfully");
+                                } else {
+                                  Get.back();
+                                }
+                              });
+                            }
+                          },
+                        ),
+                        decoration: BoxDecoration(
+                          color: notifire.getblackwhitecolor,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ])
+            : Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(20),
+                    child: CircularProgressIndicator(
+                      color: Darkblue,
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: notifire.getblackwhitecolor,
-                  ),
-                ),
-              ],
-            );
-          }),
-        ]) : Row(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: CircularProgressIndicator(color: Darkblue,),
-            ),
-          ],
-        );
+                ],
+              );
       },
     );
   }
@@ -966,7 +1168,6 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                   }
                 },
                 "description": "The payment transaction description.",
-
                 "item_list": {
                   "items": [
                     {
@@ -1103,7 +1304,6 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
     showToastMessage(response.walletName!);
   }
 
-
   final _formKey = GlobalKey<FormState>();
   var numberController = TextEditingController();
   final _paymentCard = PaymentCardCreated();
@@ -1164,7 +1364,8 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                               children: [
                                 const SizedBox(height: 16),
                                 TextFormField(
-                                  style: TextStyle(color: notifire.getwhiteblackcolor),
+                                  style: TextStyle(
+                                      color: notifire.getwhiteblackcolor),
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
@@ -1368,7 +1569,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                                       },
                                       color: buttonColor,
                                       child: Text(
-                                        "Pay ${currency}${totalPayment}",
+                                        "Pay ${currency}${AppFormater.formatAmount(totalPayment)}",
                                         style: TextStyle(fontSize: 17.0),
                                       ),
                                     ),
@@ -1407,7 +1608,10 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
       _paymentCard.amount = totalPayment.toString();
       form.save();
 
-      Get.to(() => StripePaymentWeb(url: 'stripe/index.php?name=${_paymentCard.name}&email=${_paymentCard.email}&cardno=${_paymentCard.number}&cvc=${_paymentCard.cvv}&amt=${_paymentCard.amount}&mm=${_paymentCard.month}&yyyy=${_paymentCard.year}'))!.then((otid) {
+      Get.to(() => StripePaymentWeb(
+              url:
+                  'stripe/index.php?name=${_paymentCard.name}&email=${_paymentCard.email}&cardno=${_paymentCard.number}&cvc=${_paymentCard.cvv}&amt=${_paymentCard.amount}&mm=${_paymentCard.month}&yyyy=${_paymentCard.year}'))!
+          .then((otid) {
         Get.back();
         //! order Api call
         if (otid != null) {
@@ -1427,10 +1631,10 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
     return 'ChargedFrom${platform}_$thisDate';
   }
 
-  chargeCard(int amount, String email) async {
-  }
+  chargeCard(int amount, String email) async {}
 
   getpackagePurchase(String? otid) {
-    subscribeController.packagePurchaseApi(otid: otid, pName: paymenttital, walAmt: walletValue.toString());
+    subscribeController.packagePurchaseApi(
+        otid: otid, pName: paymenttital, walAmt: walletValue.toString());
   }
 }

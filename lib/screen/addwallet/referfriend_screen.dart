@@ -11,6 +11,7 @@ import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -99,7 +100,7 @@ class _ReferFriendScreenState extends State<ReferFriendScreen> {
                   height: 20,
                 ),
                 Text(
-                  "Earn ${currency + walletController.refercredit} for Each\n Friend you refer",
+                  "Earn ${currency + AppFormater.formatAmount(double.tryParse(walletController.refercredit) ?? 0)} for Each\n Friend you refer",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,
@@ -152,7 +153,7 @@ class _ReferFriendScreenState extends State<ReferFriendScreen> {
                             width: 15,
                           ),
                           Text(
-                            "Friend get ${currency + walletController.refercredit} on their first complete\ntransaction",
+                            "Friend get ${currency + AppFormater.formatAmount(double.tryParse(walletController.refercredit) ?? 0)} on their first complete\ntransaction",
                             textAlign: TextAlign.start,
                             style: TextStyle(
                               fontFamily: FontFamily.gilroyMedium,
@@ -177,7 +178,7 @@ class _ReferFriendScreenState extends State<ReferFriendScreen> {
                             width: 15,
                           ),
                           Text(
-                            "You get ${currency + walletController.signupcredit} on your wallet ",
+                            "You get ${currency + AppFormater.formatAmount(double.tryParse(walletController.signupcredit) ?? 0)} on your wallet ",
                             textAlign: TextAlign.start,
                             style: TextStyle(
                               fontFamily: FontFamily.gilroyMedium,

@@ -13,6 +13,7 @@ import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -213,7 +214,8 @@ class _MyEarningsScreenState extends State<MyEarningsScreen> {
                                           Row(
                                             children: [
                                               Text(
-                                                "${currency}${int.parse(myEarningController.earningInfo?.statuswise![index].propPrice ?? "") * int.parse(myEarningController.earningInfo?.statuswise![index].totalDay ?? "")}",
+                                                "${currency}${AppFormater.formatAmount((double.tryParse(myEarningController.earningInfo?.statuswise![index].propPrice ?? "0") ?? 0) * (double.tryParse(myEarningController.earningInfo?.statuswise![index].totalDay ?? "0") ?? 0))}",
+                                                // "${currency}${int.parse(myEarningController.earningInfo?.statuswise![index].propPrice ?? "") * int.parse(myEarningController.earningInfo?.statuswise![index].totalDay ?? "")}",
                                                 style: TextStyle(
                                                   fontFamily:
                                                       FontFamily.gilroyBold,

@@ -14,6 +14,7 @@ import 'package:opendoors/screen/payment/Paystackweb.dart';
 import 'package:opendoors/screen/payment/payfast.dart';
 import 'package:opendoors/screen/payment/senangpay.dart';
 import 'package:intl/intl.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -318,7 +319,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    "${currency}${price}",
+                                    "${currency}${AppFormater.formatAmount(price)}",
                                     style: TextStyle(
                                       fontSize: 17,
                                       fontFamily: FontFamily.gilroyBold,
@@ -701,7 +702,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             ),
                             Spacer(),
                             Text(
-                              "${currency}${(price * bookrealEstateController.days.length)}",
+                              "${currency}${(AppFormater.formatAmount(price * bookrealEstateController.days.length))}",
                               style: TextStyle(
                                 fontFamily: FontFamily.gilroyBold,
                                 fontSize: 15,
@@ -731,7 +732,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             ),
                             Spacer(),
                             Text(
-                              "${currency}${tex}",
+                              "${currency}${AppFormater.formatAmount(double.tryParse(tex ?? '0') ?? 0)}",
                               style: TextStyle(
                                 fontFamily: FontFamily.gilroyBold,
                                 fontSize: 15,
@@ -792,7 +793,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    "${currency}${copAmt}",
+                                    "${currency}${AppFormater.formatAmount(double.tryParse(copAmt ?? '0') ?? 0)}",
+                                    // "${currency}${ copAmt}",
                                     style: TextStyle(
                                       fontFamily: FontFamily.gilroyBold,
                                       fontSize: 15,
@@ -825,7 +827,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                               ),
                               Spacer(),
                               Text(
-                                "${currency}${useWallet.toStringAsFixed(2)}",
+                                "${currency}${AppFormater.formatAmount(double.tryParse(useWallet.toStringAsFixed(2)) ?? 0)}",
                                 style: TextStyle(
                                   fontFamily: FontFamily.gilroyBold,
                                   fontSize: 15,
@@ -864,7 +866,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             ),
                             Spacer(),
                             Text(
-                              "${currency}${currentTotalprice}",
+                              "${currency}${AppFormater.formatAmount(double.tryParse(currentTotalprice ?? '0') ?? 0)}",
+                              // "${currency}${currentTotalprice}",
                               style: TextStyle(
                                 fontFamily: FontFamily.gilroyBold,
                                 fontSize: 15,
@@ -1011,7 +1014,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Your Balance $currency${tempWallet.toStringAsFixed(2)}",
+                                  "Your Balance $currency${AppFormater.formatAmount(double.tryParse(tempWallet.toStringAsFixed(2)) ?? 0)}",
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
@@ -2069,7 +2072,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                       },
                                       color: buttonColor,
                                       child: Text(
-                                        "Pay ${currency}${(price * bookrealEstateController.days.length + tex)}",
+                                        "Pay ${currency}${(AppFormater.formatAmount(price * bookrealEstateController.days.length + tex))}",
                                         style: TextStyle(
                                             fontSize: 17.0,
                                             color: WhiteColor,

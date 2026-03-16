@@ -10,6 +10,7 @@ import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -154,13 +155,13 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                     itemBuilder: (context, index) {
                                       return InkWell(
                                         onTap: () async {
-                                          Get.toNamed(
-                                            Routes.viewDataScreen,
-                                            arguments: {
-                                              "id" : searchController.searchData[index].id
-                                            }
-                                          );
-                                          homePageController.chnageObjectIndex(index);
+                                          Get.toNamed(Routes.viewDataScreen,
+                                              arguments: {
+                                                "id": searchController
+                                                    .searchData[index].id
+                                              });
+                                          homePageController
+                                              .chnageObjectIndex(index);
                                         },
                                         child: Container(
                                           height: 140,
@@ -251,32 +252,35 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                                             ),
                                                           ),
                                                         )
-                                                      : Positioned(
-                                                          top: 15,
-                                                          right: 20,
-                                                          child: Container(
-                                                            height: 30,
-                                                            width: 60,
-                                                            alignment: Alignment
-                                                                .center,
-                                                            child: Text(
-                                                              "BUY".tr,
-                                                              style: TextStyle(
-                                                                color:
-                                                                    blueColor,
-                                                              ),
-                                                            ),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Color(
-                                                                  0xFFedeeef),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          15),
-                                                            ),
-                                                          ),
-                                                        ),
+                                                      : SizedBox.shrink(),
+                                                  // REMOVE THE BOOK TAG
+                                                  // Positioned(
+                                                  //     top: 15,
+                                                  //     right: 20,
+                                                  //     child: Container(
+                                                  //       height: 30,
+                                                  //       width: 60,
+                                                  //       alignment: Alignment
+                                                  //           .center,
+                                                  //       child: Text(
+                                                  //         "BOOK".tr,
+                                                  //         // "BUY".tr,
+                                                  //         style: TextStyle(
+                                                  //           color:
+                                                  //               blueColor,
+                                                  //         ),
+                                                  //       ),
+                                                  //       decoration:
+                                                  //           BoxDecoration(
+                                                  //         color: Color(
+                                                  //             0xFFedeeef),
+                                                  //         borderRadius:
+                                                  //             BorderRadius
+                                                  //                 .circular(
+                                                  //                     15),
+                                                  //       ),
+                                                  //     ),
+                                                  //   ),
                                                 ],
                                               ),
                                               SizedBox(
@@ -286,7 +290,8 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
                                                   children: [
                                                     Row(
                                                       children: [
@@ -338,37 +343,39 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                                         ),
                                                       ],
                                                     ),
-                                                    SizedBox(height: 5,),
+                                                    SizedBox(
+                                                      height: 5,
+                                                    ),
                                                     Row(
                                                       children: [
                                                         Text(
-                                                          "${currency}${searchController.searchData[index].price}",
-                                                          style:
-                                                          TextStyle(
+                                                          "$currency${AppFormater.formatAmount(double.tryParse(searchController.searchData[index].price) ?? 0)}",
+
+                                                          // "${currency}${searchController.searchData[index].price}",
+                                                          style: TextStyle(
                                                             fontSize: 17,
                                                             fontFamily:
-                                                            FontFamily
-                                                                .gilroyBold,
-                                                            color:
-                                                            blueColor,
+                                                                FontFamily
+                                                                    .gilroyBold,
+                                                            color: blueColor,
                                                           ),
                                                         ),
                                                         searchController
-                                                            .searchData[
-                                                        index]
-                                                            .buyorrent ==
-                                                            "1"
+                                                                    .searchData[
+                                                                        index]
+                                                                    .buyorrent ==
+                                                                "1"
                                                             ? Text(
-                                                          "/night"
-                                                              .tr,
-                                                          style:
-                                                          TextStyle(
-                                                            color: notifire
-                                                                .getgreycolor,
-                                                            fontFamily:
-                                                            FontFamily.gilroyMedium,
-                                                          ),
-                                                        )
+                                                                "/night".tr,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: notifire
+                                                                      .getgreycolor,
+                                                                  fontFamily:
+                                                                      FontFamily
+                                                                          .gilroyMedium,
+                                                                ),
+                                                              )
                                                             : SizedBox(),
                                                       ],
                                                     ),
@@ -388,7 +395,9 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                   ),
                                 )
                               : Center(
-                                  child: CircularProgressIndicator(color: Darkblue,),
+                                  child: CircularProgressIndicator(
+                                    color: Darkblue,
+                                  ),
                                 )
                           : Padding(
                               padding: const EdgeInsets.symmetric(
@@ -443,12 +452,10 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                   return InkWell(
                     onTap: () async {
                       homePageController.chnageObjectIndex(index);
-                      Get.toNamed(
-                        Routes.viewDataScreen,
-                        arguments: {
-                          "id" : homePageController.homeDatatInfo?.homeData!.featuredProperty![index].id
-                        }
-                      );
+                      Get.toNamed(Routes.viewDataScreen, arguments: {
+                        "id": homePageController.homeDatatInfo?.homeData!
+                            .featuredProperty![index].id
+                      });
                     },
                     child: Container(
                       height: 140,
@@ -477,8 +484,8 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                   borderRadius: BorderRadius.circular(15),
                                 ),
                               ),
-                              homePageController.homeDatatInfo?.homeData
-                                          !.featuredProperty![index].buyorrent ==
+                              homePageController.homeDatatInfo?.homeData!
+                                          .featuredProperty![index].buyorrent ==
                                       "1"
                                   ? Positioned(
                                       top: 15,
@@ -502,8 +509,8 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                             Text(
                                               homePageController
                                                       .homeDatatInfo
-                                                      ?.homeData
-                                                      !.featuredProperty![index]
+                                                      ?.homeData!
+                                                      .featuredProperty![index]
                                                       .rate ??
                                                   "",
                                               style: TextStyle(
@@ -521,26 +528,29 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                         ),
                                       ),
                                     )
-                                  : Positioned(
-                                      top: 15,
-                                      right: 20,
-                                      child: Container(
-                                        height: 30,
-                                        width: 60,
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          "BUY".tr,
-                                          style: TextStyle(
-                                            color: blueColor,
-                                          ),
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFFedeeef),
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                        ),
-                                      ),
-                                    ),
+                                  : SizedBox.shrink(),
+                              // REMOVE THE BOOK TAG
+                              // Positioned(
+                              //     top: 15,
+                              //     right: 20,
+                              //     child: Container(
+                              //       height: 30,
+                              //       width: 60,
+                              //       alignment: Alignment.center,
+                              //       child: Text(
+                              //         "BOOK".tr,
+                              //         // "BUY".tr,
+                              //         style: TextStyle(
+                              //           color: blueColor,
+                              //         ),
+                              //       ),
+                              //       decoration: BoxDecoration(
+                              //         color: Color(0xFFedeeef),
+                              //         borderRadius:
+                              //             BorderRadius.circular(15),
+                              //       ),
+                              //     ),
+                              //   ),
                             ],
                           ),
                           SizedBox(
@@ -558,8 +568,8 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                         child: Text(
                                           homePageController
                                                   .homeDatatInfo
-                                                  ?.homeData
-                                                  !.featuredProperty![index]
+                                                  ?.homeData!
+                                                  .featuredProperty![index]
                                                   .title ??
                                               "",
                                           maxLines: 2,
@@ -574,15 +584,17 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 5,),
+                                SizedBox(
+                                  height: 5,
+                                ),
                                 Row(
                                   children: [
                                     Expanded(
                                       child: Text(
                                         homePageController
                                                 .homeDatatInfo
-                                                ?.homeData
-                                                !.featuredProperty![index]
+                                                ?.homeData!
+                                                .featuredProperty![index]
                                                 .city ??
                                             "",
                                         maxLines: 1,
@@ -602,7 +614,8 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                 Row(
                                   children: [
                                     Text(
-                                      "${currency}${homePageController.homeDatatInfo?.homeData!.featuredProperty![index].price ?? ""}",
+                                      "$currency${AppFormater.formatAmount(double.tryParse(homePageController.homeDatatInfo?.homeData!.featuredProperty![index].price ?? "0") ?? 0)}",
+                                      // "${currency}${homePageController.homeDatatInfo?.homeData!.featuredProperty![index].price ?? ""}",
                                       style: TextStyle(
                                         fontSize: 17,
                                         fontFamily: FontFamily.gilroyBold,
@@ -610,19 +623,19 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                       ),
                                     ),
                                     homePageController
-                                        .homeDatatInfo
-                                        ?.homeData
-                                    !.featuredProperty![index]
-                                        .buyorrent ==
-                                        "1"
+                                                .homeDatatInfo
+                                                ?.homeData!
+                                                .featuredProperty![index]
+                                                .buyorrent ==
+                                            "1"
                                         ? Text(
-                                      "/night".tr,
-                                      style: TextStyle(
-                                        color: notifire.getgreycolor,
-                                        fontFamily:
-                                        FontFamily.gilroyMedium,
-                                      ),
-                                    )
+                                            "/night".tr,
+                                            style: TextStyle(
+                                              color: notifire.getgreycolor,
+                                              fontFamily:
+                                                  FontFamily.gilroyMedium,
+                                            ),
+                                          )
                                         : Text(""),
                                   ],
                                 ),
@@ -640,9 +653,9 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                 },
               )
             : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                     child: Column(
@@ -672,8 +685,8 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                       ],
                     ),
                   ),
-              ],
-            ),
+                ],
+              ),
       );
     });
   }

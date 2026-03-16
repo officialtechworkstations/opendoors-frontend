@@ -24,6 +24,7 @@ class SignUpController extends GetxController implements GetxService {
 
   bool showPassword = true;
   bool chack = false;
+  bool newsletter = false;
   int currentIndex = 0;
 
   String userMessage = "";
@@ -37,6 +38,11 @@ class SignUpController extends GetxController implements GetxService {
 
   checkTermsAndCondition(bool? newbool) {
     chack = newbool ?? false;
+    update();
+  }
+
+  newsLetterCheck(bool? newbool) {
+    newsletter = newbool ?? false;
     update();
   }
 
@@ -256,7 +262,8 @@ class SignUpController extends GetxController implements GetxService {
       "email": email.text,
       "mobile": number.text,
       "ccode": cuntryCode,
-      "password": password.text
+      "password": password.text,
+      "accept_newsletter": newsletter ? "1" : "0",
     };
     log('-----------------------------------');
     // log(map.toString());

@@ -17,8 +17,8 @@ class AuthService extends ChangeNotifier {
     try {
       final user = FirebaseAuth.instance.currentUser;
       await FirebaseMessaging.instance.getToken().then((token) {
-        print("TOKEN  NO $token");
-        log("TOKEN  NO $token");
+        print("TOKEN  NO $token====================");
+        log("TOKEN  NO $token=====================");
         _firestore.collection("opendoors_users").doc(uid).set({
           "uid": uid,
           "name": email,

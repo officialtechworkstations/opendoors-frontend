@@ -240,9 +240,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                 ),
-                SizedBox(
-                  height: 20,
-                ),
+                // SizedBox(
+                //   height: 20,
+                // ),
                 GetBuilder<LoginController>(builder: (context) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),

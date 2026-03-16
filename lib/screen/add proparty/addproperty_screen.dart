@@ -1131,40 +1131,45 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                                     if (addPropertiesController
                                                         .selectedIndexes
                                                         .isNotEmpty) {
+                                                      // ===remove location validation (it can be null now)===
+                                                      // if (addPropertiesController
+                                                      //             .lat !=
+                                                      //         null &&
+                                                      //     addPropertiesController
+                                                      //             .long !=
+                                                      //         null) {
+                                                      // ===remove location validation (it can be null now)===
                                                       if (addPropertiesController
-                                                                  .lat !=
-                                                              null &&
+                                                                  .path !=
+                                                              null ||
                                                           addPropertiesController
-                                                                  .long !=
-                                                              null) {
-                                                        if (addPropertiesController
-                                                                    .path !=
-                                                                null ||
-                                                            addPropertiesController
-                                                                    .pImage !=
-                                                                "") {
-                                                          if (manegeRoute ==
-                                                              "Add") {
-                                                            addPropertiesController
-                                                                .addPropertyApi();
-                                                          } else if (manegeRoute ==
-                                                              "edit") {
-                                                            log('in here');
-                                                            // addPropertiesController
-                                                            // .testLoading();
-                                                            addPropertiesController
-                                                                .editPropertyApi();
-                                                          }
-                                                        } else {
-                                                          showToastMessage(
-                                                              "Please Upload Image"
-                                                                  .tr);
+                                                                  .pImage !=
+                                                              "") {
+                                                        if (manegeRoute ==
+                                                            "Add") {
+                                                          addPropertiesController
+                                                              .addPropertyApi();
+                                                        } else if (manegeRoute ==
+                                                            "edit") {
+                                                          // log('in here');
+                                                          // addPropertiesController
+                                                          // .testLoading();
+                                                          addPropertiesController
+                                                              .editPropertyApi();
                                                         }
                                                       } else {
                                                         showToastMessage(
-                                                            "Please Add Your Property Location"
+                                                            "Please Upload Image"
                                                                 .tr);
                                                       }
+                                                      // ===remove location validation (it can be null now)===
+                                                      // }
+                                                      //  else {
+                                                      //   showToastMessage(
+                                                      //       "Please Add Your Property Location"
+                                                      //           .tr);
+                                                      // }
+                                                      // ===remove location validation (it can be null now)===
                                                     } else {
                                                       showToastMessage(
                                                           "Please Select Property Facility"
