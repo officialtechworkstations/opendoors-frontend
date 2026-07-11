@@ -93,7 +93,7 @@ class _SpleshScreenState extends State<SpleshScreen> {
         () => prefs.getBool('Firstuser') != true
             ? Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => OnBordingScreen()))
-            : prefs.getBool('Remember') != true
+            : getData.read("UserLogin") == null
                 ? Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => LoginScreen()))
                 : getData.read("userType") == "admin"

@@ -1,13 +1,13 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, must_be_immutable, prefer_const_literals_to_create_immutables, sort_child_properties_last
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:opendoors/controller/login_controller.dart';
 import 'package:opendoors/controller/signup_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/screen/login_screen.dart';
+import 'package:opendoors/screen/widgets/social_auth_section.dart';
 import 'package:opendoors/screen/webview_page.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Api/config.dart';
 import '../Api/data_store.dart';
+import '../controller/dashboard_controller.dart';
 import '../controller/homepage_controller.dart';
 import '../controller/search_controller.dart';
 import '../controller/selectcountry_controller.dart';
@@ -38,9 +39,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   SignUpController signUpController = Get.find();
+  LoginController loginController = Get.find();
   SelectCountryController selectCountryController = Get.find();
   HomePageController homePageController = Get.find();
   SearchPropertyController searchController = Get.find();
+  DashBoardController dashBoardController = Get.find();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -77,6 +80,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool isvalidate = false;
 
   bool isLoading = false;
+  String? socialLoadingProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -104,263 +108,56 @@ class _SignUpScreenState extends State<SignUpScreen> {
           SafeArea(
             child: SingleChildScrollView(
               child: SizedBox(
-                height: Get.size.height,
-                width: Get.size.width,
+                // height: Get.size.height,
+                // width: Get.size.width,
                 child: Form(
                   key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15),
-                        child: GestureDetector(
-                          onTap: () {
-                            // setState(() {
-                            //   isLoading = false;
-                            // });
-                          },
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15),
+                          child: GestureDetector(
+                            onTap: () {
+                              // setState(() {
+                              //   isLoading = false;
+                              // });
+                            },
+                            child: Text(
+                              "Get Started!".tr,
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontFamily: FontFamily.gilroyBold,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15),
                           child: Text(
-                            "Get Started!".tr,
+                            "Create an account to continue.".tr,
                             style: TextStyle(
-                              fontSize: 25,
-                              fontFamily: FontFamily.gilroyBold,
+                              fontFamily: FontFamily.gilroyMedium,
                               color: notifire.getwhiteblackcolor,
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15),
-                        child: Text(
-                          "Create an account to continue.".tr,
-                          style: TextStyle(
-                            fontFamily: FontFamily.gilroyMedium,
-                            color: notifire.getwhiteblackcolor,
-                          ),
+                        SizedBox(
+                          height: 20,
                         ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: TextFormField(
-                          controller: signUpController.name,
-                          cursorColor: notifire.getwhiteblackcolor,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          style: TextStyle(
-                            fontFamily: FontFamily.gilroyBold,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: notifire.getwhiteblackcolor,
-                          ),
-                          decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: blueColor),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: notifire.getborderColor,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: notifire.getborderColor),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Image.asset(
-                                "assets/images/user.png",
-                                height: 10,
-                                width: 10,
-                                color: notifire.getgreycolor,
-                              ),
-                            ),
-                            labelText: "Full Name".tr,
-                            labelStyle: TextStyle(
-                              color: notifire.getgreycolor,
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your name'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: TextFormField(
-                          controller: signUpController.email,
-                          cursorColor: notifire.getwhiteblackcolor,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          style: TextStyle(
-                            fontFamily: FontFamily.gilroyBold,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: notifire.getwhiteblackcolor,
-                          ),
-                          decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: blueColor),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide:
-                                  BorderSide(color: notifire.getborderColor),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: notifire.getborderColor,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Image.asset(
-                                "assets/images/email.png",
-                                height: 10,
-                                width: 10,
-                                color: notifire.getgreycolor,
-                              ),
-                            ),
-                            labelText: "Email Address".tr,
-                            labelStyle: TextStyle(
-                              color: notifire.getgreycolor,
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email'.tr;
-                            }
-                            if (!RegExp(
-                                    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                                .hasMatch(value.trim())) {
-                              return 'Please enter a valid email address';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: IntlPhoneField(
-                          disableLengthCheck: false,
 
-                          keyboardType: TextInputType.number,
-                          cursorColor: notifire.getwhiteblackcolor,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          controller: signUpController.number,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          initialCountryCode: "NG", //"IN",
-
-                          dropdownIcon: Icon(
-                            Icons.arrow_drop_down,
-                            color: notifire.getgreycolor,
-                          ),
-
-                          dropdownTextStyle: TextStyle(
-                            color: notifire.getgreycolor,
-                          ),
-                          style: TextStyle(
-                            fontFamily: FontFamily.gilroyBold,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: notifire.getwhiteblackcolor,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              if (signUpController.number.text.isNotEmpty) {
-                                isvalidate = false;
-                              } else {
-                                isvalidate = true;
-                              }
-                            });
-                            cuntryCode = value.countryCode;
-                          },
-                          onCountryChanged: (value) {
-                            signUpController.number.text = '';
-                          },
-
-                          invalidNumberMessage:
-                              'Please enter a valid phone number'.tr,
-                          decoration: InputDecoration(
-                            counterText: '',
-                            helperText: '',
-                            labelText: "Mobile Number".tr,
-                            labelStyle: TextStyle(
-                              color: notifire.getgreycolor,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: isvalidate
-                                    ? Colors.red.shade700
-                                    : blueColor,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: isvalidate
-                                    ? Colors.red.shade700
-                                    : notifire.getborderColor,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: isvalidate
-                                    ? Colors.red.shade700
-                                    : notifire.getborderColor,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-
-                          validator: (p0) {
-                            if (p0 == null || p0.completeNumber.isEmpty) {
-                              return 'Please enter your number'.tr;
-                            }
-                            if (!p0.isValidNumber()) {
-                              return 'Please enter a valid phone number'.tr;
-                            }
-                            if (p0.countryCode == 'NG' &&
-                                (p0.number.length < 10 ||
-                                    p0.number.length > 11)) {
-                              return 'Please enter a valid phone number'.tr;
-                            } else {}
-                            return null;
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      GetBuilder<SignUpController>(builder: (context) {
-                        return Padding(
+                        Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: TextFormField(
-                            controller: signUpController.password,
-                            obscureText: signUpController.showPassword,
+                            controller: signUpController.name,
                             cursorColor: notifire.getwhiteblackcolor,
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
@@ -370,7 +167,301 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               fontWeight: FontWeight.w600,
                               color: notifire.getwhiteblackcolor,
                             ),
-                            onChanged: (value) {},
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide(color: blueColor),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: notifire.getborderColor,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: notifire.getborderColor),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Image.asset(
+                                  "assets/images/user.png",
+                                  height: 10,
+                                  width: 10,
+                                  color: notifire.getgreycolor,
+                                ),
+                              ),
+                              labelText: "Full Name".tr,
+                              labelStyle: TextStyle(
+                                color: notifire.getgreycolor,
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your name'.tr;
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: TextFormField(
+                            controller: signUpController.email,
+                            cursorColor: notifire.getwhiteblackcolor,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            style: TextStyle(
+                              fontFamily: FontFamily.gilroyBold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: notifire.getwhiteblackcolor,
+                            ),
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide(color: blueColor),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide:
+                                    BorderSide(color: notifire.getborderColor),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: notifire.getborderColor,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Image.asset(
+                                  "assets/images/email.png",
+                                  height: 10,
+                                  width: 10,
+                                  color: notifire.getgreycolor,
+                                ),
+                              ),
+                              labelText: "Email Address".tr,
+                              labelStyle: TextStyle(
+                                color: notifire.getgreycolor,
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email'.tr;
+                              }
+                              if (!RegExp(
+                                      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                                  .hasMatch(value.trim())) {
+                                return 'Please enter a valid email address';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: IntlPhoneField(
+                            disableLengthCheck: false,
+
+                            keyboardType: TextInputType.number,
+                            cursorColor: notifire.getwhiteblackcolor,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            controller: signUpController.number,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            initialCountryCode: "NG", //"IN",
+
+                            dropdownIcon: Icon(
+                              Icons.arrow_drop_down,
+                              color: notifire.getgreycolor,
+                            ),
+
+                            dropdownTextStyle: TextStyle(
+                              color: notifire.getgreycolor,
+                            ),
+                            style: TextStyle(
+                              fontFamily: FontFamily.gilroyBold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: notifire.getwhiteblackcolor,
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                if (signUpController.number.text.isNotEmpty) {
+                                  isvalidate = false;
+                                } else {
+                                  isvalidate = true;
+                                }
+                              });
+                              cuntryCode = value.countryCode;
+                            },
+                            onCountryChanged: (value) {
+                              signUpController.number.text = '';
+                            },
+
+                            invalidNumberMessage:
+                                'Please enter a valid phone number'.tr,
+                            decoration: InputDecoration(
+                              counterText: '',
+                              helperText: '',
+                              labelText: "Mobile Number".tr,
+                              labelStyle: TextStyle(
+                                color: notifire.getgreycolor,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide(
+                                  color: isvalidate
+                                      ? Colors.red.shade700
+                                      : blueColor,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: isvalidate
+                                      ? Colors.red.shade700
+                                      : notifire.getborderColor,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: isvalidate
+                                      ? Colors.red.shade700
+                                      : notifire.getborderColor,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                            ),
+
+                            validator: (p0) {
+                              if (p0 == null || p0.completeNumber.isEmpty) {
+                                return 'Please enter your number'.tr;
+                              }
+                              if (!p0.isValidNumber()) {
+                                return 'Please enter a valid phone number'.tr;
+                              }
+                              if (p0.countryCode == 'NG' &&
+                                  (p0.number.length < 10 ||
+                                      p0.number.length > 11)) {
+                                return 'Please enter a valid phone number'.tr;
+                              } else {}
+                              return null;
+                            },
+                          ),
+                        ),
+                        // SizedBox(
+                        //   height: 20,
+                        // ),
+                        GetBuilder<SignUpController>(builder: (context) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: TextFormField(
+                              controller: signUpController.password,
+                              obscureText: signUpController.showPassword,
+                              cursorColor: notifire.getwhiteblackcolor,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                              onChanged: (value) {},
+                              decoration: InputDecoration(
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: BorderSide(
+                                    color: blueColor,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: notifire.getborderColor,
+                                  ),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: BorderSide(
+                                    color: notifire.getborderColor,
+                                  ),
+                                ),
+                                suffixIcon: InkWell(
+                                  onTap: () {
+                                    signUpController.showOfPassword();
+                                  },
+                                  child: !signUpController.showPassword
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Image.asset(
+                                            "assets/images/showpassowrd.png",
+                                            height: 10,
+                                            width: 10,
+                                            color: notifire.getgreycolor,
+                                          ),
+                                        )
+                                      : Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Image.asset(
+                                            "assets/images/HidePassword.png",
+                                            height: 10,
+                                            width: 10,
+                                            color: notifire.getgreycolor,
+                                          ),
+                                        ),
+                                ),
+                                prefixIcon: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    "assets/images/Unlock.png",
+                                    height: 10,
+                                    width: 10,
+                                    color: notifire.getgreycolor,
+                                  ),
+                                ),
+                                labelText: "Password".tr,
+                                labelStyle: TextStyle(
+                                  color: notifire.getgreycolor,
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your password'.tr;
+                                }
+                                return null;
+                              },
+                            ),
+                          );
+                        }),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: TextFormField(
+                            controller: signUpController.referralCode,
+                            cursorColor: notifire.getwhiteblackcolor,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            style: TextStyle(
+                              fontFamily: FontFamily.gilroyBold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: notifire.getwhiteblackcolor,
+                            ),
                             decoration: InputDecoration(
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
@@ -390,479 +481,506 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   color: notifire.getborderColor,
                                 ),
                               ),
-                              suffixIcon: InkWell(
-                                onTap: () {
-                                  signUpController.showOfPassword();
-                                },
-                                child: !signUpController.showPassword
-                                    ? Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Image.asset(
-                                          "assets/images/showpassowrd.png",
-                                          height: 10,
-                                          width: 10,
-                                          color: notifire.getgreycolor,
-                                        ),
-                                      )
-                                    : Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Image.asset(
-                                          "assets/images/HidePassword.png",
-                                          height: 10,
-                                          width: 10,
-                                          color: notifire.getgreycolor,
-                                        ),
-                                      ),
-                              ),
-                              prefixIcon: Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Image.asset(
-                                  "assets/images/Unlock.png",
-                                  height: 10,
-                                  width: 10,
-                                  color: notifire.getgreycolor,
-                                ),
-                              ),
-                              labelText: "Password".tr,
+                              labelText: "Referral code (optional)".tr,
                               labelStyle: TextStyle(
                                 color: notifire.getgreycolor,
                               ),
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password'.tr;
-                              }
-                              return null;
-                            },
-                          ),
-                        );
-                      }),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: TextFormField(
-                          controller: signUpController.referralCode,
-                          cursorColor: notifire.getwhiteblackcolor,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          style: TextStyle(
-                            fontFamily: FontFamily.gilroyBold,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: notifire.getwhiteblackcolor,
-                          ),
-                          decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: blueColor,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: notifire.getborderColor,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: notifire.getborderColor,
-                              ),
-                            ),
-                            labelText: "Referral code (optional)".tr,
-                            labelStyle: TextStyle(
-                              color: notifire.getgreycolor,
-                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      GetBuilder<SignUpController>(builder: (ctx) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Transform.scale(
-                                  scale: 1,
-                                  child: Checkbox(
-                                    value: signUpController.chack,
-                                    side: const BorderSide(
-                                        color: Color(0xffC5CAD4)),
-                                    activeColor: blueColor,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    onChanged: (newbool) async {
-                                      signUpController
-                                          .checkTermsAndCondition(newbool);
-                                      final prefs =
-                                          await SharedPreferences.getInstance();
-                                      await prefs.setBool('Remember', true);
-                                    },
+                        SizedBox(
+                          height: 10,
+                        ),
+                        GetBuilder<SignUpController>(builder: (ctx) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: 10,
                                   ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => WebviewPage(
-                                                url:
-                                                    "https://opendoors-tc.netlify.app/")));
-                                  },
-                                  child: Column(
+                                  Transform.scale(
+                                    scale: 1,
+                                    child: Checkbox(
+                                      value: signUpController.chack,
+                                      side: const BorderSide(
+                                          color: Color(0xffC5CAD4)),
+                                      activeColor: blueColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
+                                      onChanged: (newbool) async {
+                                        signUpController
+                                            .checkTermsAndCondition(newbool);
+                                        final prefs = await SharedPreferences
+                                            .getInstance();
+                                        await prefs.setBool('Remember', true);
+                                      },
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "By creating an account,you agree to our"
+                                                .tr,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: notifire.getgreycolor,
+                                              fontFamily:
+                                                  FontFamily.gilroyMedium,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              WebviewPage(
+                                                                  url:
+                                                                      "https://opendoors-tc.netlify.app/")));
+                                                },
+                                                child: Text(
+                                                  "Terms and Condition".tr,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: blueColor,
+                                                    fontFamily:
+                                                        FontFamily.gilroyBold,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                ' & ',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontFamily:
+                                                      FontFamily.gilroyBold,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              WebviewPage(
+                                                                  url:
+                                                                      "https://superb-meerkat-f0d4da.netlify.app/")));
+                                                },
+                                                child: Text(
+                                                  "Our Privacy Policy".tr,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: blueColor,
+                                                    fontFamily:
+                                                        FontFamily.gilroyBold,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              // SizedBox(
+                              //   height: 5,
+                              // ),
+                              // Row(
+                              //   mainAxisAlignment: MainAxisAlignment.start,
+                              //   children: [
+                              //     SizedBox(
+                              //       width: 10,
+                              //     ),
+                              //     Transform.scale(
+                              //       scale: 1,
+                              //       child: Checkbox(
+                              //         value: signUpController.chack,
+                              //         side: const BorderSide(
+                              //             color: Color(0xffC5CAD4)),
+                              //         activeColor: blueColor,
+                              //         shape: RoundedRectangleBorder(
+                              //             borderRadius:
+                              //                 BorderRadius.circular(5)),
+                              //         onChanged: (newbool) async {
+                              //           signUpController
+                              //               .checkTermsAndCondition(newbool);
+                              //           final prefs = await SharedPreferences
+                              //               .getInstance();
+                              //           await prefs.setBool('Remember', true);
+                              //         },
+                              //       ),
+                              //     ),
+                              //     GestureDetector(
+                              //       onTap: () {
+                              //         Navigator.push(
+                              //             context,
+                              //             MaterialPageRoute(
+                              //                 builder: (context) => WebviewPage(
+                              //                     url:
+                              //                         "https://superb-meerkat-f0d4da.netlify.app/")));
+                              //       },
+                              //       child: Column(
+                              //         crossAxisAlignment:
+                              //             CrossAxisAlignment.start,
+                              //         children: [
+                              //           Text(
+                              //             "Our Privacy Policy".tr,
+                              //             style: TextStyle(
+                              //               fontSize: 12,
+                              //               color: blueColor,
+                              //               fontFamily: FontFamily.gilroyBold,
+                              //               overflow: TextOverflow.ellipsis,
+                              //             ),
+                              //           )
+                              //         ],
+                              //       ),
+                              //     ),
+                              //   ],
+                              // ),
+                              // SizedBox(
+                              //   height: 5,
+                              // ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Transform.scale(
+                                    scale: 1,
+                                    child: Checkbox(
+                                      value: signUpController.newsletter,
+                                      side: const BorderSide(
+                                          color: Color(0xffC5CAD4)),
+                                      activeColor: blueColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
+                                      onChanged: (newbool) async {
+                                        signUpController
+                                            .newsLetterCheck(newbool);
+                                      },
+                                    ),
+                                  ),
+                                  Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "By creating an account,you agree to our"
-                                            .tr,
+                                        "Subscribe to Our Newsletter".tr,
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: notifire.getgreycolor,
-                                          fontFamily: FontFamily.gilroyMedium,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Terms and Condition".tr,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: blueColor,
+                                          color:
+                                              (notifire.getblackblue as Color)
+                                                  .withOpacity(0.6),
                                           fontFamily: FontFamily.gilroyBold,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       )
                                     ],
                                   ),
+                                ],
+                              ),
+                            ],
+                          );
+                        }),
+                        GestButton(
+                          Width: Get.size.width,
+                          height: 50,
+                          buttoncolor: blueColor,
+                          margin: EdgeInsets.only(top: 15, left: 30, right: 30),
+                          buttontext: "Continue".tr,
+                          style: TextStyle(
+                            fontFamily: FontFamily.gilroyBold,
+                            color: WhiteColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          onclick: () {
+                            setState(() {
+                              if (signUpController.number.text.isNotEmpty) {
+                                isvalidate = false;
+                              } else {
+                                isvalidate = true;
+                              }
+                            });
+                            if ((_formKey.currentState?.validate() ?? false) &&
+                                (signUpController.chack == true)) {
+                              if (signUpController.number.text.isEmpty) {
+                                return showToastMessage(
+                                    "Please enter valid phone number".tr);
+                              }
+                              setState(() {
+                                isLoading = true;
+                              });
+
+                              signUpController.smstype().then((msgtype) {
+                                signUpController
+                                    .checkMobileNumber(cuntryCode)
+                                    .then((value) {
+                                  if (value == "true") {
+                                    // print(
+                                    //     '=======================signup======================');
+                                    // print('here now');
+                                    // print(
+                                    //     '=======================signup======================');
+
+                                    // print(
+                                    //     '=======================otp with email======================');
+                                    // signUpController
+                                    //     .emailOtp(
+                                    //         signUpController.email.text.trim())
+                                    //     .then((res) {
+                                    //   if (res["Result"] == "true") {
+                                    //     Get.toNamed(Routes.otpScreen, arguments: {
+                                    //       "number": signUpController.number.text,
+                                    //       "cuntryCode": cuntryCode,
+                                    //       "route": "signUpScreen",
+                                    //       "email":
+                                    //           signUpController.email.text.trim(),
+                                    //       "otpCode": res["otp"]
+                                    //     });
+                                    //     setState(() {
+                                    //       isLoading = false;
+                                    //     });
+                                    //   } else {
+                                    //     setState(() {
+                                    //       isLoading = false;
+                                    //     });
+                                    //     showToastMessage(
+                                    //         'Invalid Mobile Number'.tr);
+                                    //   }
+                                    // });
+                                    // print('=============otp with email============');
+
+                                    // print('=============otp with sms============');
+                                    if (msgtype["otp_auth"] == "No") {
+                                      signUpController
+                                          .setUserApiData(cuntryCode)
+                                          .then(
+                                        (value) {
+                                          if (value["Result"] == "true") {
+                                            setState(() {
+                                              save(
+                                                  "countryId",
+                                                  selectCountryController
+                                                          .countryInfo
+                                                          ?.countryData![
+                                                              countrySelected]
+                                                          .id ??
+                                                      "");
+                                              save(
+                                                  "countryName",
+                                                  selectCountryController
+                                                          .countryInfo
+                                                          ?.countryData![
+                                                              countrySelected]
+                                                          .title ??
+                                                      "");
+                                            });
+                                            selectCountryController
+                                                .changeCountryIndex(
+                                                    countrySelected);
+                                            homePageController.getHomeDataApi(
+                                                countryId:
+                                                    getData.read("countryId"));
+                                            homePageController.getCatWiseData(
+                                                countryId:
+                                                    getData.read("countryId"),
+                                                cId: "0");
+                                            searchController.getSearchData(
+                                                countryId:
+                                                    getData.read("countryId"));
+                                            Get.offAndToNamed(
+                                                Routes.bottoBarScreen);
+                                            initPlatformState();
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          } else {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                            showToastMessage(
+                                                value["ResponseMsg"]);
+                                          }
+                                        },
+                                      );
+                                    } else {
+                                      if (msgtype["SMS_TYPE"] == "Msg91") {
+                                        signUpController
+                                            .sendOtp(cuntryCode,
+                                                signUpController.number.text)
+                                            .then((value) {
+                                          if (value["Result"] == "true") {
+                                            Get.toNamed(Routes.otpScreen,
+                                                arguments: {
+                                                  "number": signUpController
+                                                      .number.text,
+                                                  "cuntryCode": cuntryCode,
+                                                  "route": "signUpScreen",
+                                                  "otpCode":
+                                                      value["otp"].toString(),
+                                                });
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          } else {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                            showToastMessage(
+                                                'Invalid Mobile Number'.tr);
+                                          }
+                                        });
+                                      } else if (msgtype["SMS_TYPE"] ==
+                                          "Twilio") {
+                                        signUpController
+                                            .twilloOtp(cuntryCode,
+                                                signUpController.number.text)
+                                            .then((value) {
+                                          if (value == null) {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          }
+                                          if (value["Result"] == "true") {
+                                            Get.toNamed(Routes.otpScreen,
+                                                arguments: {
+                                                  "number": signUpController
+                                                      .number.text,
+                                                  "cuntryCode": cuntryCode,
+                                                  "route": "signUpScreen",
+                                                  "otpCode": value["otp"]
+                                                });
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          } else {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                            showToastMessage(
+                                                'Invalid Mobile Number'.tr);
+                                          }
+                                        });
+                                      } else if (msgtype["SMS_TYPE"] ==
+                                          "Termii") {
+                                        signUpController
+                                            .termiOtp(cuntryCode,
+                                                signUpController.number.text)
+                                            .then((value) {
+                                          if (value == null) {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                            return;
+                                          }
+
+                                          if (value?["Result"] == "true") {
+                                            Get.toNamed(Routes.otpScreen,
+                                                arguments: {
+                                                  "number": signUpController
+                                                      .number.text,
+                                                  "cuntryCode": cuntryCode,
+                                                  "route": "signUpScreen",
+                                                  "otpCode": value["otp"]
+                                                });
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          } else {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                            showToastMessage(
+                                                'Invalid Mobile Number'.tr);
+                                          }
+                                        });
+                                      }
+                                    }
+                                    // print('=============otp with sms============');
+                                  } else {
+                                    showToastMessage(
+                                        signUpController.userMessage);
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                  }
+                                });
+                              });
+                            } else {
+                              if (signUpController.chack == false) {
+                                showToastMessage(
+                                    "Please select Terms and Condition".tr);
+                              }
+                            }
+                          },
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+
+                        // =========
+                        SocialAuthSection(
+                          notifire: notifire,
+                          loadingProvider: socialLoadingProvider,
+                          onGoogleTap: () => _startSocialSignup("google"),
+                          onAppleTap: () => _startSocialSignup("apple"),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        // =========
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 45),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Already have an account?".tr,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.gilroyMedium,
+                                  color: notifire.getgreycolor,
                                 ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Transform.scale(
-                                  scale: 1,
-                                  child: Checkbox(
-                                    value: signUpController.newsletter,
-                                    side: const BorderSide(
-                                        color: Color(0xffC5CAD4)),
-                                    activeColor: blueColor,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    onChanged: (newbool) async {
-                                      signUpController.newsLetterCheck(newbool);
-                                    },
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  Get.to(LoginScreen());
+                                },
+                                child: Text(
+                                  "Login".tr,
+                                  style: TextStyle(
+                                    color: blueColor,
+                                    fontFamily: FontFamily.gilroyBold,
                                   ),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Text(
-                                    //   "By creating an account,you agree to our"
-                                    //       .tr,
-                                    //   style: TextStyle(
-                                    //     fontSize: 12,
-                                    //     color: notifire.getgreycolor,
-                                    //     fontFamily: FontFamily.gilroyMedium,
-                                    //     overflow: TextOverflow.ellipsis,
-                                    //   ),
-                                    // ),
-                                    Text(
-                                      "Subscribe to Our Newsletter".tr,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: (notifire.getblackblue as Color)
-                                            .withOpacity(0.6),
-                                        fontFamily: FontFamily.gilroyBold,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                      }),
-                      GestButton(
-                        Width: Get.size.width,
-                        height: 50,
-                        buttoncolor: blueColor,
-                        margin: EdgeInsets.only(top: 15, left: 30, right: 30),
-                        buttontext: "Continue".tr,
-                        style: TextStyle(
-                          fontFamily: FontFamily.gilroyBold,
-                          color: WhiteColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        onclick: () {
-                          setState(() {
-                            if (signUpController.number.text.isNotEmpty) {
-                              isvalidate = false;
-                            } else {
-                              isvalidate = true;
-                            }
-                          });
-                          if ((_formKey.currentState?.validate() ?? false) &&
-                              (signUpController.chack == true)) {
-                            if (signUpController.number.text.isEmpty) {
-                              return showToastMessage(
-                                  "Please enter valid phone number".tr);
-                            }
-                            setState(() {
-                              isLoading = true;
-                            });
-
-                            signUpController.smstype().then((msgtype) {
-                              signUpController
-                                  .checkMobileNumber(cuntryCode)
-                                  .then((value) {
-                                if (value == "true") {
-                                  // print(
-                                  //     '=======================signup======================');
-                                  // print('here now');
-                                  // print(
-                                  //     '=======================signup======================');
-
-                                  // print(
-                                  //     '=======================otp with email======================');
-                                  // signUpController
-                                  //     .emailOtp(
-                                  //         signUpController.email.text.trim())
-                                  //     .then((res) {
-                                  //   if (res["Result"] == "true") {
-                                  //     Get.toNamed(Routes.otpScreen, arguments: {
-                                  //       "number": signUpController.number.text,
-                                  //       "cuntryCode": cuntryCode,
-                                  //       "route": "signUpScreen",
-                                  //       "email":
-                                  //           signUpController.email.text.trim(),
-                                  //       "otpCode": res["otp"]
-                                  //     });
-                                  //     setState(() {
-                                  //       isLoading = false;
-                                  //     });
-                                  //   } else {
-                                  //     setState(() {
-                                  //       isLoading = false;
-                                  //     });
-                                  //     showToastMessage(
-                                  //         'Invalid Mobile Number'.tr);
-                                  //   }
-                                  // });
-                                  // print('=============otp with email============');
-
-                                  // print('=============otp with sms============');
-                                  if (msgtype["otp_auth"] == "No") {
-                                    signUpController
-                                        .setUserApiData(cuntryCode)
-                                        .then(
-                                      (value) {
-                                        if (value["Result"] == "true") {
-                                          setState(() {
-                                            save(
-                                                "countryId",
-                                                selectCountryController
-                                                        .countryInfo
-                                                        ?.countryData![
-                                                            countrySelected]
-                                                        .id ??
-                                                    "");
-                                            save(
-                                                "countryName",
-                                                selectCountryController
-                                                        .countryInfo
-                                                        ?.countryData![
-                                                            countrySelected]
-                                                        .title ??
-                                                    "");
-                                          });
-                                          selectCountryController
-                                              .changeCountryIndex(
-                                                  countrySelected);
-                                          homePageController.getHomeDataApi(
-                                              countryId:
-                                                  getData.read("countryId"));
-                                          homePageController.getCatWiseData(
-                                              countryId:
-                                                  getData.read("countryId"),
-                                              cId: "0");
-                                          searchController.getSearchData(
-                                              countryId:
-                                                  getData.read("countryId"));
-                                          Get.offAndToNamed(
-                                              Routes.bottoBarScreen);
-                                          initPlatformState();
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        } else {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                          showToastMessage(
-                                              value["ResponseMsg"]);
-                                        }
-                                      },
-                                    );
-                                  } else {
-                                    if (msgtype["SMS_TYPE"] == "Msg91") {
-                                      signUpController
-                                          .sendOtp(cuntryCode,
-                                              signUpController.number.text)
-                                          .then((value) {
-                                        if (value["Result"] == "true") {
-                                          Get.toNamed(Routes.otpScreen,
-                                              arguments: {
-                                                "number": signUpController
-                                                    .number.text,
-                                                "cuntryCode": cuntryCode,
-                                                "route": "signUpScreen",
-                                                "otpCode":
-                                                    value["otp"].toString(),
-                                              });
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        } else {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                          showToastMessage(
-                                              'Invalid Mobile Number'.tr);
-                                        }
-                                      });
-                                    } else if (msgtype["SMS_TYPE"] ==
-                                        "Twilio") {
-                                      signUpController
-                                          .twilloOtp(cuntryCode,
-                                              signUpController.number.text)
-                                          .then((value) {
-                                        if (value == null) {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        }
-                                        if (value["Result"] == "true") {
-                                          Get.toNamed(Routes.otpScreen,
-                                              arguments: {
-                                                "number": signUpController
-                                                    .number.text,
-                                                "cuntryCode": cuntryCode,
-                                                "route": "signUpScreen",
-                                                "otpCode": value["otp"]
-                                              });
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        } else {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                          showToastMessage(
-                                              'Invalid Mobile Number'.tr);
-                                        }
-                                      });
-                                    } else if (msgtype["SMS_TYPE"] ==
-                                        "Termii") {
-                                      signUpController
-                                          .termiOtp(cuntryCode,
-                                              signUpController.number.text)
-                                          .then((value) {
-                                        if (value == null) {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                          return;
-                                        }
-
-                                        if (value?["Result"] == "true") {
-                                          Get.toNamed(Routes.otpScreen,
-                                              arguments: {
-                                                "number": signUpController
-                                                    .number.text,
-                                                "cuntryCode": cuntryCode,
-                                                "route": "signUpScreen",
-                                                "otpCode": value["otp"]
-                                              });
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        } else {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                          showToastMessage(
-                                              'Invalid Mobile Number'.tr);
-                                        }
-                                      });
-                                    }
-                                  }
-                                  // print('=============otp with sms============');
-                                } else {
-                                  showToastMessage(
-                                      signUpController.userMessage);
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                }
-                              });
-                            });
-                          } else {
-                            if (signUpController.chack == false) {
-                              showToastMessage(
-                                  "Please select Terms and Condition".tr);
-                            }
-                          }
-                        },
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 45),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Already have an account?".tr,
-                              style: TextStyle(
-                                fontFamily: FontFamily.gilroyMedium,
-                                color: notifire.getgreycolor,
                               ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Get.to(LoginScreen());
-                              },
-                              child: Text(
-                                "Login".tr,
-                                style: TextStyle(
-                                  color: blueColor,
-                                  fontFamily: FontFamily.gilroyBold,
-                                ),
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -887,5 +1005,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
         print("Signal value:- $value");
       },
     );
+  }
+
+  Future<void> _startSocialSignup(String provider) async {
+    setState(() {
+      socialLoadingProvider = provider;
+    });
+
+    try {
+      final socialAuth = provider == "google"
+          ? await loginController.signUpWithGoogle()
+          : await loginController.signUpWithApple();
+
+      if (socialAuth != null) {
+        // Go straight to phone screen — u_social_register_init.php is called
+        // there once the user enters their number.
+        Get.toNamed(Routes.socialPhoneScreen, arguments: socialAuth);
+      }
+    } catch (e) {
+      showToastMessage("Unable to continue with ${provider.capitalizeFirst}");
+    } finally {
+      if (mounted) {
+        setState(() {
+          socialLoadingProvider = null;
+        });
+      }
+    }
   }
 }

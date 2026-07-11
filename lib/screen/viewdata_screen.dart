@@ -14,7 +14,7 @@ import 'package:opendoors/controller/calendar_controller.dart';
 import 'package:opendoors/controller/gallery_controller.dart';
 import 'package:opendoors/controller/homepage_controller.dart';
 import 'package:opendoors/controller/reviewsummary_controller.dart';
-import 'package:opendoors/firebase/chat_Screen.dart';
+import 'package:opendoors/firebase/chat_screen.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
@@ -912,18 +912,25 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                           ? () => _showErrorSnackbar(
                                               "Phone number will be available after booking")
                                           : () async {
-                                              final contactPermission =
-                                                  await Permission.phone
-                                                      .request();
+                                              final mobile = homePageController
+                                                  .propetydetailsInfo
+                                                  ?.propetydetails!
+                                                  .mobile;
+                                              if (mobile == null ||
+                                                  mobile.isEmpty ||
+                                                  mobile.contains('*')) {
+                                                _showErrorSnackbar(
+                                                    "Phone number is not available");
+                                                return;
+                                              }
+                                              await Permission.phone.request();
                                               print("F FS D FDSF 00");
                                               if (getData.read("UserLogin") !=
                                                   null) {
                                                 var url = Uri(
                                                     scheme: 'tel',
-                                                    path:
-                                                        "${homePageController.propetydetailsInfo?.propetydetails!.mobile!}");
-                                                print(
-                                                    "Phone: ${homePageController.propetydetailsInfo?.propetydetails!.mobile!}");
+                                                    path: mobile);
+                                                print("Phone: $mobile");
                                                 print("Formatted URI: $url");
                                                 print(
                                                     "Can launch: ${await canLaunchUrl(url)}");
@@ -963,21 +970,7 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                     InkWell(
                                       onTap: () {
                                         if (getData.read("UserLogin") != null) {
-                                          print(
-                                              "afkkkn ${homePageController.propetydetailsInfo!.propetydetails!.userId}");
-                                          Get.to(ChatPage(
-                                            proPic: homePageController
-                                                .propetydetailsInfo!
-                                                .propetydetails!
-                                                .ownerImage
-                                                .toString(),
-                                            resiverUseremail: useremail,
-                                            resiverUserId: homePageController
-                                                    .propetydetailsInfo!
-                                                    .propetydetails!
-                                                    .userId ??
-                                                "0",
-                                          ));
+                                          _showPropertyInquirySheet();
                                         } else {
                                           Get.to(() => LoginScreen());
                                         }
@@ -1408,6 +1401,22 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                 ],
                               ),
                             ),
+                            // Text(homePageController.propetydetailsInfo
+                            //         ?.propetydetails!.buyorrent
+                            //         ?.toString() ??
+                            //     ''),
+                            // Text(homePageController.propetydetailsInfo
+                            //         ?.propetydetails!.buyorrent?.runtimeType
+                            //         .toString() ??
+                            //     ''),
+                            // Text(homePageController.propetydetailsInfo
+                            //         ?.propetydetails!.isEnquiry
+                            //         ?.toString() ??
+                            //     ''),
+                            // Text(homePageController.propetydetailsInfo
+                            //         ?.propetydetails!.isEnquiry?.runtimeType
+                            //         .toString() ??
+                            //     ''),
                             GetBuilder<BookrealEstateController>(
                                 builder: (context) {
                               return GetBuilder<CalendarController>(
@@ -1654,6 +1663,214 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
           width: 10,
         ),
       ],
+    );
+  }
+
+  void _showPropertyInquirySheet() {
+    final inquiryController = TextEditingController();
+    final details = homePageController.propetydetailsInfo?.propetydetails;
+    if (details == null) return;
+
+    final propertyTitle = details.title?.toString() ?? '';
+    final propertyAddress = details.address?.toString() ?? '';
+    final propertyImageUrl = (details.image != null && details.image!.isNotEmpty)
+        ? details.image![0].image?.toString()
+        : null;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: notifire.getbgcolor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+            ),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Drag handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade400,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+
+                // Property preview card
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: notifire.getwhiteblackcolor.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      if (propertyImageUrl != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            propertyImageUrl.startsWith('http')
+                                ? propertyImageUrl
+                                : '${Config.imageUrl}$propertyImageUrl',
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(Icons.home, color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      if (propertyImageUrl != null) SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              propertyTitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: FontFamily.gilroyBold,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                            ),
+                            if (propertyAddress.isNotEmpty) ...[
+                              SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(Icons.location_on,
+                                      size: 14, color: Colors.grey),
+                                  SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      propertyAddress,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey,
+                                        fontFamily: FontFamily.gilroyMedium,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 16),
+
+                // Inquiry text field with send button
+                Text(
+                  'Your Message'.tr,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: FontFamily.gilroyBold,
+                    color: notifire.getwhiteblackcolor,
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  controller: inquiryController,
+                  maxLines: 3,
+                  minLines: 2,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: TextStyle(
+                    fontFamily: FontFamily.gilroyMedium,
+                    color: notifire.getwhiteblackcolor,
+                  ),
+                  decoration: InputDecoration(
+                    hintText:
+                        'Please provide me more details on this property. I am interested!'
+                            .tr,
+                    hintStyle: TextStyle(
+                      fontFamily: FontFamily.gilroyMedium,
+                      color: Colors.grey,
+                      fontSize: 13,
+                    ),
+                    filled: true,
+                    fillColor: notifire.getwhiteblackcolor.withOpacity(0.05),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.all(14),
+                  ),
+                ),
+
+                SizedBox(height: 16),
+
+                // Send button
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(sheetContext).pop();
+                      final customMessage = inquiryController.text.trim();
+                      Get.to(ChatPage(
+                        proPic: details.ownerImage.toString(),
+                        resiverUseremail: useremail,
+                        resiverUserId: details.userId ?? "0",
+                        propertyImage: propertyImageUrl,
+                        propertyTitle: propertyTitle,
+                        propertyAddress: propertyAddress,
+                        propertyMessage: customMessage.isNotEmpty
+                            ? customMessage
+                            : null,
+                      ));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: blueColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Send Inquiry'.tr,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: FontFamily.gilroyBold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

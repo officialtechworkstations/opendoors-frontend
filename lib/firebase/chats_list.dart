@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,20 +22,37 @@ class ChatList extends StatefulWidget {
 
 class _ChatListState extends State<ChatList> {
   late ColorNotifire notifire;
-  TextEditingController searchController = TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
-  List searchList = [];
-  List _searchIndexList = [];
+  // ── Search state ─────────────────────────────────────────────────────────────
+  // Keyed by uid → physically impossible to get duplicates.
+  final Map<String, Map<String, dynamic>> _chatItemsMap = {};
+  List<Map<String, dynamic>> _searchResults = [];
+
+  final ChatServices _chatServices = ChatServices();
 
   @override
   void dispose() {
+    searchController.dispose();
     super.dispose();
-    searchiteams.clear();
   }
 
-  void fun(){
+  // ── Helpers ──────────────────────────────────────────────────────────────────
 
+  /// Safely formats a Firestore [Timestamp] (or null) as "hh:mm a".
+  String _formatTimestamp(dynamic ts) {
+    if (ts == null) return '';
+    try {
+      final Timestamp stamp = ts as Timestamp;
+      return DateFormat('hh:mm a').format(
+        DateTime.fromMicrosecondsSinceEpoch(stamp.microsecondsSinceEpoch),
+      );
+    } catch (_) {
+      return '';
+    }
   }
+
+  // ── Build ─────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -40,264 +60,298 @@ class _ChatListState extends State<ChatList> {
     return Scaffold(
       backgroundColor: notifire.getbgcolor,
       appBar: AppBar(
-          backgroundColor: notifire.getbgcolor,
-          centerTitle: true,
-          elevation: 0,
-          leading: BackButton(
+        backgroundColor: notifire.getbgcolor,
+        centerTitle: true,
+        elevation: 0,
+        leading: BackButton(
+          color: notifire.getwhiteblackcolor,
+          onPressed: () => Get.back(),
+        ),
+        title: Text(
+          'Chats',
+          style: TextStyle(
+            fontFamily: FontFamily.gilroyBold,
+            fontSize: 18,
             color: notifire.getwhiteblackcolor,
-            onPressed: () {
-              Get.back();
-            },
           ),
-          title: Text(
-            "Chats",
-            style: TextStyle(
-              fontFamily: FontFamily.gilroyBold,
-              fontSize: 18,
-              color: notifire.getwhiteblackcolor,
-            ),
-          )),
+        ),
+      ),
       body: Column(
         children: [
+          // ── Search bar ─────────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: TextField(
-                style: TextStyle(color: notifire.getwhiteblackcolor, fontFamily: FontFamily.gilroyMedium, fontSize: 16),
-                controller: searchController,
-                decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.all(15),
-                    isDense: true,
-                    hintStyle: TextStyle(color: notifire.getgreycolor),
-                    hintText: "Search..",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: notifire.getborderColor)),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: notifire.getborderColor)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: notifire.getborderColor)),
-                    disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: notifire.getborderColor)),
-                    errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            BorderSide(color: notifire.getborderColor))),
-                onChanged: (s) {
-                  _searchIndexList = [];
-                  for (int i = 0; i < searchiteams.length; i++) {
-                    if (searchiteams[i]["name"]
-                        .toLowerCase()
-                        .contains(s.toLowerCase())) {
-                      final ids =
-                          searchiteams.map<String>((e) => e['uid']!).toSet();
-
-                      searchiteams.retainWhere((Map x) {
-                        return ids.remove(x['uid']);
-                      });
-
-                      setState(() {});
-                      _searchIndexList.add(i);
-                    } else {
-                      setState(() {});
-                    }
+              style: TextStyle(
+                color: notifire.getwhiteblackcolor,
+                fontFamily: FontFamily.gilroyMedium,
+                fontSize: 16,
+              ),
+              controller: searchController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.all(15),
+                isDense: true,
+                hintStyle: TextStyle(color: notifire.getgreycolor),
+                hintText: 'Search..',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: notifire.getborderColor),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: notifire.getborderColor),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: notifire.getborderColor),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: notifire.getborderColor),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: notifire.getborderColor),
+                ),
+              ),
+              onChanged: (s) {
+                setState(() {
+                  if (s.isEmpty) {
+                    _searchResults = [];
+                  } else {
+                    _searchResults = _chatItemsMap.values
+                        .where((item) => item['name']
+                            .toString()
+                            .toLowerCase()
+                            .contains(s.toLowerCase()))
+                        .toList();
                   }
-                }),
+                });
+              },
+            ),
           ),
-          searchController.text.isEmpty
-              ? Expanded(child: _buildUserList())
-              : _searchIndexList.isEmpty
-                  ? Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("User Not Found",style: TextStyle(fontFamily: FontFamily.gilroyMedium, color: notifire.getwhiteblackcolor),),
-                        ],
-                      ),
-                    )
-                  : Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemCount: _searchIndexList.length,
-                        itemBuilder: (context, index) {
-                          var result = _searchIndexList[index];
-                          bool imageisemty = searchiteams[result]["image"] == 'null';
-                          return ListTile(
-                            onTap: () {
-                              Get.to(ChatPage(
-                                proPic: searchiteams[result]["image"],
-                                resiverUserId: searchiteams[result]["uid"],
-                                resiverUseremail: searchiteams[result]["name"],
-                              ));
-                            },
-                            subtitle: Text(searchiteams[result]["message"],
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: notifire.getwhiteblackcolor,
-                                  fontFamily: FontFamily.gilroyLight,
-                                )),
-                            trailing: Text(
-                                DateFormat('hh:mm a')
-                                    .format(DateTime.fromMicrosecondsSinceEpoch(
-                                        searchiteams[result]["timestamp"]
-                                            .microsecondsSinceEpoch))
-                                    .toString(),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: notifire.getwhiteblackcolor,
-                                  fontFamily: FontFamily.gilroyLight,
-                                )),
-                            leading: imageisemty
-                                ? const CircleAvatar(
-                                    backgroundColor: Colors.transparent,
-                                    radius: 25,
-                                    backgroundImage: AssetImage(
-                                      "assets/images/profile-default.png",
-                                    ))
-                                : CircleAvatar(
-                                    backgroundColor: Colors.transparent,
-                                    radius: 25,
-                                    backgroundImage: NetworkImage(
-                                        "${Config.imageUrl}${searchiteams[result]["image"]}")),
-                            title: Text(
-                              searchiteams[result]["name"].toString(),
-                              style:
-                                  TextStyle(color: notifire.getwhiteblackcolor, fontFamily: FontFamily.gilroyMedium,),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+
+          // ── List area ──────────────────────────────────────────────────────
+          if (searchController.text.isEmpty)
+            Expanded(child: _buildUserList())
+          else if (_searchResults.isEmpty)
+            Expanded(
+              child: Center(
+                child: Text(
+                  'User Not Found',
+                  style: TextStyle(
+                    fontFamily: FontFamily.gilroyMedium,
+                    color: notifire.getwhiteblackcolor,
+                  ),
+                ),
+              ),
+            )
+          else
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: _searchResults.length,
+                itemBuilder: (context, index) {
+                  final item = _searchResults[index];
+                  return _buildChatTile(
+                    uid: item['uid'] as String,
+                    name: item['name'] as String,
+                    proPic: item['image'] as String,
+                    lastMessage: item['message'] as String,
+                    lastTimestamp: item['timestamp'] as Timestamp?,
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
   }
 
+  // ── Outer stream: all registered users ───────────────────────────────────────
+
+  Widget _buildBackgroundStreamer(String currentUserId) {
+    return StreamBuilder<QuerySnapshot>(
+      stream:
+          FirebaseFirestore.instance.collection('opendoors_users').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        final docs = snapshot.data!.docs;
+        return Column(
+          children: docs.map<Widget>((doc) {
+            final Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+            final String uid = (data['uid'] ?? doc.id).toString();
+            if (uid.isEmpty || uid == currentUserId) return const SizedBox.shrink();
+
+            return StreamBuilder<QuerySnapshot>(
+              stream: _chatServices.getMessage(userId: uid, otherUserId: currentUserId),
+              builder: (context, msgSnapshot) {
+                if (!msgSnapshot.hasData || msgSnapshot.data!.docs.isEmpty) {
+                  if (_chatItemsMap.containsKey(uid)) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _chatItemsMap.remove(uid);
+                      });
+                    });
+                  }
+                  return const SizedBox.shrink();
+                }
+
+                final lastMsgDoc = msgSnapshot.data!.docs.last;
+                final lastMsgData = lastMsgDoc.data() as Map<String, dynamic>;
+                final Timestamp? ts = lastMsgData['timestamp'] as Timestamp?;
+                final String message = lastMsgData['message']?.toString() ?? '';
+                final String name = data['name']?.toString() ?? 'Unknown';
+                final String proPic = data['pro_pic']?.toString() ?? 'null';
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final existing = _chatItemsMap[uid];
+                  if (existing == null ||
+                      existing['message'] != message ||
+                      existing['timestamp'] != ts ||
+                      existing['name'] != name ||
+                      existing['image'] != proPic) {
+                    setState(() {
+                      _chatItemsMap[uid] = {
+                        'name': name,
+                        'image': proPic,
+                        'uid': uid,
+                        'message': message,
+                        'timestamp': ts,
+                      };
+                    });
+                  }
+                });
+
+                return const SizedBox.shrink();
+              },
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
   Widget _buildUserList() {
-    return StreamBuilder(
-        stream: FirebaseFirestore.instance.collection("opendoors_users").snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: const Text("user not found!"));
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if(snapshot.data!.docs.isEmpty) {
-            return Center(child: Text("User not found!", style: TextStyle(
-              fontSize: 18,
-              color: notifire.getwhiteblackcolor,
-              fontFamily: FontFamily.gilroyBold,
-             ),),
-            );
-          } else {
-            return ListView(
-              children: snapshot.data!.docs.map<Widget>((doc) {
-                return _buildUserListIteam(doc, snapshot.data!.docs.length);
-              }).toList(),
-            );
-          }
-        });
-  }
-
-  ChatServices chatservices = ChatServices();
-
-  Widget _buildUserListIteam(DocumentSnapshot document, int legth) {
-    Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-
-    List ids = [data["uid"], getData.read("UserLogin")["id"]];
-
-    ids.sort();
-
-    if (getData.read("UserLogin")["name"] != data["name"]) {
-      return StreamBuilder(
-          stream: chatservices.getMessage(userId: data["uid"], otherUserId: getData.read("UserLogin")["id"]),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Text("Error${snapshot.error}");
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const SizedBox();
-            } else {
-              return snapshot.data!.docs.isEmpty
-                ? const SizedBox()
-                : _buildMessageiteam(snapshot.data!.docs.last, data["name"],
-                    data["uid"], data["pro_pic"].toString(), legth, snapshot);
-            }
-          });
-    } else {
-      return Container();
+    // Guard: if the user session hasn't loaded yet, show a spinner.
+    final rawId = getData.read('UserLogin')?['id'];
+    if (rawId == null) {
+      return const Center(child: CircularProgressIndicator());
     }
-  }
+    final String currentUserId = rawId.toString();
 
-  List<Map> searchiteams = [];
-  Widget _buildMessageiteam(DocumentSnapshot document, String email, String uid,
-      String proPic, int legnth, var snapshot) {
-    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+    final activeChats = _chatItemsMap.values.toList();
+    activeChats.sort((a, b) {
+      final t1 = a['timestamp'] as Timestamp?;
+      final t2 = b['timestamp'] as Timestamp?;
+      if (t1 == null && t2 == null) return 0;
+      if (t1 == null) return 1;
+      if (t2 == null) return -1;
+      return t2.compareTo(t1);
+    });
 
-    if (searchiteams.length < legnth - 1) {
-      if (snapshot.data!.docs.isNotEmpty) {
-        searchiteams.add({
-          "name": email,
-          "image": proPic,
-          "uid": uid,
-          "message": data["message"],
-          "timestamp": data["timestamp"]
-        });
-      }
-    }
-    return ListTile(
-        onTap: () {
-          Get.to(ChatPage(
-            proPic: proPic,
-            resiverUserId: uid,
-            resiverUseremail: email,
-          ));
-        },
-        leading: proPic == "null"
-            ? const CircleAvatar(
-                backgroundColor: Colors.transparent,
-                radius: 25,
-                backgroundImage: AssetImage(
-                  "assets/images/profile-default.png",
-                ))
-            : CircleAvatar(
-                backgroundColor: Colors.transparent,
-                radius: 25,
-                backgroundImage: NetworkImage("${Config.imageUrl}$proPic")),
-        title: Text(
-          email,
-          style: TextStyle(color: notifire.getwhiteblackcolor),
-        ),
-        subtitle: Text(
-          data["message"],
-          style: TextStyle(
-            fontSize: 14,
-            color: notifire.getwhiteblackcolor,
-            fontFamily: FontFamily.gilroyLight,
+    return Stack(
+      children: [
+        Offstage(
+          offstage: true,
+          child: SingleChildScrollView(
+            child: _buildBackgroundStreamer(currentUserId),
           ),
         ),
-        trailing: Text(
-            DateFormat('hh:mm a')
-                .format(DateTime.fromMicrosecondsSinceEpoch(
-                    data["timestamp"].microsecondsSinceEpoch))
-                .toString(),
-            style: TextStyle(
-              fontSize: 10,
-              color: notifire.getwhiteblackcolor,
-              fontFamily: FontFamily.gilroyLight,
-            )));
+        activeChats.isEmpty
+            ? Center(
+                child: Text(
+                  'No conversations yet',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: notifire.getwhiteblackcolor,
+                    fontFamily: FontFamily.gilroyBold,
+                  ),
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: activeChats.length,
+                itemBuilder: (context, index) {
+                  final item = activeChats[index];
+                  return _buildChatTile(
+                    uid: item['uid'] as String,
+                    name: item['name'] as String,
+                    proPic: item['image'] as String,
+                    lastMessage: item['message'] as String,
+                    lastTimestamp: item['timestamp'] as Timestamp?,
+                  );
+                },
+              ),
+      ],
+    );
   }
 
-  Future<dynamic> isMeassageAvalable(String chatroom) async {
-    CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection('opendoors_chats');
+  String _getDisplayMessage(String message) {
+    if (message.startsWith('{') && message.endsWith('}')) {
+      try {
+        final parsed = jsonDecode(message);
+        if (parsed is Map<String, dynamic> && parsed['type'] == 'property') {
+          final title = parsed['title'] ?? '';
+          return 'Inquiry: $title';
+        }
+      } catch (_) {}
+    }
+    return message;
+  }
 
-    var data0 =
-        await collectionReference.doc(chatroom).collection("message").get();
-
-    return data0.docs.length;
+  Widget _buildChatTile({
+    required String uid,
+    required String name,
+    required String proPic,
+    required String lastMessage,
+    required Timestamp? lastTimestamp,
+  }) {
+    final String timeStr = _formatTimestamp(lastTimestamp);
+    return ListTile(
+      onTap: () {
+        Get.to(ChatPage(
+          proPic: proPic,
+          resiverUserId: uid,
+          resiverUseremail: name,
+        ));
+      },
+      leading: proPic == 'null'
+          ? const CircleAvatar(
+              backgroundColor: Colors.transparent,
+              radius: 25,
+              backgroundImage: AssetImage('assets/images/profile-default.png'))
+          : CircleAvatar(
+              backgroundColor: Colors.transparent,
+              radius: 25,
+              backgroundImage: NetworkImage('${Config.imageUrl}$proPic')),
+      title: Text(
+        name,
+        style: TextStyle(
+          color: notifire.getwhiteblackcolor,
+          fontFamily: FontFamily.gilroyMedium,
+        ),
+      ),
+      subtitle: Text(
+        _getDisplayMessage(lastMessage),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 14,
+          color: notifire.getwhiteblackcolor,
+          fontFamily: FontFamily.gilroyLight,
+        ),
+      ),
+      trailing: timeStr.isNotEmpty
+          ? Text(
+              timeStr,
+              style: TextStyle(
+                fontSize: 10,
+                color: notifire.getwhiteblackcolor,
+                fontFamily: FontFamily.gilroyLight,
+              ),
+            )
+          : null,
+    );
   }
 }

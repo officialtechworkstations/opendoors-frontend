@@ -11,4 +11,5 @@
     <!-- [END fcm_default_icon_string] -->
     <string name="msg_subscribe_failed">Failed to subscribe to opendoors topic</string>
     <string name="fcm_message">FCM Message</string>
+    <string name="default_web_client_id">26275977783-9ngelo1c172lk6egli2dcm96j0nnspd2.apps.googleusercontent.com</string>
 </resources>

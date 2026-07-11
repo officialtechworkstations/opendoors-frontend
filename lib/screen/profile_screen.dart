@@ -169,12 +169,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           fit: BoxFit.cover,
                                         ),
                                       )
-                                    : CircleAvatar(
-                                        backgroundColor: Colors.transparent,
-                                        radius: Get.height / 17,
-                                        child: Image.asset(
-                                          "assets/images/profile-default.png",
-                                          fit: BoxFit.cover,
+                                    : ClipOval(
+                                        child: CircleAvatar(
+                                          backgroundColor: Colors.transparent,
+                                          radius: Get.height / 17,
+                                          child: Image.asset(
+                                            "assets/images/profile-default.png",
+                                            fit: BoxFit.cover,
+                                            // shape: BoxShape.circle,
+                                          ),
                                         ),
                                       )
                                 : ClipRRect(
@@ -255,7 +258,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     name: "Chat".tr,
                     imagePath: "assets/images/Chat.png",
                     onTap: () {
-                      Get.to(ChatList());
+                      Get.to(() => ChatList());
+                      // Get.to(ChatList());
                     },
                   ),
                   SizedBox(

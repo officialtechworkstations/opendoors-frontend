@@ -1,0 +1,85 @@
+Chat Fix Report
+===============
+
+1. Android chat list: sent and received messages not showing
+------------------------------------------------------------
+Where:
+- lib/firebase/chat_service.dart
+- lib/firebase/chats_list.dart
+
+Bug:
+- Chat room ids could be built differently when user ids came in different
+  types, for example int on Android and String on iOS.
+- The chat list also skipped users by comparing names instead of ids, which can
+  hide valid chats when names match or user data differs.
+- The search list was mutating the cached chat rows while searching, which could
+  remove rows from the visible chat list.
+
+Fix:
+- Normalize all chat user ids to String before sorting and building the chat
+  room id.
+- Compare current user and receiver by uid instead of name.
+- Update existing cached chat rows by uid instead of adding/removing rows during
+  search.
+
+How:
+- Added _normalizeId() and _chatRoomId() in ChatServices.
+- Used the normalized room id for both sendMessage() and getMessage().
+- In ChatList, used data["uid"] or document.id as the receiver id, converted it
+  to String, and compared it against the current user's id as a String.
+- Reworked search to only rebuild search indexes and not mutate the source chat
+  list.
+
+
+2. Keyboard should disappear when user taps the chat background
+--------------------------------------------------------------
+Where:
+- lib/firebase/chat_screen.dart
+
+Bug:
+- The chat screen did not remove focus from the message input when the user
+  tapped outside the keyboard/input area, so the keyboard stayed open.
+
+Fix:
+- Added a background tap handler around the chat body.
+
+How:
+- Wrapped the chat screen body Column with GestureDetector.
+- Set behavior to HitTestBehavior.translucent so background taps are detected.
+- On tap, called FocusScope.of(context).unfocus() to dismiss the keyboard.
+
+
+3. Top "dear user" chat notice should show for 5 minutes once per day
+---------------------------------------------------------------------
+Where:
+- lib/firebase/chat_screen.dart
+
+Bug:
+- The notice was visible by default every time the chat screen opened.
+- It had no automatic 5-minute timeout.
+- It did not remember whether the user had already seen it for that chat on the
+  same day.
+
+Fix:
+- Show the notice only the first time a user opens a specific chat in a day.
+- Hide the notice automatically after 5 minutes.
+- Keep the manual close button working.
+
+How:
+- Added SharedPreferences storage for a daily notice key:
+  chat_notice_seen_<currentUserId>_<receiverUserId>_<yyyy-MM-dd>
+- If the key exists, the notice stays hidden.
+- If the key does not exist, the app saves it, shows the notice, and starts a
+  Timer for 5 minutes.
+- When the timer completes, _showNotice is set to false.
+- The close button cancels the timer and hides the notice immediately.
+
+
+Verification
+------------
+- Ran: git diff --check
+- Result: passed.
+- Attempted: flutter analyze lib/firebase/chat_service.dart lib/firebase/chats_list.dart lib/firebase/chat_screen.dart
+- Result: blocked because Flutter tried to write to:
+  /Users/apple/packages/flutter/bin/cache/engine.stamp
+- Per instruction, Flutter/cache was not updated.

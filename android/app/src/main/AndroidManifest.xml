@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-  package="com.opendoors.newapp">
+  package="com.opendoors.appnew">
   
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -16,8 +16,18 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/> -->
+    <!-- android:label="Opendoors" -->
+
+
+    <!--  -->
+
+    <!-- 26275977783-42qim65krrm636sct622pegmudf0f5v2.apps.googleusercontent.com -->
+    <!--  -->
+<!--  -->
+<!-- 26275977783-tqf7ud5coesedo58crlbb5cr15sr56sj.apps.googleusercontent.com -->
+<!--  -->
    <application
-        android:label="Opendoors"
+        android:label="OpenDoors"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
         android:allowBackup="false"

@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:26275977783:android:5f0c7cbc4a726ab59a7db2",
+        "mobilesdk_app_id": "1:26275977783:android:1cae8500bef607839a7db2",
         "android_client_info": {
-          "package_name": "com.opendoors.newapp"
+          "package_name": "com.opendoors.appnew"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "26275977783-9ngelo1c172lk6egli2dcm96j0nnspd2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyADMlUxpDgGEe0SGRHUXq8-LzgIn5sF37o"
@@ -20,7 +25,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "26275977783-9ngelo1c172lk6egli2dcm96j0nnspd2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "26275977783-gl4cbk4tvt89hnvbv259rjjdv91039ui.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "opendoorsapp.com"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26275977783:android:5f0c7cbc4a726ab59a7db2",
+        "android_client_info": {
+          "package_name": "com.opendoors.newapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "26275977783-9ngelo1c172lk6egli2dcm96j0nnspd2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADMlUxpDgGEe0SGRHUXq8-LzgIn5sF37o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "26275977783-9ngelo1c172lk6egli2dcm96j0nnspd2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "26275977783-gl4cbk4tvt89hnvbv259rjjdv91039ui.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "opendoorsapp.com"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +84,12 @@
           "package_name": "opendoorsapp.com"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "26275977783-9ngelo1c172lk6egli2dcm96j0nnspd2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyADMlUxpDgGEe0SGRHUXq8-LzgIn5sF37o"
@@ -39,7 +97,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "26275977783-9ngelo1c172lk6egli2dcm96j0nnspd2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "26275977783-gl4cbk4tvt89hnvbv259rjjdv91039ui.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "opendoorsapp.com"
+              }
+            }
+          ]
         }
       }
     }

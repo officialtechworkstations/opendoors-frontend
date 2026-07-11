@@ -14,6 +14,7 @@ import '../../utils/Colors.dart';
 import '../../utils/Custom_widget.dart';
 
 int verifyPaystack = -1;
+
 class Paystackweb extends StatefulWidget {
   final String? url;
   final String skID;
@@ -31,14 +32,23 @@ class _PaystackwebState extends State<Paystackweb> {
   String? accessToken;
   String? payerID;
   bool isLoading = true;
+
+  // Guard flag to prevent multiple simultaneous close calls (Bug 3 partial fix)
+  bool _isClosing = false;
+
   WalletController walletController = Get.put(WalletController());
-  ReviewSummaryController reviewSummaryController = Get.put(ReviewSummaryController());
+  ReviewSummaryController reviewSummaryController =
+      Get.put(ReviewSummaryController());
   PaystackController paystackController = Get.put(PaystackController());
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+
+    // Bug 3 fix: Reset global state every time this screen opens so a previous
+    // successful payment never bleeds into a new session.
+    verifyPaystack = -1;
+    _isClosing = false;
 
     late final PlatformWebViewControllerCreationParams params;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
@@ -50,34 +60,91 @@ class _PaystackwebState extends State<Paystackweb> {
       params = const PlatformWebViewControllerCreationParams();
     }
 
-    final WebViewController controller = WebViewController.fromPlatformCreationParams(params);
+    final WebViewController controller =
+        WebViewController.fromPlatformCreationParams(params);
 
     controller
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageFinished: (finish) {
-
-          },
+          onPageFinished: (finish) {},
           onProgress: (val) {
             progress = val;
             setState(() {});
           },
           onNavigationRequest: (NavigationRequest request) async {
             final uri = Uri.parse(request.url);
-            print("PAYMENT STATUS: >>>>>>>>>>>>>>>> $uri");
+            print("PAYMENT NAVIGATION: >>>>>>>>>>>>>>>> $uri");
+
+            // Detect cancel: Paystack redirects to cancel_action URL when
+            // the user taps the Cancel button on the checkout page.
+            // We pass Config.baseurl + "paystack/cancel" as cancel_action.
+            final bool isCancelRedirect =
+                uri.toString().contains('paystack/cancel');
+
+            if (isCancelRedirect && !_isClosing) {
+              _isClosing = true;
+              verifyPaystack = 0;
+              print("PAYMENT CANCELLED BY USER");
+              Get.back();
+              return NavigationDecision.prevent;
+            }
+
+            // Detect success: Paystack appends 'trxref' and 'reference' query
+            // params on its success callback redirect.
+            final bool isSuccessRedirect =
+                uri.queryParameters.containsKey('trxref') ||
+                    uri.queryParameters.containsKey('reference');
+
+            if (!isSuccessRedirect) {
+              // All other navigations (CSS, JS, images, internal Paystack pages)
+              // — just let the webview load them normally.
+              return NavigationDecision.navigate;
+            }
+
+            // Guard: ignore duplicate success redirects.
+            if (_isClosing) {
+              return NavigationDecision.prevent;
+            }
+            _isClosing = true;
+
+            // Call the verify API only on the success redirect.
+            // Check value["data"]["status"] == "success" — NOT value["status"],
+            // which is always true when the HTTP call itself succeeds.
             paystackController.paystackCheck(skKey: widget.skID).then((value) {
-            print(" > <> <> <> <> <> <> <>? <> <> <> <> <> <> <> ${widget.skID} - ${value["data"]["id"]}");
-              print("PAYMENT STATUS Response: >>>>>>>>>>>>>>>> ${value["status"]}");
-              if(value["status"] == true){
+              print(
+                  " > <> <> <> <> <> <> <>? <> <> <> <> <> <> <> ${widget.skID} - ${value?["data"]?["id"]}");
+              print(
+                  "PAYMENT STATUS Response: >>>>>>>>>>>>>>>> ${value?["status"]}");
+
+              if (value != null &&
+                  value["status"] == true &&
+                  value["data"] != null) {
+                final String transactionStatus =
+                    value["data"]["status"]?.toString() ?? "";
+
+                if (transactionStatus == "success") {
+                  // Genuine successful payment
                   verifyPaystack = 1;
-                Get.back(result: value["data"]["id"].toString());
-              } else {
+                  Get.back(result: value["data"]["id"].toString());
+                } else {
+                  // abandoned, failed, or any other non-success status
                   verifyPaystack = 0;
+                  Get.back();
+                }
+              } else {
+                // API call failed or returned unexpected shape
+                verifyPaystack = 0;
+                Get.back();
               }
-            },);
-            return NavigationDecision.navigate;
+            }).catchError((e) {
+              print("paystackCheck error: $e");
+              verifyPaystack = 0;
+              Get.back();
+            });
+
+            return NavigationDecision.prevent;
           },
         ),
       )
@@ -89,7 +156,6 @@ class _PaystackwebState extends State<Paystackweb> {
           );
         },
       )
-
       ..loadRequest(Uri.parse("${widget.url}"));
 
     if (controller.platform is AndroidWebViewController) {
@@ -99,39 +165,36 @@ class _PaystackwebState extends State<Paystackweb> {
     }
 
     _controller = controller;
-
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_scaffoldKey.currentState == null) {
-      return Scaffold(
-        body: SafeArea(
-          child: Stack(
-            children: [
-              WebViewWidget(controller: _controller),
-            ],
-          ),
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Back button fix: treat manual back press as a cancel — never as
+            // a success. Without this, the caller reads stale verifyPaystack = 1.
+            if (!_isClosing) {
+              _isClosing = true;
+              verifyPaystack = 0;
+              Get.back();
+            }
+          },
         ),
-      );
-    } else {
-      return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Get.back(),
-          ),
-          backgroundColor: Colors.black12,
-          elevation: 0.0,
+        backgroundColor: Colors.black12,
+        elevation: 0.0,
+      ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            WebViewWidget(controller: _controller),
+          ],
         ),
-        body: Center(
-          child: Container(
-            child: CircularProgressIndicator(color: Darkblue,),
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   void _verifyTransaction(String reference) async {
@@ -142,13 +205,13 @@ class _PaystackwebState extends State<Paystackweb> {
     };
 
     final response = await http.get(Uri.parse(url), headers: headers);
-    print(">::>:>:>:>:>:>:> ${response.body}");
+    print(">:::>:>:>:>:>:>:> ${response.body}");
     if (response.statusCode == 200) {
-
       final Map<String, dynamic> responseBody = json.decode(response.body);
       if (responseBody['data']['status'] == 'success') {
         print("PAYMENT GET SUCCESSFUL");
-        Navigator.pop(context, {'status': 'successful', 'transaction_id': reference});
+        Navigator.pop(
+            context, {'status': 'successful', 'transaction_id': reference});
       } else {
         print("PAYMENT GET FAILiER");
         Navigator.pop(context, {'status': 'failed'});

@@ -1,12 +1,11 @@
 // ignore_for_file: avoid_print, prefer_typing_uninitialized_variables, deprecated_member_use
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
-import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,20 +19,28 @@ import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatPage extends StatefulWidget {
   final String resiverUserId;
   final String resiverUseremail;
   final String proPic;
+  final String? propertyImage;
+  final String? propertyTitle;
+  final String? propertyAddress;
+  final String? propertyMessage;
 
   const ChatPage({
     super.key,
     required this.resiverUserId,
     required this.resiverUseremail,
     required this.proPic,
+    this.propertyImage,
+    this.propertyTitle,
+    this.propertyAddress,
+    this.propertyMessage,
   });
 
   @override
@@ -47,11 +54,14 @@ class _ChatPageState extends State<ChatPage> {
 
   ChatServices chatservices = ChatServices();
 
-  final ScrollController _controller =
-      ScrollController(initialScrollOffset: 50.0);
+  final ScrollController _controller = ScrollController();
+  int _lastMessageCount = 0;
 
-  bool _showNotice = true; // true → banner is visible
+  static const Duration _noticeDisplayDuration = Duration(minutes: 5);
+
+  bool _showNotice = false;
   String chatNotice = "";
+  Timer? _noticeTimer;
 
   void sendMessage() async {
     if (controller.text.isNotEmpty) {
@@ -79,7 +89,7 @@ class _ChatPageState extends State<ChatPage> {
         print("FIELDS ${value.data()}");
         fields = value.data();
 
-        if (fields["isOnline"] == false) {
+        if (fields != null && fields["isOnline"] == false) {
           sendPushMessage(
               controller.text, getData.read("UserLogin")["name"], fmctoken);
         } else {
@@ -90,8 +100,7 @@ class _ChatPageState extends State<ChatPage> {
             receiverId: widget.resiverUserId, messeage: controller.text);
 
         controller.clear();
-
-        _controller.jumpTo(_controller.position.maxScrollExtent);
+        _scrollToBottom(animated: true);
       });
     }
   }
@@ -103,12 +112,75 @@ class _ChatPageState extends State<ChatPage> {
     collectionReference.doc(uid).get().then((value) {
       var fields;
       fields = value.data();
-      print("TOKEN HERE ${fields["token"]}");
+      print("TOKEN HERE ${fields?["token"]}");
+      if (!mounted) {
+        return;
+      }
       setState(() {
-        fmctoken = fields["token"];
+        fmctoken = fields?["token"]?.toString() ?? "";
         print("TOKEN ID > <> <> <> <> ${fmctoken}");
       });
     });
+  }
+
+  void _sendInitialPropertyMessage() async {
+    final String currentUserId = getData.read("UserLogin")["id"].toString();
+    final ids = [currentUserId, widget.resiverUserId];
+    ids.sort((a, b) => a.compareTo(b));
+    final chatRoomId = ids.join("_");
+
+    final title = widget.propertyTitle!;
+    final image = widget.propertyImage!;
+    final address = widget.propertyAddress ?? "";
+    final info = (widget.propertyMessage != null &&
+            widget.propertyMessage!.isNotEmpty)
+        ? widget.propertyMessage!
+        : "please provide me more details on this property. I am interested!"
+            .tr;
+
+    final messageJson = jsonEncode({
+      "type": "property",
+      "image": image,
+      "title": title,
+      "address": address,
+      "message": info,
+    });
+
+    final snapshot = await FirebaseFirestore.instance
+        .collection("opendoors_chats")
+        .doc(chatRoomId)
+        .collection("message")
+        .orderBy("timestamp", descending: true)
+        .limit(1)
+        .get();
+
+    bool alreadySent = false;
+    if (snapshot.docs.isNotEmpty) {
+      final lastMsg = snapshot.docs.first.data() as Map<String, dynamic>?;
+      final msgText = lastMsg?['message']?.toString() ?? '';
+      if (msgText.contains(title) && msgText.contains("property")) {
+        alreadySent = false; // intentionally set to false for now
+      }
+    }
+
+    if (!alreadySent) {
+      FirebaseFirestore.instance
+          .collection('opendoors_users')
+          .doc(widget.resiverUserId)
+          .get()
+          .then((value) async {
+        final fields = value.data();
+        if (fields != null && fields["isOnline"] == false) {
+          final token = fields["token"]?.toString() ?? "";
+          if (token.isNotEmpty) {
+            sendPushMessage("Property inquiry: $title",
+                getData.read("UserLogin")["name"], token);
+          }
+        }
+        await chatservices.sendMessage(
+            receiverId: widget.resiverUserId, messeage: messageJson);
+      });
+    }
   }
 
   @override
@@ -116,11 +188,16 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
 
     setNotice();
+    _setDailyNoticeVisibility();
     isMeassageAvalable(widget.resiverUserId);
 
     if (getData.read("UserLogin")["id"] == null) {
     } else {
       isUserOnlie(getData.read("UserLogin")["id"], true);
+    }
+
+    if (widget.propertyTitle != null && widget.propertyImage != null) {
+      _sendInitialPropertyMessage();
     }
   }
 
@@ -128,19 +205,75 @@ class _ChatPageState extends State<ChatPage> {
     await homePageController.getChatNoApi().then((onValue) {
       // log(homePageController.chatNotice.toString());
       chatNotice = homePageController.chatNotice.toString();
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  Future<void> _setDailyNoticeVisibility() async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentUserId = getData.read("UserLogin")["id"].toString();
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final key =
+        "chat_notice_seen_${currentUserId}_${widget.resiverUserId}_$today";
+
+    if (prefs.getBool(key) == true) {
+      return;
+    }
+
+    await prefs.setBool(key, true);
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _showNotice = true;
+    });
+    _noticeTimer?.cancel();
+    _noticeTimer = Timer(_noticeDisplayDuration, () {
+      if (mounted) {
+        setState(() {
+          _showNotice = false;
+        });
+      }
+    });
+  }
+
+  void _hideNotice() {
+    _noticeTimer?.cancel();
+    setState(() {
+      _showNotice = false;
     });
   }
 
   @override
   void dispose() {
-    super.dispose();
+    _noticeTimer?.cancel();
     isUserOnlie(getData.read("UserLogin")["id"], false);
+    super.dispose();
   }
 
-  void _scrollDown() {
-    _controller.animateTo(_controller.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
+  void _scrollToBottom({bool animated = false}) {
+    if (!_controller.hasClients) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_controller.hasClients || !mounted) return;
+
+      final maxScrollExtent = _controller.position.maxScrollExtent;
+      if (maxScrollExtent <= 0) return;
+
+      if (animated) {
+        _controller.animateTo(
+          0.0,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
+      } else {
+        _controller.jumpTo(0.0);
+      }
+    });
   }
 
   late ColorNotifire notifire;
@@ -148,14 +281,25 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: notifire.getbgcolor,
       appBar: appbar(),
-      body: Column(
-        children: [
-          if (_showNotice) _buildWarningPopup(),
-          Expanded(child: _buildMessageList()),
-          _buildMessageInpurt(),
-        ],
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Column(
+          children: [
+            if (_showNotice) _buildWarningPopup(),
+            Expanded(child: _buildMessageList()),
+            AnimatedPadding(
+              duration: const Duration(milliseconds: 150),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: _buildMessageInpurt(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -176,7 +320,9 @@ class _ChatPageState extends State<ChatPage> {
               .doc(widget.resiverUserId)
               .snapshots(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (snapshot.connectionState == ConnectionState.waiting ||
+                !snapshot.hasData ||
+                snapshot.data!.data() == null) {
               return Text(
                 widget.resiverUseremail,
                 style: TextStyle(
@@ -285,7 +431,7 @@ class _ChatPageState extends State<ChatPage> {
             top: 8,
             right: 8,
             child: GestureDetector(
-              onTap: () => setState(() => _showNotice = false),
+              onTap: _hideNotice,
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: const BoxDecoration(
@@ -314,25 +460,63 @@ class _ChatPageState extends State<ChatPage> {
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else {
-            return ListView(
-              controller: _controller,
-              children: snapshot.data!.docs
-                  .map((document) => _buildMessageiteam(document))
-                  .toList(),
-            );
           }
+          final docs = snapshot.data!.docs;
+          if (docs.isNotEmpty &&
+              (_lastMessageCount == 0 || docs.length != _lastMessageCount)) {
+            _lastMessageCount = docs.length;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted || !_controller.hasClients) return;
+              final position = _controller.position;
+              final shouldFollow = position.pixels <= 24 || position.atEdge;
+              if (shouldFollow) {
+                _scrollToBottom(animated: _lastMessageCount > 1);
+              }
+            });
+          }
+          return RawScrollbar(
+            controller: _controller,
+            thumbVisibility: true,
+            trackVisibility: true,
+            thickness: 6,
+            trackColor: Colors.transparent,
+            thumbColor: Colors.transparent,
+            radius: const Radius.circular(8),
+            child: ListView.builder(
+              controller: _controller,
+              reverse: true,
+              padding: const EdgeInsets.only(bottom: 12),
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: docs.length,
+              itemBuilder: (context, index) {
+                return _buildMessageiteam(docs[index]);
+              },
+            ),
+          );
         });
+  }
+
+  /// Safely formats a Firestore [Timestamp] (or null) as "hh:mm a".
+  String _formatTimestamp(dynamic ts) {
+    if (ts == null) return '';
+    try {
+      final Timestamp stamp = ts as Timestamp;
+      return DateFormat('hh:mm a').format(
+        DateTime.fromMicrosecondsSinceEpoch(stamp.microsecondsSinceEpoch),
+      );
+    } catch (_) {
+      return '';
+    }
   }
 
   Widget _buildMessageiteam(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollDown();
-    });
-    var alingmentt = (data["senderid"] == getData.read("UserLogin")["id"])
-        ? Alignment.centerRight
-        : Alignment.centerLeft;
+    final isCurrentUser = data["senderid"].toString() ==
+        getData.read("UserLogin")["id"].toString();
+    var alingmentt =
+        isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
+
+    final String timeStr = _formatTimestamp(data['timestamp']);
 
     return Container(
       alignment: alingmentt,
@@ -340,35 +524,26 @@ class _ChatPageState extends State<ChatPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment:
-              (data["senderid"] == getData.read("UserLogin")["id"])
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
+              isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             ChatBubble(
-              chatColor: (data["senderid"] == getData.read("UserLogin")["id"])
-                  ? blueColor
-                  : Colors.grey.shade100,
-              textColor: (data["senderid"] == getData.read("UserLogin")["id"])
-                  ? WhiteColor
-                  : Colors.black,
+              chatColor: isCurrentUser ? blueColor : Colors.grey.shade100,
+              textColor: isCurrentUser ? WhiteColor : Colors.black,
               message: data["message"],
-              alingment: (data["senderid"] == getData.read("UserLogin")["id"])
-                  ? false
-                  : true,
+              alingment: !isCurrentUser,
             ),
             const SizedBox(
               height: 5,
             ),
-            Text(
-                DateFormat('hh:mm a')
-                    .format(DateTime.fromMicrosecondsSinceEpoch(
-                        data["timestamp"].microsecondsSinceEpoch))
-                    .toString(),
+            if (timeStr.isNotEmpty)
+              Text(
+                timeStr,
                 style: TextStyle(
                   fontSize: 10,
                   color: notifire.getwhiteblackcolor,
                   fontFamily: FontFamily.gilroyLight,
-                )),
+                ),
+              ),
           ],
         ),
       ),

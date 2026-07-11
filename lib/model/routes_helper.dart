@@ -46,6 +46,7 @@ import 'package:opendoors/screen/review_screen.dart';
 import 'package:opendoors/screen/review_summary.dart';
 import 'package:opendoors/screen/select_country.dart';
 import 'package:opendoors/screen/signup_screen.dart';
+import 'package:opendoors/screen/social_phone_screen.dart';
 import 'package:opendoors/screen/splesh_screen.dart';
 import 'package:opendoors/screen/viewdata_screen.dart';
 import 'package:opendoors/screen/viewprofile_screen.dart';
@@ -56,6 +57,7 @@ class Routes {
   static String login = "/Login";
   static String bottoBarScreen = "/BottoBarScreen";
   static String signUpScreen = "/signUpScreen";
+  static String socialPhoneScreen = "/socialPhoneScreen";
   static String otpScreen = '/otpScreen';
   static String resetPassword = "/resetPassword";
   static String viewDataScreen = "/viewDataScreen";
@@ -121,6 +123,10 @@ final getPages = [
   GetPage(
     name: Routes.signUpScreen,
     page: () => SignUpScreen(),
+  ),
+  GetPage(
+    name: Routes.socialPhoneScreen,
+    page: () => SocialPhoneScreen(),
   ),
   GetPage(
     name: Routes.otpScreen,

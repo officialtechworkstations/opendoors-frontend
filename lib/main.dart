@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_print
 
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -38,7 +37,6 @@ void main() async {
   await getLocation();
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  handleFCMNavigation();
   listenFCM();
   loadFCM();
   initializeNotifications();

@@ -10,6 +10,7 @@ import 'package:opendoors/controller/login_controller.dart';
 import 'package:opendoors/controller/selectcountry_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/widgets/social_auth_section.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
@@ -88,6 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool isLogin = false;
+  String? socialLoadingProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +203,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       counterText: '',
                       helperText: '',
+                      hintText: '7012345678',
+                      hintStyle: TextStyle(color: Color(0xffb1b7c8)),
                       labelText: "Mobile Number".tr,
                       labelStyle: TextStyle(
                         color: notifire.getgreycolor,
@@ -487,15 +491,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "OR".tr,
-                    style: TextStyle(
-                      fontFamily: FontFamily.gilroyMedium,
-                      color: notifire.getwhiteblackcolor,
-                    ),
-                  ),
+                SocialAuthSection(
+                  notifire: notifire,
+                  loadingProvider: socialLoadingProvider,
+                  onGoogleTap: () => _startSocialSignup("google"),
+                  onAppleTap: () => _startSocialSignup("apple"),
                 ),
                 SizedBox(
                   height: 20,
@@ -587,5 +587,75 @@ class _LoginScreenState extends State<LoginScreen> {
         print("Signal value:- $value");
       },
     );
+  }
+
+  Future<void> _startSocialSignup(String provider) async {
+    setState(() {
+      socialLoadingProvider = provider;
+    });
+
+    try {
+      final socialAuth = provider == "google"
+          ? await loginController.signUpWithGoogle()
+          : await loginController.signUpWithApple();
+
+      if (socialAuth != null) {
+        final loginRes = await loginController.loginWithSocial(
+          socialAuth.provider,
+          socialAuth.token,
+          context,
+          email: socialAuth.email,
+          name: socialAuth.name,
+        );
+
+        if (loginRes != null && loginRes["Result"] == "true") {
+          if (getData.read("userType") == "admin") {
+            dashBoardController.getDashBoardData().then(
+              (value) {
+                Get.offAndToNamed(Routes.membershipScreen);
+              },
+            );
+          } else {
+            setState(() {
+              save(
+                  "countryId",
+                  selectCountryController
+                          .countryInfo?.countryData![countrySelected].id ??
+                      "");
+              save(
+                  "countryName",
+                  selectCountryController
+                          .countryInfo?.countryData![countrySelected].title ??
+                      "");
+            });
+
+            selectCountryController.changeCountryIndex(countrySelected);
+
+            homePageController.getCatWiseData(
+                countryId: getData.read("countryId"), cId: "0");
+            searchController
+                .getSearchData(countryId: getData.read("countryId"))
+                .then(
+              (value) {
+                Get.offAndToNamed(Routes.bottoBarScreen);
+              },
+            );
+          }
+        } else if (loginRes != null && loginRes["ResponseCode"] == "404") {
+          Get.toNamed(Routes.socialPhoneScreen, arguments: socialAuth);
+        } else {
+          showToastMessage(loginRes?["ResponseMsg"] ??
+              "We could not verify your ${provider.capitalizeFirst} sign-in. Please try again.");
+        }
+      }
+    } catch (e) {
+      showToastMessage("Unable to continue with ${provider.capitalizeFirst}");
+    } finally {
+      if (mounted) {
+        setState(() {
+          socialLoadingProvider = null;
+        });
+      }
+    }
   }
 }

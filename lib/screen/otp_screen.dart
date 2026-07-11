@@ -367,7 +367,59 @@ class _OtpScreenState extends State<OtpScreen> {
                         });
                         getCountryData().then(
                           (value) {
-                            if (rout == "signUpScreen") {
+                            if (rout == "socialSignUpScreen") {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              try {
+                                signUpController
+                                    .finalizeSocialRegister(
+                                  provider: Get.arguments["provider"],
+                                  token: Get.arguments["token"],
+                                  mobile: phoneNumber,
+                                  ccode: countryCode,
+                                  name: Get.arguments["real_name"] ?? '',
+                                  email: Get.arguments["real_email"],
+                                  refercode: Get.arguments["refercode"],
+                                  acceptNewsletter:
+                                      Get.arguments["accept_newsletter"],
+                                  acceptPrivacyPolicy:
+                                      Get.arguments["accept_privacy_policy"],
+                                  acceptTermsCondition:
+                                      Get.arguments["accept_terms_condition"],
+                                )
+                                    .then(
+                                  (value) {
+                                    if (value["Result"] == "true") {
+                                      selectCountryController
+                                          .changeCountryIndex(countrySelected);
+                                      homePageController.getHomeDataApi(
+                                          countryId: getData.read("countryId"));
+                                      homePageController.getCatWiseData(
+                                          countryId: getData.read("countryId"),
+                                          cId: "0");
+                                      searchController.getSearchData(
+                                          countryId: getData.read("countryId"));
+                                      Get.offAndToNamed(Routes.bottoBarScreen);
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      showToastMessage(value["ResponseMsg"]);
+                                    }
+                                  },
+                                );
+                                initPlatformState();
+                              } catch (e) {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                print("Social signup error: $e");
+                              }
+                            } else if (rout == "signUpScreen") {
                               setState(() {
                                 isLoading = true;
                               });
