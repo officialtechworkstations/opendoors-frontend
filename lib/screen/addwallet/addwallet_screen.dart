@@ -1,5 +1,7 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors, unnecessary_brace_in_string_interps, avoid_print, prefer_interpolation_to_compose_strings
 
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -46,6 +48,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
   ReviewSummaryController reviewSummaryController = Get.find();
   HomePageController homePageController = Get.find();
   PaystackController paystackController = Get.put(PaystackController());
+  FocusNode wFocus = FocusNode();
 
   late Razorpay _razorpay;
 
@@ -75,6 +78,25 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  double get numericValue {
+    String digits = walletController.amount.text
+        .replaceAll(RegExp(r'[^\d,]'), '')
+        .replaceAll(',', '');
+    return double.tryParse(digits) ?? 0.0;
+  }
+
+  void setAmount(int value) {
+    // Apply the same formatting your CurrencyInputFormatter does
+    String formatted =
+        AppFormater.formatAmount(value.toDouble(), withDecimal: false);
+
+    walletController.amount.text = formatted;
+
+    // Move cursor to end
+    walletController.amount.selection =
+        TextSelection.collapsed(offset: formatted.length);
   }
 
   @override
@@ -182,8 +204,10 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: TextFormField(
+                    // format the display value as currency (comma wise) but not the actual value
                     controller: walletController.amount,
                     cursorColor: notifire.getwhiteblackcolor,
+                    focusNode: wFocus,
                     keyboardType: TextInputType.number,
                     style: TextStyle(
                       fontFamily: 'Gilroy',
@@ -191,6 +215,10 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                       fontWeight: FontWeight.w600,
                       color: notifire.getwhiteblackcolor,
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      CurrencyInputFormatter(),
+                    ],
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
@@ -230,6 +258,14 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                 SizedBox(
                   height: 20,
                 ),
+
+//                 50,000
+// 100,000
+// 250,000
+// 500,000
+// 750,000
+// 1,000,000
+
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
@@ -238,7 +274,10 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            walletController.addAmount(price: "100");
+                            setAmount(50000);
+                            // walletController.addAmount(price: "50000");
+                            // walletController.
+                            // wFocus.requestFocus();
                           },
                           child: Container(
                             height: 40,
@@ -246,7 +285,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                             alignment: Alignment.center,
                             margin: EdgeInsets.all(10),
                             child: Text(
-                              "100",
+                              "50,000",
                               style: TextStyle(
                                 color: notifire.getwhiteblackcolor,
                               ),
@@ -263,7 +302,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            walletController.addAmount(price: "200");
+                            setAmount(100000);
+                            // walletController.addAmount(price: "100000");
                           },
                           child: Container(
                             height: 40,
@@ -271,7 +311,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                             alignment: Alignment.center,
                             margin: EdgeInsets.all(10),
                             child: Text(
-                              "200",
+                              "100,000",
                               style: TextStyle(
                                 color: notifire.getwhiteblackcolor,
                               ),
@@ -288,7 +328,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            walletController.addAmount(price: "300");
+                            setAmount(250000);
+                            // walletController.addAmount(price: "250000");
                           },
                           child: Container(
                             height: 40,
@@ -296,7 +337,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                             alignment: Alignment.center,
                             margin: EdgeInsets.all(10),
                             child: Text(
-                              "300",
+                              "250,000",
                               style: TextStyle(
                                 color: notifire.getwhiteblackcolor,
                               ),
@@ -321,7 +362,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            walletController.addAmount(price: "400");
+                            setAmount(500000);
+                            // walletController.addAmount(price: "500000");
                           },
                           child: Container(
                             height: 40,
@@ -329,7 +371,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                             alignment: Alignment.center,
                             margin: EdgeInsets.all(10),
                             child: Text(
-                              "400",
+                              "500,000",
                               style: TextStyle(
                                 color: notifire.getwhiteblackcolor,
                               ),
@@ -346,7 +388,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            walletController.addAmount(price: "500");
+                            setAmount(750000);
+                            // walletController.addAmount(price: "750000");
                           },
                           child: Container(
                             height: 40,
@@ -354,7 +397,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                             alignment: Alignment.center,
                             margin: EdgeInsets.all(10),
                             child: Text(
-                              "500",
+                              "750,000",
                               style: TextStyle(
                                 color: notifire.getwhiteblackcolor,
                               ),
@@ -371,7 +414,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            walletController.addAmount(price: "600");
+                            setAmount(1000000);
+                            // walletController.addAmount(price: "1000000");
                           },
                           child: Container(
                             height: 40,
@@ -379,7 +423,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                             alignment: Alignment.center,
                             margin: EdgeInsets.all(10),
                             child: Text(
-                              "600",
+                              "1,000,000",
                               style: TextStyle(
                                 color: notifire.getwhiteblackcolor,
                               ),
@@ -413,6 +457,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                   ),
                   onclick: () {
                     if (walletController.amount.text.isNotEmpty) {
+                      log("Amount: ${walletController.amount.text}");
                       paymentSheett();
                     } else {
                       showToastMessage("Enter Amount");
@@ -640,7 +685,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         List<String> keyList = razorpaykey.split(",");
                         print(keyList.toString());
                         paypalPayment(
-                          walletController.amount.text,
+                          numericValue.toString(),
                           keyList[0],
                           keyList[1],
                         );
@@ -649,7 +694,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         stripePayment();
                       } else if (paymenttital == "PayStack") {
                         paystackController
-                            .paystack(walletController.amount.text)
+                            .paystack(numericValue.toString())
                             .then(
                           (value) {
                             print(
@@ -673,7 +718,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         );
                       } else if (paymenttital == "FlutterWave") {
                         Get.to(() => FlutterWave(
-                                  totalAmount: walletController.amount.text,
+                                  totalAmount: numericValue
+                                      .toString(), // walletController.amount.text,
                                   email: getData
                                       .read("UserLogin")["email"]
                                       .toString(),
@@ -691,7 +737,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         });
                       } else if (paymenttital == "Paytm") {
                         Get.to(() => PayTmPayment(
-                                  totalAmount: walletController.amount.text,
+                                  totalAmount: numericValue
+                                      .toString(), // walletController.amount.text,
                                   uid: getData
                                       .read("UserLogin")["id"]
                                       .toString(),
@@ -716,7 +763,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                                   phone: getData
                                       .read("UserLogin")["mobile"]
                                       .toString(),
-                                  totalAmount: walletController.amount.text,
+                                  totalAmount: numericValue
+                                      .toString(), // walletController.amount.text,
                                 ))!
                             .then(
                           (otid) {
@@ -733,7 +781,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                                   phonNumber: getData
                                       .read("UserLogin")["mobile"]
                                       .toString(),
-                                  totalAmount: walletController.amount.text,
+                                  totalAmount: numericValue
+                                      .toString(), // walletController.amount.text,
                                   email: getData
                                       .read("UserLogin")["email"]
                                       .toString(),
@@ -748,7 +797,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         });
                       } else if (paymenttital == "MercadoPago") {
                         Get.to(() => MercadoPago(
-                                  totalAmount: walletController.amount.text,
+                                  totalAmount: numericValue
+                                      .toString(), //   walletController.amount.text,
                                   email: getData
                                       .read("UserLogin")["email"]
                                       .toString(),
@@ -763,7 +813,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         });
                       } else if (paymenttital == "Khalti Payment") {
                         Get.to(() => Khalti(
-                                  totalAmount: walletController.amount.text,
+                                  totalAmount: numericValue
+                                      .toString(), // walletController.amount.text,
                                   email: getData
                                       .read("UserLogin")["email"]
                                       .toString(),
@@ -778,7 +829,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         });
                       } else if (paymenttital == "2checkout") {
                         Get.to(() => CheckOutPayment(
-                                  totalAmount: walletController.amount.text,
+                                  totalAmount: numericValue
+                                      .toString(), // walletController.amount.text,
                                   email: getData
                                       .read("UserLogin")["email"]
                                       .toString(),
@@ -793,7 +845,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         });
                       } else if (paymenttital == "Payfast") {
                         Get.to(() => PayFast(
-                                  totalAmount: walletController.amount.text,
+                                  totalAmount: numericValue
+                                      .toString(), //walletController.amount.text,
                                   email: getData
                                       .read("UserLogin")["email"]
                                       .toString(),
@@ -929,7 +982,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
 
     var options = {
       'key': razorpaykey,
-      'amount': int.parse(walletController.amount.text) * 100,
+      // 'amount': int.parse(walletController.amount.text) * 100,
+      'amount': int.parse(numericValue.toString()) * 100,
       'name': username,
       'description': "",
       'timeout': 300,
@@ -1285,7 +1339,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                                       },
                                       color: buttonColor,
                                       child: Text(
-                                        "Pay ${currency}${AppFormater.formatAmount(double.tryParse(walletController.amount.text) ?? 0)}",
+                                        "Pay ${currency}${AppFormater.formatAmount(double.tryParse(numericValue.toString()) ?? 0)}",
                                         // "Pay ${currency}${walletController.amount.text}",
                                         style: TextStyle(fontSize: 17.0),
                                       ),
@@ -1324,7 +1378,8 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
       var email = getData.read("UserLogin")["email"] ?? "";
       _paymentCard.name = username;
       _paymentCard.email = email;
-      _paymentCard.amount = walletController.amount.text;
+      _paymentCard.amount =
+          numericValue.toString(); // walletController.amount.text;
       form.save();
       print("PHASE ! 1");
       Get.to(() => StripePaymentWeb(

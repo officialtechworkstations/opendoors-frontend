@@ -501,7 +501,7 @@ class _AppUpdateScreenState extends State<AppUpdateScreen>
                 context,
                 MaterialPageRoute(
                     builder: (context) => const OnBordingScreen()))
-            : prefs.getBool('Remember') != true
+            : getData.read("UserLogin") == null
                 ? Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => LoginScreen()))
                 : getData.read("userType") == "admin"

@@ -1,0 +1,34 @@
+TEST ACCOUNT:
++234 8012345678
+p@55w0rdTest123
+
+
+CONTACT US URL: https://beamish-elf-a0592b.netlify.app/
+PRIVACY POLICY: https://superb-meerkat-f0d4da.netlify.app/
+
+
+OFFICIAL DETAILS:
+officialtechworkstations@gmail.com
+Ikeoha Chiedozie
++234 916 000 5950
+
+
+SHORT DESCRIPTION:
+OpenDoors is a modern property booking platform that allows users to discover, book, and manage short-let apartments, hotels, and accommodations with ease. Property owners can list properties, manage bookings, view earnings, and receive payouts directly from the platform.
+
+FULL DESCRIPTION:
+OpenDoors is a complete property booking and management platform designed for users and property owners.
+ Users can discover apartments, hotels, short-let stays, and other accommodation types, make enquiries, complete bookings, and manage their stays directly from the app.
+For property owners and managers, OpenDoors provides a robust admin dashboard featuring:
+Property listing management
+Image gallery and facility uploads
+Booking workflow (waiting, confirmed, completed)
+Enquiry tracking
+Payment method setup
+Earnings monitoring
+Payout requests and settlement
+User management
+Gallery, package, and facility configuration
+With integrated payment gateways, secure transactions, and real-time analytics, OpenDoors makes it easy to run and scale a property rental business.
+ The platform offers a clean, user-friendly interface and supports both mobile app and web access.
+OpenDoors aims to simplify accommodation booking and provide a seamless experience for both travelers and property managers.

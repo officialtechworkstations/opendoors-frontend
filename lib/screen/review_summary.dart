@@ -702,6 +702,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             ),
                             Spacer(),
                             Text(
+                              // '',
                               "${currency}${(AppFormater.formatAmount(price * bookrealEstateController.days.length))}",
                               style: TextStyle(
                                 fontFamily: FontFamily.gilroyBold,
@@ -732,7 +733,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             ),
                             Spacer(),
                             Text(
-                              "${currency}${AppFormater.formatAmount(double.tryParse(tex ?? '0') ?? 0)}",
+                              // '',
+                              "${currency}${AppFormater.formatAmount(double.tryParse(tex?.toString() ?? '0') ?? 0)}",
                               style: TextStyle(
                                 fontFamily: FontFamily.gilroyBold,
                                 fontSize: 15,
@@ -793,7 +795,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    "${currency}${AppFormater.formatAmount(double.tryParse(copAmt ?? '0') ?? 0)}",
+                                    // '',
+                                    "${currency}${AppFormater.formatAmount(double.tryParse(copAmt?.toString() ?? '0') ?? 0)}",
                                     // "${currency}${ copAmt}",
                                     style: TextStyle(
                                       fontFamily: FontFamily.gilroyBold,
@@ -827,6 +830,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                               ),
                               Spacer(),
                               Text(
+                                // '',
                                 "${currency}${AppFormater.formatAmount(double.tryParse(useWallet.toStringAsFixed(2)) ?? 0)}",
                                 style: TextStyle(
                                   fontFamily: FontFamily.gilroyBold,
@@ -866,7 +870,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             ),
                             Spacer(),
                             Text(
-                              "${currency}${AppFormater.formatAmount(double.tryParse(currentTotalprice ?? '0') ?? 0)}",
+                              "${currency}${AppFormater.formatAmount(double.tryParse(currentTotalprice?.toString() ?? '0') ?? 0)}",
                               // "${currency}${currentTotalprice}",
                               style: TextStyle(
                                 fontFamily: FontFamily.gilroyBold,
@@ -1092,7 +1096,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                 height: 20,
               ),
               Text(
-                "Successfully\n booked. You can chack your booking\n on the menu Profile"
+                "Successfully\n booked. You can check your booking\n on the menu Profile"
                     .tr,
                 maxLines: 3,
                 textAlign: TextAlign.center,
@@ -1493,10 +1497,10 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                                 .then((otid) {
                               if (verifyPaystack == 1) {
                                 bookApiData(otid);
-                                showToastMessage("Payment Successfully");
-                              } else {
-                                Get.back();
+                                showToastMessage("Payment Successful");
                               }
+                              // else: user cancelled — Paystackweb already closed
+                              // itself, so we simply stay on the review screen.
                             });
                           },
                         );
@@ -1545,7 +1549,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                           (otid) {
                             if (otid != null) {
                               bookApiData(otid);
-                              showToastMessage("Payment Successfully");
+                              showToastMessage("Payment Successful");
                             } else {
                               Get.back();
                             }
@@ -1624,6 +1628,12 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             Get.back();
                           }
                         });
+                      }
+
+                      // auto close the sheet if user has selected a payment method, otherwise keep it open
+
+                      if (paymenttital != null) {
+                        Get.back();
                       }
                     },
                   ),
@@ -1782,6 +1792,9 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
           congratiulationDialog();
         } else {
           print("ASDA $value");
+          if (value == "Booking Confirmed Successfully!!!") {
+            return;
+          }
           showToastMessage(value == null
               ? "Something went wrong!"
               : "${value["ResponseMsg"]}");
@@ -1796,7 +1809,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
     bookrealEstateController.selectedDates = [];
     bookrealEstateController.selectedDatees = '';
 
-    showToastMessage("Payment Successfully");
+    showToastMessage("Payment Successful");
   }
 
   String _getReference() {

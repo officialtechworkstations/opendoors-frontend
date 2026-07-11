@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/controller/addproperties_controller.dart';
 import 'package:opendoors/controller/dashboard_controller.dart';
 import 'package:opendoors/controller/extraimage_controller.dart';
 import 'package:opendoors/controller/reviewlist_controller.dart';
@@ -47,6 +48,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
   GalleryImageController galleryImageController = Get.find();
   BookingController bookingController = Get.find();
   EnquiryController enquiryController = Get.find();
+  AddPropertiesController addPropertiesController = Get.find();
   KYC2Controller kycController = Get.put(KYC2Controller());
 
   List<String> routesList = [
@@ -160,6 +162,23 @@ class _MembershipScreenState extends State<MembershipScreen> {
           width: 80,
         ),
       ),
+      floatingActionButton: getData.read("userType") == "admin"
+          ? SizedBox()
+          : FloatingActionButton(
+              onPressed: () {
+                // Get.toNamed(Routes.listOfPropertyScreen);
+                addPropertiesController.buyOrRent = "";
+                Get.toNamed(
+                  Routes.addPropertyScreen,
+                  arguments: {"add": "Add"},
+                );
+              },
+              backgroundColor: Darkblue,
+              child: Icon(
+                Icons.add,
+                color: WhiteColor,
+              ),
+            ),
       body: RefreshIndicator(
         color: Darkblue,
         onRefresh: () {

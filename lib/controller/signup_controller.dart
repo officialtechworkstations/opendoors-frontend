@@ -81,11 +81,22 @@ class SignUpController extends GetxController implements GetxService {
     }
   }
 
+  ensureNoZeroInitial(String number) {
+    String localNumber = number.trim();
+    if (localNumber.startsWith('0')) {
+      localNumber = localNumber.substring(1);
+    }
+    return localNumber;
+  }
+
   Future checkMobileNumber(String cuntryCode) async {
     print("${cuntryCode}");
+
     try {
+      final nb = ensureNoZeroInitial(number.text);
+
       Map map = {
-        "mobile": number.text,
+        "mobile": nb,
         "ccode": cuntryCode,
       };
       Uri uri = Uri.parse(Config.path + Config.mobileChack);
@@ -118,9 +129,11 @@ class SignUpController extends GetxController implements GetxService {
     log('number : $number');
     log('cuntryCode : $cuntryCode');
     log('-----------------');
+
+    final nb = ensureNoZeroInitial(number ?? '');
     try {
       Map map = {
-        "mobile": number,
+        "mobile": nb,
         "ccode": cuntryCode,
       };
       Uri uri = Uri.parse(Config.path + Config.mobileChack);
@@ -148,7 +161,8 @@ class SignUpController extends GetxController implements GetxService {
   MsgotpModel? msgotpData;
   String otpCode = "";
   Future sendOtp(cuntryCode, number) async {
-    Map body = {"mobile": cuntryCode + number};
+    final nb = ensureNoZeroInitial(number);
+    Map body = {"mobile": cuntryCode + nb};
 
     var response = await http.post(Uri.parse(Config.path + Config.msgotp),
         body: jsonEncode(body),
@@ -176,7 +190,9 @@ class SignUpController extends GetxController implements GetxService {
 
   String twilloCode = "";
   Future twilloOtp(cuntryCode, number) async {
-    Map body = {"mobile": cuntryCode + number};
+    final nb = ensureNoZeroInitial(number);
+
+    Map body = {"mobile": cuntryCode + nb};
 
     var response = await http.post(Uri.parse(Config.path + Config.twillotp),
         body: jsonEncode(body),
@@ -202,7 +218,8 @@ class SignUpController extends GetxController implements GetxService {
   }
 
   Future termiOtp(cuntryCode, number) async {
-    Map body = {"mobile": cuntryCode + number};
+    final nb = ensureNoZeroInitial(number);
+    Map body = {"mobile": cuntryCode + nb};
 
     var response = await http.post(Uri.parse(Config.path + Config.termiotp),
         body: jsonEncode(body),
@@ -256,11 +273,11 @@ class SignUpController extends GetxController implements GetxService {
 
   Future setUserApiData(String cuntryCode) async {
     final prefs = await SharedPreferences.getInstance();
-
+    final nb = ensureNoZeroInitial(number.text);
     Map map = {
       "name": name.text,
       "email": email.text,
-      "mobile": number.text,
+      "mobile": nb,
       "ccode": cuntryCode,
       "password": password.text,
       "accept_newsletter": newsletter ? "1" : "0",
@@ -334,6 +351,128 @@ class SignUpController extends GetxController implements GetxService {
       update();
     } catch (e) {
       print(e.toString());
+    }
+  }
+
+  Future<dynamic> socialRegisterInit({
+    required String provider,
+    required String token,
+    required String mobile,
+    required String ccode,
+    String? email,
+    String? name,
+  }) async {
+    final nb = ensureNoZeroInitial(mobile);
+    try {
+      Map map = {
+        "provider": provider,
+        "token": token,
+        "mobile": nb,
+        "ccode": ccode,
+      };
+
+      if (email != null && email.trim().isNotEmpty) {
+        map["email"] = email.trim();
+      }
+      if (name != null && name.trim().isNotEmpty) {
+        map["name"] = name.trim();
+      }
+
+      log(map.toString(), name: 'map ');
+
+      Uri uri = Uri.parse(Config.path + Config.socialRegisterInit);
+      var response = await http.post(
+        uri,
+        body: jsonEncode(map),
+      );
+      log(uri.path.toString());
+      log(response.body.toString());
+
+      if (response.statusCode == 200) {
+        var result = jsonDecode(response.body);
+        return result;
+      }
+
+      return jsonDecode(response.body);
+    } catch (e) {
+      print("socialRegisterInit error: ${e.toString()}");
+      return {
+        "Result": "false",
+        "ResponseMsg": "Something went wrong. Please try again."
+      };
+    }
+  }
+
+  Future<dynamic> finalizeSocialRegister({
+    required String provider,
+    required String token,
+    required String mobile,
+    required String ccode,
+    required String name,
+    String? email,
+    required String refercode,
+    required int acceptNewsletter,
+    required int acceptPrivacyPolicy,
+    required int acceptTermsCondition,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final nb = ensureNoZeroInitial(mobile);
+    try {
+      Map map = {
+        "provider": provider,
+        "token": token,
+        "mobile": nb,
+        "name": name,
+        "ccode": ccode,
+        "refercode": refercode,
+        "accept_newsletter": acceptNewsletter,
+        "accept_privacy_policy": acceptPrivacyPolicy,
+        "accept_terms_condition": acceptTermsCondition,
+      };
+
+      if (email != null && email.trim().isNotEmpty) {
+        map["email"] = email.trim();
+      }
+      // if (name.trim().isNotEmpty) {
+      //   map["name"] = name.trim();
+      // }
+
+      log(map.toString(), name: 'map ');
+      Uri uri = Uri.parse(Config.path + Config.socialRegister);
+      var response = await http.post(
+        uri,
+        body: jsonEncode(map),
+      );
+
+      log(uri.path.toString());
+      log(response.body.toString());
+
+      if (response.statusCode == 200) {
+        var result = jsonDecode(response.body);
+        if (result["Result"] == "true") {
+          await prefs.setBool('Firstuser', true);
+          signUpMsg = result["ResponseMsg"] ?? "Sign Up Done Successfully!";
+          save("UserLogin", result["UserLogin"]);
+
+          try {
+            await firebaseNewuser();
+          } catch (firebaseErr) {
+            print("Firebase registration error: $firebaseErr");
+          }
+
+          OneSignal.User.addTags({"user_id": getData.read("UserLogin")["id"]});
+          update();
+        }
+        return result;
+      }
+
+      return jsonDecode(response.body);
+    } catch (e) {
+      print("finalizeSocialRegister error: ${e.toString()}");
+      return {
+        "Result": "false",
+        "ResponseMsg": "Something went wrong. Please try again."
+      };
     }
   }
 }

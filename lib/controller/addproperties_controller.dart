@@ -34,7 +34,7 @@ class AddPropertiesController extends GetxController implements GetxService {
   String countryId = "1";
 
   String pType = "";
-  String pbuySell = "";
+  String pbuySell = "1";
   String status = "";
 
   String pImage = "";
@@ -158,7 +158,7 @@ class AddPropertiesController extends GetxController implements GetxService {
     pCaution.text = "";
     path = null;
     base64Image = "";
-    pbuySell = "";
+    pbuySell = "1";
     status = "";
     lat = null;
     long = null;
@@ -175,7 +175,8 @@ class AddPropertiesController extends GetxController implements GetxService {
         "status": status == "" ? "1" : status, // publish 1 /0
         "plimit": pGest.text,
         "country_id": countryId.isEmpty ? "1" : countryId,
-        "pbuysell": pbuySell == "" ? "2" : pbuySell, // buy hoy to 2 nkar 1
+        // "pbuysell": pbuySell == "" ? "2" : pbuySell, // buy hoy to 2 nkar 1
+        "pbuysell": pbuySell == "" ? "1" : pbuySell, // buy hoy to 2 nkar 1
         "title": pTitle.text,
         "address": pAddress.text,
         "description": propertyAddress.text,
@@ -240,7 +241,8 @@ class AddPropertiesController extends GetxController implements GetxService {
         "status": status == "" ? "1" : status,
         "plimit": pGest.text,
         "country_id": countryId.isEmpty ? "1" : countryId,
-        "pbuysell": pbuySell == "" ? "2" : pbuySell,
+        // "pbuysell": pbuySell == "" ? "2" : pbuySell,
+        "pbuysell": pbuySell == "" ? "1" : pbuySell,
         "title": pTitle.text,
         "address": pAddress.text,
         "description": propertyAddress.text,

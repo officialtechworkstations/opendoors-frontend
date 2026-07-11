@@ -71,6 +71,9 @@ class _BottoBarScreenState extends State<BottoBarScreen>
 
     isLogin = getData.read("UserLogin");
     tabController = TabController(length: 4, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      handleFCMNavigation();
+    });
   }
 
   DateTime? lastBackPressed;

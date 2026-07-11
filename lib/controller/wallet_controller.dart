@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings, prefer_typing_uninitialized_variables
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -55,6 +56,8 @@ class WalletController extends GetxController implements GetxService {
         "uid": getData.read("UserLogin")["id"].toString(),
         "wallet": amount.text,
       };
+
+      log(map.toString());
       Uri uri = Uri.parse(Config.path + Config.walletUpdateApi);
       var response = await http.post(
         uri,
@@ -76,7 +79,7 @@ class WalletController extends GetxController implements GetxService {
         }
       }
     } catch (e) {
-      print("BODY HERE" +e.toString());
+      print("BODY HERE" + e.toString());
     }
   }
 

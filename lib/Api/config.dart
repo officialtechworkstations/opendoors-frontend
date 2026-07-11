@@ -11,7 +11,8 @@ class Config {
   static String? projectID = "open-doors-app-2025f";
 
   static const String path = baseurl + 'user_api/';
-  static const String oneSignel = "cdd0525b-31a1-4d16-a8ba-f823b005ae40";
+  static const String oneSignel = "363fd86a-2f46-45f2-b3c0-35717eb03369";
+  // static const String oneSignel = "cdd0525b-31a1-4d16-a8ba-f823b005ae40";
   static const googleKey = "AIzaSyBy-e28ndAtWwDlAQPyXUuCgJhwE-P2rqw";
 
   static const String imageUrl = baseurl;
@@ -106,4 +107,8 @@ class Config {
 
   static const String fetchUserData = 'u_profile_data.php';
   static const String toggleNewsletter = 'u_toggle_accept_newsletter.php';
+
+  static const String socialLogin = 'u_social_login.php';
+  static const String socialRegisterInit = 'u_social_register_init.php';
+  static const String socialRegister = 'u_social_register.php';
 }

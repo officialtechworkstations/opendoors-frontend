@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "26275977783",
+    "project_id": "open-doors-app-2025f",
+    "storage_bucket": "open-doors-app-2025f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26275977783:android:5f0c7cbc4a726ab59a7db2",
+        "android_client_info": {
+          "package_name": "com.opendoors.appnew"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADMlUxpDgGEe0SGRHUXq8-LzgIn5sF37o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26275977783:android:5f0c7cbc4a726ab59a7db2",
+        "android_client_info": {
+          "package_name": "com.opendoors.newapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADMlUxpDgGEe0SGRHUXq8-LzgIn5sF37o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26275977783:android:8d169b9d36a172e49a7db2",
+        "android_client_info": {
+          "package_name": "opendoorsapp.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADMlUxpDgGEe0SGRHUXq8-LzgIn5sF37o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

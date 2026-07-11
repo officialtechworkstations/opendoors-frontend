@@ -165,36 +165,54 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                                       ],
                                     ),
                                     Spacer(),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          AppFormater.formatAmount(double
-                                                  .tryParse(dashBoardController
-                                                          .subDetailsInfo
-                                                          ?.subscribedetails![0]
-                                                          .amount ??
-                                                      "0") ??
-                                              0),
-                                          style: TextStyle(
-                                            fontSize: 30,
-                                            fontFamily: FontFamily.gilroyBold,
-                                            color: Darkblue,
+                                    Container(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            height: 35,
+                                            alignment: Alignment.bottomLeft,
+                                            child: Text(
+                                              "${currency} ",
+                                              style: TextStyle(
+                                                fontSize: 25,
+                                                fontFamily:
+                                                    FontFamily.gilroyBold,
+                                                color: Darkblue,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        Container(
-                                          height: 35,
-                                          width: 20,
-                                          alignment: Alignment.bottomLeft,
-                                          child: Text(
-                                            "${currency}",
+                                          Text(
+                                            AppFormater.formatAmount(double
+                                                    .tryParse(dashBoardController
+                                                            .subDetailsInfo
+                                                            ?.subscribedetails![
+                                                                0]
+                                                            .amount ??
+                                                        "0") ??
+                                                0),
                                             style: TextStyle(
-                                              fontSize: 14,
+                                              fontSize: 30,
                                               fontFamily: FontFamily.gilroyBold,
                                               color: Darkblue,
                                             ),
                                           ),
-                                        )
-                                      ],
+                                          // Container(
+                                          //   height: 35,
+                                          //   width: 20,
+                                          //   alignment: Alignment.bottomLeft,
+                                          //   child: Text(
+                                          //     "${currency}",
+                                          //     style: TextStyle(
+                                          //       fontSize: 14,
+                                          //       fontFamily: FontFamily.gilroyBold,
+                                          //       color: Darkblue,
+                                          //     ),
+                                          //   ),
+                                          // )
+                                        ],
+                                      ),
                                     ),
                                     SizedBox(
                                       width: 10,

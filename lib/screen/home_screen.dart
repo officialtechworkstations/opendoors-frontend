@@ -19,6 +19,7 @@ import 'package:opendoors/controller/homepage_controller.dart';
 import 'package:opendoors/controller/search_controller.dart';
 import 'package:opendoors/controller/signup_controller.dart';
 import 'package:opendoors/firebase/chat_screen.dart';
+import 'package:opendoors/firebase/chats_list.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/property_filter_screen.dart';
@@ -63,14 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    FirebaseMessaging.onMessageOpenedApp.listen((remoteMessage) {
-      print("object");
-      Get.to(ChatPage(
-        proPic: remoteMessage.data["propic"],
-        resiverUserId: remoteMessage.data["id"],
-        resiverUseremail: remoteMessage.data["name"],
-      ));
-    });
     homePageController.getHomeDataApi(countryId: getData.read("countryId"));
     homePageController.getCatWiseData(
         countryId: getData.read("countryId"), cId: "0");
@@ -243,6 +236,47 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             actions: [
+              InkWell(
+                onTap: () {
+                  if (getData.read("UserLogin") != null) {
+                    Get.to(() => ChatList());
+                  } else {
+                    Get.toNamed(Routes.login);
+                  }
+                },
+                child: Center(
+                  child: bg.Badge(
+                    badgeStyle: bg.BadgeStyle(
+                      badgeColor: Colors.transparent, // Colors.red,
+                      shape: bg.BadgeShape.circle,
+                    ),
+                    badgeContent: Text(''),
+                    badgeAnimation: bg.BadgeAnimation.slide(),
+                    position: bg.BadgePosition.topEnd(end: 14, top: 3),
+                    child: CircleAvatar(
+                      radius: 24,
+                      child: Container(
+                        height: 50,
+                        width: 50,
+                        alignment: Alignment.center,
+                        child: Image.asset(
+                          "assets/images/chat-dots.png",
+                          height: 25,
+                          width: 25,
+                          color: notifire.getwhiteblackcolor,
+                        ),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      backgroundColor: notifire.getblackwhitecolor,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
               InkWell(
                 onTap: () {
                   if (getData.read("UserLogin") != null) {
@@ -1353,9 +1387,9 @@ void navigateToChat(RemoteMessage message) {
   // Ensure required keys exist
   if (data.containsKey("id") && data.containsKey("name")) {
     Get.to(() => ChatPage(
-          proPic: data["propic"],
-          resiverUserId: data["id"],
-          resiverUseremail: data["name"],
+          proPic: data["propic"]?.toString() ?? "null",
+          resiverUserId: data["id"].toString(),
+          resiverUseremail: data["name"].toString(),
         ));
   }
 }

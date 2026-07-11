@@ -94,6 +94,8 @@ class BookingController extends GetxController implements GetxService {
         var result = jsonDecode(response.body);
         if (result["Result"] == "true") {
           getBookingDetails(bookId: bookId);
+
+          if (result["ResponseMsg"] == 'Booking Confirmed Successfully') return;
           showToastMessage(result["ResponseMsg"]);
         } else {
           showToastMessage(result["ResponseMsg"]);
