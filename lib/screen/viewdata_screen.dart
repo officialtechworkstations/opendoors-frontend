@@ -87,12 +87,17 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
 
   String useremail = '';
   String fmctoken = '';
-  String selectedId = Get.arguments["id"];
+  String selectedId = '';
   bool isBooked = false;
 
   @override
   void initState() {
     super.initState();
+    if (Get.arguments is Map) {
+      selectedId = (Get.arguments["id"] ?? Get.arguments["propertyId"])?.toString() ?? "";
+    } else if (Get.arguments != null) {
+      selectedId = Get.arguments.toString();
+    }
     setBookedStatus();
     homePageController
         .getPropertyDetailsApi(
@@ -114,8 +119,10 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
   }
 
   setBookedStatus() {
-    final bookedValue = Get.arguments['booked'];
-    isBooked = bookedValue == true;
+    if (Get.arguments is Map) {
+      final bookedValue = Get.arguments['booked'];
+      isBooked = bookedValue == true;
+    }
     setState(() {});
   }
 
@@ -944,6 +951,9 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                                   throw 'Could not launch $url';
                                                 }
                                               } else {
+                                                showToastMessage(
+                                                    "Please login and send enquery"
+                                                        .tr);
                                                 Get.to(() => LoginScreen());
                                               }
                                             },
@@ -972,6 +982,9 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                         if (getData.read("UserLogin") != null) {
                                           _showPropertyInquirySheet();
                                         } else {
+                                          showToastMessage(
+                                              "Please login and send enquery"
+                                                  .tr);
                                           Get.to(() => LoginScreen());
                                         }
                                       },
@@ -1436,10 +1449,10 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                             buttontext: "Reserve".tr,
                                             // buttontext: "Book".tr,
                                             onclick: () {
-                                              Get.toNamed(
-                                                  Routes.bookRealEstate);
                                               if (getData.read("UserLogin") !=
                                                   null) {
+                                                Get.toNamed(
+                                                    Routes.bookRealEstate);
                                                 bookrealEstateController
                                                     .cleanDate();
                                                 print(
@@ -1487,6 +1500,8 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                               } else {
                                                 showToastMessage(
                                                     "Please login and Book".tr);
+
+                                                Get.to(() => LoginScreen());
                                               }
                                             },
                                             style: TextStyle(
@@ -1673,9 +1688,11 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
 
     final propertyTitle = details.title?.toString() ?? '';
     final propertyAddress = details.address?.toString() ?? '';
-    final propertyImageUrl = (details.image != null && details.image!.isNotEmpty)
-        ? details.image![0].image?.toString()
-        : null;
+    final propertyImageUrl =
+        (details.image != null && details.image!.isNotEmpty)
+            ? details.image![0].image?.toString()
+            : null;
+    final propertyId = details.id?.toString() ?? '';
 
     showModalBottomSheet(
       context: context,
@@ -1844,9 +1861,9 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                         propertyImage: propertyImageUrl,
                         propertyTitle: propertyTitle,
                         propertyAddress: propertyAddress,
-                        propertyMessage: customMessage.isNotEmpty
-                            ? customMessage
-                            : null,
+                        propertyId: propertyId,
+                        propertyMessage:
+                            customMessage.isNotEmpty ? customMessage : null,
                       ));
                     },
                     style: ElevatedButton.styleFrom(

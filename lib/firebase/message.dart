@@ -6,13 +6,15 @@ class Message {
   final String reciverId;
   final String message;
   final Timestamp timestamp;
+  final bool isRead;
 
   Message(
       {required this.senderId,
       required this.senderName,
       required this.reciverId,
       required this.message,
-      required this.timestamp});
+      required this.timestamp,
+      this.isRead = false});
 
   Map<String, dynamic> toMap() {
     return {
@@ -21,6 +23,7 @@ class Message {
       'reciverId': reciverId,
       'message': message,
       'timestamp': timestamp,
+      'isRead': isRead,
     };
   }
 }

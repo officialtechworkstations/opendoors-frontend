@@ -68,4 +68,44 @@ class ChatServices extends ChangeNotifier {
         .orderBy("timestamp", descending: true)
         .snapshots();
   }
+
+  Stream<QuerySnapshot> getLastMessage(
+      {required String userId, required String otherUserId}) {
+    String chatRoomId = _chatRoomId(userId, otherUserId);
+    return _firebaseStorage
+        .collection("opendoors_chats")
+        .doc(chatRoomId)
+        .collection("message")
+        .orderBy("timestamp", descending: true)
+        .limit(1)
+        .snapshots();
+  }
+
+  Future<void> markMessagesAsRead({required String receiverId}) async {
+    try {
+      final String currentUserId =
+          _normalizeId(getData.read("UserLogin")["id"]);
+      final String normalizedReceiverId = _normalizeId(receiverId);
+      final String chatRoomId =
+          _chatRoomId(currentUserId, normalizedReceiverId);
+
+      final unreadQuery = await _firebaseStorage
+          .collection("opendoors_chats")
+          .doc(chatRoomId)
+          .collection("message")
+          .where("senderid", isEqualTo: normalizedReceiverId)
+          .where("isRead", isEqualTo: false)
+          .get();
+
+      if (unreadQuery.docs.isNotEmpty) {
+        final batch = _firebaseStorage.batch();
+        for (var doc in unreadQuery.docs) {
+          batch.update(doc.reference, {"isRead": true});
+        }
+        await batch.commit();
+      }
+    } catch (e) {
+      log("ChatServices.markMessagesAsRead failed: $e");
+    }
+  }
 }

@@ -62,13 +62,14 @@ class _MapScreenState extends State<MapScreen> {
     getdarkmodepreviousstate();
     super.initState();
     getmarkers();
-    homePageController.lattitude = double.parse(homePageController
-            .homeDatatInfo?.homeData!.featuredProperty![0].latitude ??
-        "0");
-    homePageController.longtitude = double.parse(homePageController
-            .homeDatatInfo?.homeData!.featuredProperty![0].longtitude ??
-        "0");
-    homePageController.getCameraposition();
+    final featured =
+        homePageController.homeDatatInfo?.homeData?.featuredProperty;
+    if (featured != null && featured.isNotEmpty) {
+      homePageController.lattitude = double.parse(featured[0].latitude ?? "0");
+      homePageController.longtitude =
+          double.parse(featured[0].longtitude ?? "0");
+      homePageController.getCameraposition();
+    }
   }
 
   @override
@@ -163,8 +164,9 @@ class _MapScreenState extends State<MapScreen> {
                     width: Get.size.width,
                     child: PageView.builder(
                       controller: homePageController.pageController,
-                      itemCount: homePageController
-                          .homeDatatInfo?.homeData!.featuredProperty!.length,
+                      itemCount: homePageController.homeDatatInfo?.homeData
+                              ?.featuredProperty?.length ??
+                          0,
                       onPageChanged: (int index) {
                         mapController
                             .animateCamera(
@@ -438,38 +440,25 @@ class _MapScreenState extends State<MapScreen> {
 
   getmarkers() async {
     final Uint8List markIcon = await getImages("assets/images/MapPin.png", 100);
-    for (var i = 0;
-        i <
-            homePageController
-                .homeDatatInfo!.homeData!.featuredProperty!.length;
-        i++) {
+    final featured =
+        homePageController.homeDatatInfo?.homeData?.featuredProperty;
+    if (featured == null || featured.isEmpty) return;
+    for (var i = 0; i < featured.length; i++) {
       markers.add(Marker(
         markerId: MarkerId(i.toString()),
         position: LatLng(
-          double.parse(homePageController
-                  .homeDatatInfo?.homeData!.featuredProperty![i].latitude
-                  .toString() ??
-              "0"),
-          double.parse(homePageController
-                  .homeDatatInfo?.homeData!.featuredProperty![i].longtitude
-                  .toString() ??
-              "0"),
+          double.parse(featured[i].latitude?.toString() ?? "0"),
+          double.parse(featured[i].longtitude?.toString() ?? "0"),
         ),
         icon: BitmapDescriptor.fromBytes(markIcon),
         infoWindow: InfoWindow(
-          title: homePageController
-              .homeDatatInfo?.homeData!.featuredProperty![i].title,
-          snippet: homePageController
-              .homeDatatInfo?.homeData!.featuredProperty![i].city,
+          title: featured[i].title,
+          snippet: featured[i].city,
           onTap: () async {
-            Get.toNamed(Routes.viewDataScreen, arguments: {
-              "id": homePageController
-                  .homeDatatInfo?.homeData!.featuredProperty![i].id
-            });
+            Get.toNamed(Routes.viewDataScreen,
+                arguments: {"id": featured[i].id});
             setState(() {
-              homePageController.rate = homePageController
-                      .homeDatatInfo?.homeData!.featuredProperty![i].rate ??
-                  "";
+              homePageController.rate = featured[i].rate ?? "";
             });
             homePageController.chnageObjectIndex(i);
           },

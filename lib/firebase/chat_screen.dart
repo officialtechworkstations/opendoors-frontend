@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,6 +17,7 @@ import 'package:opendoors/firebase/chat_bubble.dart';
 import 'package:opendoors/firebase/chat_filter_service.dart';
 import 'package:opendoors/firebase/chat_service.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
+import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
@@ -31,6 +33,7 @@ class ChatPage extends StatefulWidget {
   final String? propertyTitle;
   final String? propertyAddress;
   final String? propertyMessage;
+  final String? propertyId;
 
   const ChatPage({
     super.key,
@@ -41,6 +44,7 @@ class ChatPage extends StatefulWidget {
     this.propertyTitle,
     this.propertyAddress,
     this.propertyMessage,
+    this.propertyId,
   });
 
   @override
@@ -50,59 +54,71 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   HomePageController homePageController = Get.find();
 
-  TextEditingController controller = TextEditingController();
+  late final TextEditingController controller;
 
   ChatServices chatservices = ChatServices();
+  StreamSubscription<QuerySnapshot>? _messageSubscription;
 
   final ScrollController _controller = ScrollController();
   int _lastMessageCount = 0;
 
   static const Duration _noticeDisplayDuration = Duration(minutes: 5);
 
-  bool _showNotice = false;
-  String chatNotice = "";
+  final ValueNotifier<bool> _showNoticeNotifier = ValueNotifier(false);
+  final ValueNotifier<bool> isSendingNotifier = ValueNotifier(false);
+  final ValueNotifier<String> _chatNoticeNotifier = ValueNotifier("");
+  final ValueNotifier<String> _inputTextNotifier = ValueNotifier("");
   Timer? _noticeTimer;
 
   void sendMessage() async {
-    if (controller.text.isNotEmpty) {
-      // filter message with contact details======================
-      FilterResult result = ContactInfoFilter.filterMessage(controller.text);
-
-      if (result.blocked) {
-        // log("BLOCKED: ${result.blocked.toString()}");
-        // log(result.reason.toString());
-        // log(result.suggestion.toString());
-        showToastMessage("${result.reason}\n\n ${result.suggestion}");
-        return;
-      }
-      // filter message with contact details======================
+    final message = controller.text.trim();
+    if (message.isEmpty) {
+      return;
     }
+
+    isSendingNotifier.value = true;
+    // filter message with contact details======================
+    FilterResult result = ContactInfoFilter.filterMessage(message);
+
+    if (result.blocked) {
+      // log("BLOCKED: ${result.blocked.toString()}");
+      // log(result.reason.toString());
+      // log(result.suggestion.toString());
+      showToastMessage("${result.reason}\n\n ${result.suggestion}");
+      isSendingNotifier.value = false;
+      return;
+    }
+    // filter message with contact details======================
 
     CollectionReference collectionReference =
         FirebaseFirestore.instance.collection('opendoors_users');
 
     print("AFA <F ${widget.resiverUserId}");
-    if (controller.text.isNotEmpty) {
-      collectionReference.doc(widget.resiverUserId).get().then((value) async {
-        var fields;
+    collectionReference.doc(widget.resiverUserId).get().then((value) async {
+      var fields;
 
-        print("FIELDS ${value.data()}");
-        fields = value.data();
+      print("FIELDS ${value.data()}");
+      fields = value.data();
 
-        if (fields != null && fields["isOnline"] == false) {
-          sendPushMessage(
-              controller.text, getData.read("UserLogin")["name"], fmctoken);
-        } else {
-          print("user online");
-        }
+      if (fields != null && fields["isOnline"] == false) {
+        sendPushMessage(message, getData.read("UserLogin")["name"], fmctoken);
+      } else {
+        print("user online");
+      }
 
-        await chatservices.sendMessage(
-            receiverId: widget.resiverUserId, messeage: controller.text);
+      await chatservices.sendMessage(
+          receiverId: widget.resiverUserId, messeage: message);
 
-        controller.clear();
-        _scrollToBottom(animated: true);
-      });
-    }
+      controller.clear();
+      _scrollToBottom(animated: true);
+      if (mounted) {
+        isSendingNotifier.value = false;
+      }
+    }).catchError((_) {
+      if (mounted) {
+        isSendingNotifier.value = false;
+      }
+    });
   }
 
   String fmctoken = "";
@@ -116,10 +132,8 @@ class _ChatPageState extends State<ChatPage> {
       if (!mounted) {
         return;
       }
-      setState(() {
-        fmctoken = fields?["token"]?.toString() ?? "";
-        print("TOKEN ID > <> <> <> <> ${fmctoken}");
-      });
+      fmctoken = fields?["token"]?.toString() ?? "";
+      print("TOKEN ID > <> <> <> <> ${fmctoken}");
     });
   }
 
@@ -132,6 +146,7 @@ class _ChatPageState extends State<ChatPage> {
     final title = widget.propertyTitle!;
     final image = widget.propertyImage!;
     final address = widget.propertyAddress ?? "";
+    final propertyId = widget.propertyId ?? "";
     final info = (widget.propertyMessage != null &&
             widget.propertyMessage!.isNotEmpty)
         ? widget.propertyMessage!
@@ -144,6 +159,7 @@ class _ChatPageState extends State<ChatPage> {
       "title": title,
       "address": address,
       "message": info,
+      "propertyId": propertyId,
     });
 
     final snapshot = await FirebaseFirestore.instance
@@ -183,9 +199,21 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _handleTextChanged() {
+    if (!mounted) return;
+    _inputTextNotifier.value = controller.text;
+  }
+
+// chat item with property details click action
+  void routeToPropertyDetails(String propertyId) {
+    Get.toNamed(Routes.viewDataScreen, arguments: {"id": propertyId});
+  }
+
   @override
   void initState() {
     super.initState();
+    controller = TextEditingController();
+    controller.addListener(_handleTextChanged);
 
     setNotice();
     _setDailyNoticeVisibility();
@@ -199,14 +227,15 @@ class _ChatPageState extends State<ChatPage> {
     if (widget.propertyTitle != null && widget.propertyImage != null) {
       _sendInitialPropertyMessage();
     }
+
+    _setupMessageReadListener();
   }
 
   void setNotice() async {
     await homePageController.getChatNoApi().then((onValue) {
       // log(homePageController.chatNotice.toString());
-      chatNotice = homePageController.chatNotice.toString();
       if (mounted) {
-        setState(() {});
+        _chatNoticeNotifier.value = homePageController.chatNotice.toString();
       }
     });
   }
@@ -228,31 +257,54 @@ class _ChatPageState extends State<ChatPage> {
       return;
     }
 
-    setState(() {
-      _showNotice = true;
-    });
+    if (mounted) {
+      _showNoticeNotifier.value = true;
+    }
     _noticeTimer?.cancel();
     _noticeTimer = Timer(_noticeDisplayDuration, () {
       if (mounted) {
-        setState(() {
-          _showNotice = false;
-        });
+        _showNoticeNotifier.value = false;
       }
     });
   }
 
   void _hideNotice() {
     _noticeTimer?.cancel();
-    setState(() {
-      _showNotice = false;
-    });
+    _showNoticeNotifier.value = false;
   }
 
   @override
   void dispose() {
+    _messageSubscription?.cancel();
+    controller.removeListener(_handleTextChanged);
+    controller.dispose();
     _noticeTimer?.cancel();
+    _showNoticeNotifier.dispose();
+    _chatNoticeNotifier.dispose();
+    _inputTextNotifier.dispose();
     isUserOnlie(getData.read("UserLogin")["id"], false);
     super.dispose();
+  }
+
+  void _setupMessageReadListener() {
+    final rawId = getData.read("UserLogin")?["id"];
+    if (rawId == null) return;
+    final String currentUserId = rawId.toString();
+
+    _messageSubscription = chatservices
+        .getMessage(userId: widget.resiverUserId, otherUserId: currentUserId)
+        .listen((snapshot) {
+      final hasUnread = snapshot.docs.any((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final isIncoming = data['senderid'].toString() != currentUserId;
+        final isUnread = data['isRead'] != true;
+        return isIncoming && isUnread;
+      });
+
+      if (hasUnread) {
+        chatservices.markMessagesAsRead(receiverId: widget.resiverUserId);
+      }
+    });
   }
 
   void _scrollToBottom({bool animated = false}) {
@@ -281,24 +333,35 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: notifire.getbgcolor,
       appBar: appbar(),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Column(
-          children: [
-            if (_showNotice) _buildWarningPopup(),
-            Expanded(child: _buildMessageList()),
-            AnimatedPadding(
-              duration: const Duration(milliseconds: 150),
-              curve: Curves.easeOut,
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: _buildMessageInpurt(),
-            ),
-          ],
+        onTap: () {
+          final primaryFocus = FocusManager.instance.primaryFocus;
+          if (primaryFocus != null) {
+            primaryFocus.unfocus();
+          }
+        },
+        child: SafeArea(
+          child: Column(
+            children: [
+              ValueListenableBuilder<bool>(
+                valueListenable: _showNoticeNotifier,
+                builder: (context, showNotice, _) {
+                  return showNotice
+                      ? _buildWarningPopup()
+                      : const SizedBox.shrink();
+                },
+              ),
+              Expanded(child: _buildMessageList()),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                child: _buildMessageInput(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -408,16 +471,24 @@ class _ChatPageState extends State<ChatPage> {
                         color: Color(0xFF1E2329), size: 20),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(
-                        chatNotice.isNotEmpty
-                            ? chatNotice
-                            : 'Important: Keep all communication & bookings inside the app. '
-                                'Sharing personal contact details is not allowed.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF1E2329),
-                              fontSize: 13.5,
-                              height: 1.3,
-                            ),
+                      child: ValueListenableBuilder<String>(
+                        valueListenable: _chatNoticeNotifier,
+                        builder: (context, value, child) {
+                          return Text(
+                            value.isNotEmpty
+                                ? value
+                                : 'Important: Keep all communication & bookings inside the app. '
+                                    'Sharing personal contact details is not allowed.',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: const Color(0xFF1E2329),
+                                  fontSize: 13.5,
+                                  height: 1.3,
+                                ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -474,6 +545,7 @@ class _ChatPageState extends State<ChatPage> {
               }
             });
           }
+          // log(docs.toString());
           return RawScrollbar(
             controller: _controller,
             thumbVisibility: true,
@@ -517,6 +589,7 @@ class _ChatPageState extends State<ChatPage> {
         isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
 
     final String timeStr = _formatTimestamp(data['timestamp']);
+    // log(data.toString());
 
     return Container(
       alignment: alingmentt,
@@ -550,7 +623,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildMessageInpurt() {
+  Widget _buildMessageInput() {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Row(
@@ -558,6 +631,7 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: TextField(
               controller: controller,
+              onSubmitted: (_) => sendMessage(),
               style: TextStyle(
                 fontSize: 16,
                 color: notifire.getwhiteblackcolor,
@@ -566,12 +640,36 @@ class _ChatPageState extends State<ChatPage> {
               decoration: InputDecoration(
                   isDense: true,
                   contentPadding: const EdgeInsets.all(12),
-                  suffixIcon: IconButton(
-                      onPressed: sendMessage,
-                      icon: Icon(
-                        Icons.send,
-                        color: notifire.getwhiteblackcolor,
-                      )),
+                  suffixIcon: ValueListenableBuilder<bool>(
+                      valueListenable: isSendingNotifier,
+                      builder: (context, isSending, child) {
+                        return ValueListenableBuilder<String>(
+                          valueListenable: _inputTextNotifier,
+                          builder: (context, text, _) {
+                            final hasText = text.trim().isNotEmpty;
+                            return IconButton(
+                              onPressed: isSending ? null : sendMessage,
+                              icon: isSending
+                                  ? const SizedBox(
+                                      width: 10,
+                                      height: 10,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.0,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.grey),
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.send,
+                                      color: hasText
+                                          ? notifire.getdarkbluecolor
+                                          : Colors.grey,
+                                    ),
+                            );
+                          },
+                        );
+                      }),
                   hintStyle: TextStyle(
                     fontSize: 14,
                     color: notifire.getwhiteblackcolor,

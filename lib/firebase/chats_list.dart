@@ -159,6 +159,7 @@ class _ChatListState extends State<ChatList> {
                     proPic: item['image'] as String,
                     lastMessage: item['message'] as String,
                     lastTimestamp: item['timestamp'] as Timestamp?,
+                    isUnread: item['isUnread'] as bool? ?? false,
                   );
                 },
               ),
@@ -179,12 +180,17 @@ class _ChatListState extends State<ChatList> {
         final docs = snapshot.data!.docs;
         return Column(
           children: docs.map<Widget>((doc) {
-            final Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+            final Map<String, dynamic> data =
+                doc.data()! as Map<String, dynamic>;
             final String uid = (data['uid'] ?? doc.id).toString();
-            if (uid.isEmpty || uid == currentUserId) return const SizedBox.shrink();
+            if (uid.isEmpty || uid == currentUserId)
+              return const SizedBox.shrink();
 
             return StreamBuilder<QuerySnapshot>(
-              stream: _chatServices.getMessage(userId: uid, otherUserId: currentUserId),
+              // commented out loading the entire chat history for optimization:
+              // stream: _chatServices.getMessage(userId: uid, otherUserId: currentUserId),
+              stream: _chatServices.getLastMessage(
+                  userId: uid, otherUserId: currentUserId),
               builder: (context, msgSnapshot) {
                 if (!msgSnapshot.hasData || msgSnapshot.data!.docs.isEmpty) {
                   if (_chatItemsMap.containsKey(uid)) {
@@ -197,12 +203,18 @@ class _ChatListState extends State<ChatList> {
                   return const SizedBox.shrink();
                 }
 
-                final lastMsgDoc = msgSnapshot.data!.docs.last;
+                // Since we limit(1), the first document is the latest message.
+                final lastMsgDoc = msgSnapshot.data!.docs.first;
                 final lastMsgData = lastMsgDoc.data() as Map<String, dynamic>;
                 final Timestamp? ts = lastMsgData['timestamp'] as Timestamp?;
                 final String message = lastMsgData['message']?.toString() ?? '';
                 final String name = data['name']?.toString() ?? 'Unknown';
                 final String proPic = data['pro_pic']?.toString() ?? 'null';
+                final bool isRead = lastMsgData['isRead'] as bool? ?? true;
+                final bool isUnread = !isRead &&
+                    lastMsgData['senderid'].toString() != currentUserId;
+
+                log(lastMsgData.toString());
 
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   final existing = _chatItemsMap[uid];
@@ -210,7 +222,8 @@ class _ChatListState extends State<ChatList> {
                       existing['message'] != message ||
                       existing['timestamp'] != ts ||
                       existing['name'] != name ||
-                      existing['image'] != proPic) {
+                      existing['image'] != proPic ||
+                      existing['isUnread'] != isUnread) {
                     setState(() {
                       _chatItemsMap[uid] = {
                         'name': name,
@@ -218,6 +231,7 @@ class _ChatListState extends State<ChatList> {
                         'uid': uid,
                         'message': message,
                         'timestamp': ts,
+                        'isUnread': isUnread,
                       };
                     });
                   }
@@ -280,6 +294,7 @@ class _ChatListState extends State<ChatList> {
                     proPic: item['image'] as String,
                     lastMessage: item['message'] as String,
                     lastTimestamp: item['timestamp'] as Timestamp?,
+                    isUnread: item['isUnread'] as bool? ?? false,
                   );
                 },
               ),
@@ -306,6 +321,7 @@ class _ChatListState extends State<ChatList> {
     required String proPic,
     required String lastMessage,
     required Timestamp? lastTimestamp,
+    required bool isUnread,
   }) {
     final String timeStr = _formatTimestamp(lastTimestamp);
     return ListTile(
@@ -339,7 +355,8 @@ class _ChatListState extends State<ChatList> {
         style: TextStyle(
           fontSize: 14,
           color: notifire.getwhiteblackcolor,
-          fontFamily: FontFamily.gilroyLight,
+          fontFamily: isUnread ? FontFamily.gilroyBold : FontFamily.gilroyLight,
+          fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
         ),
       ),
       trailing: timeStr.isNotEmpty
@@ -348,7 +365,9 @@ class _ChatListState extends State<ChatList> {
               style: TextStyle(
                 fontSize: 10,
                 color: notifire.getwhiteblackcolor,
-                fontFamily: FontFamily.gilroyLight,
+                fontFamily:
+                    isUnread ? FontFamily.gilroyBold : FontFamily.gilroyLight,
+                fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
               ),
             )
           : null,
