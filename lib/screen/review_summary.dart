@@ -59,6 +59,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
   HomePageController homePageController = Get.find();
   LoginController loginController = Get.find();
   PaystackController paystackController = Get.put(PaystackController());
+  final ValueNotifier<bool> _isLoadingPaymentNotifier = ValueNotifier(false);
+  final ValueNotifier<bool> _shouldRoute = ValueNotifier(false);
 
   dynamic copAmt = Get.arguments["copAmt"];
   bool coupAdded = false;
@@ -1449,198 +1451,267 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                           );
                   }),
                 ),
-                Container(
-                  height: 80,
-                  width: Get.size.width,
-                  alignment: Alignment.center,
-                  child: GestButton(
-                    Width: Get.size.width,
-                    height: 50,
-                    buttoncolor: blueColor,
-                    margin: EdgeInsets.only(top: 10, left: 30, right: 30),
-                    buttontext: "Continue".tr,
-                    style: TextStyle(
-                      fontFamily: FontFamily.gilroyBold,
-                      color: WhiteColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onclick: () async {
-                      print(paymenttital);
-                      if (paymenttital == "Razorpay") {
-                        Get.back();
-                        openCheckout();
-                      } else if (paymenttital == "Pay TO Owner") {
-                        bookApiData("0");
-                      } else if (paymenttital == "Paypal") {
-                        List<String> keyList = razorpaykey.split(",");
-                        paypalPayment(
-                          currentTotalprice.toString(),
-                          keyList[0],
-                          keyList[1],
-                        );
-                      } else if (paymenttital == "Stripe") {
-                        Get.back();
-                        stripePayment();
-                      } else if (paymenttital == "PayStack") {
-                        paystackController
-                            .paystack(currentTotalprice.toString())
-                            .then(
-                          (value) {
-                            print(
-                                "< > >< >< >< >< >< >< >< >< ><>>< ${paystackController.paystackData!.data!.authorizationUrl}>");
-                            Get.to(() => Paystackweb(
-                                      url: paystackController
-                                          .paystackData!.data!.authorizationUrl,
-                                      skID: paystackID,
-                                    ))!
-                                .then((otid) {
-                              if (verifyPaystack == 1) {
-                                bookApiData(otid);
-                                showToastMessage("Payment Successful");
-                              }
-                              // else: user cancelled — Paystackweb already closed
-                              // itself, so we simply stay on the review screen.
-                            });
-                          },
-                        );
-                      } else if (paymenttital == "FlutterWave") {
-                        Get.to(() => FlutterWave(
-                                  totalAmount: currentTotalprice.toString(),
-                                  email: getData
-                                      .read("UserLogin")["email"]
-                                      .toString(),
-                                ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            bookApiData(otid);
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } else if (paymenttital == "Paytm") {
-                        Get.to(() => PayTmPayment(
-                                  totalAmount: currentTotalprice.toString(),
-                                  uid: getData
-                                      .read("UserLogin")["id"]
-                                      .toString(),
-                                ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            bookApiData(otid);
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } else if (paymenttital == "SenangPay") {
-                        Get.to(() => Senangpay(
-                                  email: getData
-                                      .read("UserLogin")["email"]
-                                      .toString(),
-                                  name: getData
-                                      .read("UserLogin")["name"]
-                                      .toString(),
-                                  phone: getData
-                                      .read("UserLogin")["mobile"]
-                                      .toString(),
-                                  totalAmount: currentTotalprice.toString(),
-                                ))!
-                            .then(
-                          (otid) {
-                            if (otid != null) {
-                              bookApiData(otid);
-                              showToastMessage("Payment Successful");
-                            } else {
-                              Get.back();
-                            }
-                          },
-                        );
-                      } else if (paymenttital == "Midtrans") {
-                        Get.to(() => MidTrans(
-                                  phonNumber: getData
-                                      .read("UserLogin")["mobile"]
-                                      .toString(),
-                                  totalAmount: currentTotalprice.toString(),
-                                  email: getData
-                                      .read("UserLogin")["email"]
-                                      .toString(),
-                                ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            bookApiData(otid);
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } else if (paymenttital == "MercadoPago") {
-                        Get.to(() => MercadoPago(
-                                  totalAmount: currentTotalprice.toString(),
-                                  email: getData
-                                      .read("UserLogin")["email"]
-                                      .toString(),
-                                ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            bookApiData(otid);
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } else if (paymenttital == "Khalti Payment") {
-                        Get.to(() => Khalti(
-                                  totalAmount: currentTotalprice.toString(),
-                                  email: getData
-                                      .read("UserLogin")["email"]
-                                      .toString(),
-                                ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            bookApiData(otid);
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } else if (paymenttital == "2checkout") {
-                        Get.to(() => CheckOutPayment(
-                                  totalAmount: currentTotalprice.toString(),
-                                  email: getData
-                                      .read("UserLogin")["email"]
-                                      .toString(),
-                                ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            bookApiData(otid);
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      } else if (paymenttital == "Payfast") {
-                        Get.to(() => PayFast(
-                                  totalAmount: currentTotalprice.toString(),
-                                  email: getData
-                                      .read("UserLogin")["email"]
-                                      .toString(),
-                                ))!
-                            .then((otid) {
-                          if (otid != null) {
-                            bookApiData(otid);
-                          } else {
-                            Get.back();
-                          }
-                        });
-                      }
+                ValueListenableBuilder<bool>(
+                    valueListenable: _isLoadingPaymentNotifier,
+                    builder: (context, isLoading, child) {
+                      return ValueListenableBuilder(
+                          valueListenable: _shouldRoute,
+                          builder: (context, canRoute, child) {
+                            return Container(
+                              height: 80,
+                              width: Get.size.width,
+                              alignment: Alignment.center,
+                              child: GestButton(
+                                Width: Get.size.width,
+                                height: 50,
+                                buttoncolor: blueColor,
+                                margin: EdgeInsets.only(
+                                    top: 10, left: 30, right: 30),
+                                buttontext: "Continue".tr,
+                                isLoading:
+                                    isLoading, // Show loading indicator based on the notifier
+                                style: TextStyle(
+                                  fontFamily: FontFamily.gilroyBold,
+                                  color: WhiteColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                onclick: () async {
+                                  if (paymenttital == null) {
+                                    return;
+                                  }
+                                  _isLoadingPaymentNotifier.value =
+                                      true; // Set loading state to true
+                                  print(paymenttital);
+                                  if (paymenttital == "Razorpay") {
+                                    Get.back();
+                                    openCheckout();
+                                  } else if (paymenttital == "Pay TO Owner") {
+                                    bookApiData("0");
+                                  } else if (paymenttital == "Paypal") {
+                                    List<String> keyList =
+                                        razorpaykey.split(",");
+                                    paypalPayment(
+                                      currentTotalprice.toString(),
+                                      keyList[0],
+                                      keyList[1],
+                                    );
+                                  } else if (paymenttital == "Stripe") {
+                                    Get.back();
+                                    stripePayment();
+                                  } else if (paymenttital == "PayStack") {
+                                    await paystackController
+                                        .paystack(currentTotalprice.toString());
 
-                      // auto close the sheet if user has selected a payment method, otherwise keep it open
+                                    _isLoadingPaymentNotifier.value =
+                                        false; // Reset loading state after payment process
+                                    _shouldRoute.value =
+                                        false; // Reset the route flag
 
-                      if (paymenttital != null) {
-                        Get.back();
-                      }
-                    },
-                  ),
-                  decoration: BoxDecoration(
-                    color: notifire.getblackwhitecolor,
-                  ),
-                ),
+                                    print(
+                                        "< > >< >< >< >< >< >< >< >< ><>>< ${paystackController.paystackData!.data!.authorizationUrl}>");
+                                    Get.to(() => Paystackweb(
+                                              url: paystackController
+                                                  .paystackData!
+                                                  .data!
+                                                  .authorizationUrl,
+                                              skID: paystackID,
+                                            ))!
+                                        .then((otid) {
+                                      Get.back();
+                                      if (verifyPaystack == 1) {
+                                        bookApiData(otid);
+                                        showToastMessage("Payment Successful");
+                                      }
+
+                                      // else: user cancelled — Paystackweb already closed
+                                      // itself, so we simply stay on the review screen.
+                                    });
+
+                                    //     .then(
+                                    //   (value) {
+                                    //     _shouldRoute.value =
+                                    //         true; // Set the flag to true when the URL is ready
+                                    //     print(
+                                    //         "< > >< >< >< >< >< >< >< >< ><>>< ${paystackController.paystackData!.data!.authorizationUrl}>");
+                                    //     Get.to(() => Paystackweb(
+                                    //               url: paystackController
+                                    //                   .paystackData!
+                                    //                   .data!
+                                    //                   .authorizationUrl,
+                                    //               skID: paystackID,
+                                    //             ))!
+                                    //         .then((otid) {
+                                    //       if (verifyPaystack == 1) {
+                                    //         bookApiData(otid);
+                                    //         showToastMessage(
+                                    //             "Payment Successful");
+                                    //       }
+                                    //       // else: user cancelled — Paystackweb already closed
+                                    //       // itself, so we simply stay on the review screen.
+                                    //     });
+                                    //   },
+                                    // );
+                                  } else if (paymenttital == "FlutterWave") {
+                                    Get.to(() => FlutterWave(
+                                              totalAmount:
+                                                  currentTotalprice.toString(),
+                                              email: getData
+                                                  .read("UserLogin")["email"]
+                                                  .toString(),
+                                            ))!
+                                        .then((otid) {
+                                      if (otid != null) {
+                                        bookApiData(otid);
+                                      } else {
+                                        Get.back();
+                                      }
+                                    });
+                                  } else if (paymenttital == "Paytm") {
+                                    Get.to(() => PayTmPayment(
+                                              totalAmount:
+                                                  currentTotalprice.toString(),
+                                              uid: getData
+                                                  .read("UserLogin")["id"]
+                                                  .toString(),
+                                            ))!
+                                        .then((otid) {
+                                      if (otid != null) {
+                                        bookApiData(otid);
+                                      } else {
+                                        Get.back();
+                                      }
+                                    });
+                                  } else if (paymenttital == "SenangPay") {
+                                    Get.to(() => Senangpay(
+                                              email: getData
+                                                  .read("UserLogin")["email"]
+                                                  .toString(),
+                                              name: getData
+                                                  .read("UserLogin")["name"]
+                                                  .toString(),
+                                              phone: getData
+                                                  .read("UserLogin")["mobile"]
+                                                  .toString(),
+                                              totalAmount:
+                                                  currentTotalprice.toString(),
+                                            ))!
+                                        .then(
+                                      (otid) {
+                                        if (otid != null) {
+                                          bookApiData(otid);
+                                          showToastMessage(
+                                              "Payment Successful");
+                                        } else {
+                                          Get.back();
+                                        }
+                                      },
+                                    );
+                                  } else if (paymenttital == "Midtrans") {
+                                    Get.to(() => MidTrans(
+                                              phonNumber: getData
+                                                  .read("UserLogin")["mobile"]
+                                                  .toString(),
+                                              totalAmount:
+                                                  currentTotalprice.toString(),
+                                              email: getData
+                                                  .read("UserLogin")["email"]
+                                                  .toString(),
+                                            ))!
+                                        .then((otid) {
+                                      if (otid != null) {
+                                        bookApiData(otid);
+                                      } else {
+                                        Get.back();
+                                      }
+                                    });
+                                  } else if (paymenttital == "MercadoPago") {
+                                    Get.to(() => MercadoPago(
+                                              totalAmount:
+                                                  currentTotalprice.toString(),
+                                              email: getData
+                                                  .read("UserLogin")["email"]
+                                                  .toString(),
+                                            ))!
+                                        .then((otid) {
+                                      if (otid != null) {
+                                        bookApiData(otid);
+                                      } else {
+                                        Get.back();
+                                      }
+                                    });
+                                  } else if (paymenttital == "Khalti Payment") {
+                                    Get.to(() => Khalti(
+                                              totalAmount:
+                                                  currentTotalprice.toString(),
+                                              email: getData
+                                                  .read("UserLogin")["email"]
+                                                  .toString(),
+                                            ))!
+                                        .then((otid) {
+                                      if (otid != null) {
+                                        bookApiData(otid);
+                                      } else {
+                                        Get.back();
+                                      }
+                                    });
+                                  } else if (paymenttital == "2checkout") {
+                                    Get.to(() => CheckOutPayment(
+                                              totalAmount:
+                                                  currentTotalprice.toString(),
+                                              email: getData
+                                                  .read("UserLogin")["email"]
+                                                  .toString(),
+                                            ))!
+                                        .then((otid) {
+                                      if (otid != null) {
+                                        bookApiData(otid);
+                                      } else {
+                                        Get.back();
+                                      }
+                                    });
+                                  } else if (paymenttital == "Payfast") {
+                                    Get.to(() => PayFast(
+                                              totalAmount:
+                                                  currentTotalprice.toString(),
+                                              email: getData
+                                                  .read("UserLogin")["email"]
+                                                  .toString(),
+                                            ))!
+                                        .then((otid) {
+                                      if (otid != null) {
+                                        bookApiData(otid);
+                                      } else {
+                                        Get.back();
+                                      }
+                                    });
+                                  }
+
+                                  // auto close the sheet if user has selected a payment method, otherwise keep it open
+
+                                  // if (paymenttital != null &&
+                                  //     paymenttital == "PayStack" &&
+                                  //     canRoute) {
+                                  // }
+
+                                  // if (paymenttital != null &&
+                                  //     paymenttital != "PayStack") {
+                                  //   log('here');
+                                  //   Get.back();
+                                  //   _isLoadingPaymentNotifier.value =
+                                  //       false; // Reset loading state after payment process
+                                  //   _shouldRoute.value =
+                                  //       false; // Reset the route flag
+                                  //   // a small delay
+                                  // }
+                                },
+                              ),
+                              decoration: BoxDecoration(
+                                color: notifire.getblackwhitecolor,
+                              ),
+                            );
+                          });
+                    }),
               ],
             );
           }),
