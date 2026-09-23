@@ -13,6 +13,7 @@ import 'package:opendoors/screen/kyc/widget2/kyc_model.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class KYCAuthScreen extends StatefulWidget {
   final bool showSkipOption;
@@ -88,7 +89,7 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
       ),
       body: Obx(() {
         if (controller.isLoadingRequirements.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: FastSpinner());
         }
 
         // If no required documents, show empty state
@@ -147,7 +148,7 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
               width: 100,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Center(
@@ -285,7 +286,7 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: darkMode ? Color.fromARGB(255, 47, 47, 44) : Colors.white,
+        color: darkMode ? const Color.fromARGB(255, 47, 47, 44) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -683,7 +684,7 @@ class _KYCAuthScreenState extends State<KYCAuthScreen> {
                 ? SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(
+                    child: FastSpinner(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(darkMode
                           ? notifire.getwhiteblackcolor

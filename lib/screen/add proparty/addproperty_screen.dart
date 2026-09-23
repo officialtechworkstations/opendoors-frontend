@@ -5,7 +5,9 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
@@ -20,6 +22,8 @@ import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
@@ -28,16 +32,45 @@ class AddPropertyScreen extends StatefulWidget {
   State<AddPropertyScreen> createState() => _AddPropertyScreenState();
 }
 
+class _ThousandsSeparatorFormatter extends TextInputFormatter {
+  static String format(String value) {
+    final digits = value.replaceAll(RegExp(r'\D'), '');
+    return digits.replaceAllMapped(
+        RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',');
+  }
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final beforeCursor = newValue.text.substring(
+        0, newValue.selection.baseOffset.clamp(0, newValue.text.length));
+    final digitCount = beforeCursor.replaceAll(RegExp(r'\D'), '').length;
+    final formatted = format(newValue.text);
+    var offset = 0;
+    var seen = 0;
+    while (offset < formatted.length && seen < digitCount) {
+      if (RegExp(r'\d').hasMatch(formatted[offset])) seen++;
+      offset++;
+    }
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: offset),
+    );
+  }
+}
+
 List<String> list = ["Rent"];
 
 List<String> propartyStatus = ["Publish", "UnPublish"];
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
+  final _moneyFormatter = _ThousandsSeparatorFormatter();
   AddPropertiesController addPropertiesController = Get.find();
   DashBoardController dashBoardController = Get.find();
   EnquiryController enquriryController = Get.find();
   SelectCountryController selectCountryController = Get.find();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  VideoPlayerController? _reelPreviewController;
 
   String manegeRoute = Get.arguments["add"];
 
@@ -76,15 +109,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     if (manegeRoute == "edit") {
       setState(() {
         addPropertiesController.emptyAllDetails();
+        addPropertiesController.existingReelId =
+            addPropertiesController.eReelId;
         addPropertiesController.pTitle.text = addPropertiesController.eTitle;
         addPropertiesController.pNumber.text = addPropertiesController.eNumber;
         addPropertiesController.pAddress.text =
             addPropertiesController.eAddress;
-        addPropertiesController.pPrice.text = addPropertiesController.ePrice;
+        addPropertiesController.pPrice.text =
+            _ThousandsSeparatorFormatter.format(addPropertiesController.ePrice);
         addPropertiesController.pPartyCost.text =
             addPropertiesController.eparty_cost;
         addPropertiesController.pCaution.text =
-            addPropertiesController.ecaution_fee;
+            _ThousandsSeparatorFormatter.format(
+                addPropertiesController.ecaution_fee);
         // addPropertiesController.
 
         addPropertiesController.propertyAddress.text =
@@ -123,6 +160,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       setState(() {});
     }
     getdarkmodepreviousstate();
+  }
+
+  @override
+  void dispose() {
+    _reelPreviewController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -340,9 +383,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             controller: addPropertiesController.pNumber,
                             labelText: "Mobile Number".tr,
                             textInputType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(11)
+                            ],
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Enter Mobile Number'.tr;
+                              if (value == null ||
+                                  !RegExp(r'^\d{11}$').hasMatch(value)) {
+                                return 'Enter an 11-digit mobile number';
                               }
                               return null;
                             },
@@ -363,6 +411,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             controller: addPropertiesController.pPrice,
                             labelText: "Price".tr,
                             textInputType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              _moneyFormatter
+                            ],
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please Enter Property Price'.tr;
@@ -431,84 +483,27 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                   Border.all(color: notifire.getborderColor),
                             ),
                           ),
+                          _numberDropdown('Total Beds'.tr,
+                              addPropertiesController.totalBeds, 0, 20),
+                          _numberDropdown('Total Bathrooms'.tr,
+                              addPropertiesController.totalBathroom, 0, 20),
                           textfield(
-                            type: "Total Beds".tr,
-                            controller: addPropertiesController.totalBeds,
-                            labelText: "Total Beds".tr,
-                            textInputType: TextInputType.number,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Enter Total Beds'.tr;
-                              }
-                              return null;
-                            },
-                          ),
-                          textfield(
-                            type: "Total Bathroom".tr,
-                            controller: addPropertiesController.totalBathroom,
-                            labelText: "Total Bathroom".tr,
-                            textInputType: TextInputType.number,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Enter Total Bathroom'.tr;
-                              }
-                              return null;
-                            },
-                          ),
-                          textfield(
-                            type: "Property Sqft.".tr,
+                            type: 'Property size (sqm)',
                             controller: addPropertiesController.pSqft,
-                            labelText: "Property Sqft.".tr,
+                            labelText: 'Square metres (sqm)',
                             textInputType: TextInputType.number,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please Enter Property Sqft'.tr;
+                                return 'Please enter the property size in sqm';
                               }
                               return null;
                             },
                           ),
-                          manegeRoute == "Add"
-                              ? textfield(
-                                  type: "Property Rating".tr,
-                                  controller: addPropertiesController.pRating,
-                                  labelText: "Property Rating".tr,
-                                  textInputType: TextInputType.number,
-                                  max: 1,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please Enter Property Rating'.tr;
-                                    }
-                                    return null;
-                                  },
-                                )
-                              : textfield(
-                                  type: "Property Rating".tr,
-                                  controller: addPropertiesController.pRating,
-                                  labelText: "Property Rating".tr,
-                                  textInputType: TextInputType.number,
-                                  readOnly: true,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please Enter Property Rating'.tr;
-                                    }
-                                    return null;
-                                  },
-                                ),
                           SizedBox(
                             height: 10,
                           ),
-                          textfield(
-                            type: "Property Total Person Allowed?".tr,
-                            controller: addPropertiesController.pGest,
-                            labelText: "Person limit".tr,
-                            textInputType: TextInputType.number,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Enter Property Total Person'.tr;
-                              }
-                              return null;
-                            },
-                          ),
+                          _numberDropdown('Total people allowed',
+                              addPropertiesController.pGest, 1, 30),
                           SizedBox(
                             height: 10,
                           ),
@@ -806,6 +801,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                 controller: addPropertiesController.pCaution,
                                 labelText: "Caution fee",
                                 textInputType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  _moneyFormatter
+                                ],
                                 // validator: (value) {
                                 //   if (value == null || value.isEmpty) {
                                 //     return 'Please Enter Property Price';
@@ -1027,6 +1026,158 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                           Padding(
                             padding: const EdgeInsets.only(left: 15),
                             child: Text(
+                              manegeRoute == "Add"
+                                  ? "Property Reel"
+                                  : "Replace Property Reel (optional)",
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyBold,
+                                fontSize: 16,
+                                color: notifire.getwhiteblackcolor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Text(
+                              "Upload a video up to 90 seconds, 1080p, and 300 MB.",
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyMedium,
+                                fontSize: 13,
+                                color: notifire.getgreycolor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          DottedBorder(
+                            borderType: BorderType.RRect,
+                            color: Darkblue,
+                            radius: Radius.circular(15),
+                            borderPadding: EdgeInsets.symmetric(horizontal: 20),
+                            child: InkWell(
+                              onTap: _pickReel,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: Container(
+                                  height: 150,
+                                  width: Get.size.width,
+                                  margin: EdgeInsets.symmetric(horizontal: 20),
+                                  alignment: Alignment.center,
+                                  child: _reelPreviewController == null ||
+                                          !_reelPreviewController!
+                                              .value.isInitialized
+                                      ? Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.video_library_outlined,
+                                              color: Darkblue,
+                                              size: 42,
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              "Choose reel",
+                                              style: TextStyle(
+                                                color:
+                                                    notifire.getwhiteblackcolor,
+                                                fontFamily:
+                                                    FontFamily.gilroyMedium,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            AspectRatio(
+                                              aspectRatio:
+                                                  _reelPreviewController!
+                                                      .value.aspectRatio,
+                                              child: VideoPlayer(
+                                                _reelPreviewController!,
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  if (_reelPreviewController!
+                                                      .value.isPlaying) {
+                                                    _reelPreviewController!
+                                                        .pause();
+                                                  } else {
+                                                    _reelPreviewController!
+                                                        .play();
+                                                  }
+                                                });
+                                              },
+                                              child: Container(
+                                                width: 52,
+                                                height: 52,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.black
+                                                      .withOpacity(0.35),
+                                                  border: Border.all(
+                                                    color: Colors.white
+                                                        .withOpacity(0.85),
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                                child: Icon(
+                                                  _reelPreviewController!
+                                                          .value.isPlaying
+                                                      ? Icons.pause_rounded
+                                                      : Icons
+                                                          .play_arrow_rounded,
+                                                  color: Colors.white,
+                                                  size: 28,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (addPropertiesController.isBusy.value &&
+                              addPropertiesController
+                                  .reelUploadStage.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                              child: Column(
+                                children: [
+                                  LinearProgressIndicator(
+                                    value: addPropertiesController
+                                                .reelUploadStage ==
+                                            'Uploading reel'
+                                        ? addPropertiesController
+                                            .reelUploadProgress
+                                        : null,
+                                    color: Darkblue,
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    addPropertiesController.reelUploadStage ==
+                                            'Uploading reel'
+                                        ? "Uploading reel ${(addPropertiesController.reelUploadProgress * 100).round()}%"
+                                        : addPropertiesController
+                                            .reelUploadStage,
+                                    style: TextStyle(
+                                      color: notifire.getgreycolor,
+                                      fontFamily: FontFamily.gilroyMedium,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
                               "Property Status".tr,
                               style: TextStyle(
                                 fontFamily: FontFamily.gilroyBold,
@@ -1096,7 +1247,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                       child: SizedBox(
                                         height: 25,
                                         width: 25,
-                                        child: CircularProgressIndicator(
+                                        child: FastSpinner(
                                           color: Darkblue,
                                         ),
                                       ),
@@ -1148,7 +1299,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                                         if (manegeRoute ==
                                                             "Add") {
                                                           addPropertiesController
-                                                              .addPropertyApi();
+                                                              .submitPropertyWithReel();
                                                         } else if (manegeRoute ==
                                                             "edit") {
                                                           // log('in here');
@@ -1209,17 +1360,168 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   void _openGallery(BuildContext context) async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      addPropertiesController.path = pickedFile.path;
-      setState(() {});
-      File imageFile = File(addPropertiesController.path.toString());
-      List<int> imageBytes = imageFile.readAsBytesSync();
-      addPropertiesController.base64Image = base64Encode(imageBytes);
-      print("!!!!!!!!!++++++++++++${addPropertiesController.base64Image}");
-      setState(() {});
+    String? imagePath;
+    try {
+      imagePath =
+          (await ImagePicker().pickImage(source: ImageSource.gallery))?.path;
+    } on PlatformException catch (error) {
+      if (error.code != 'invalid_image') {
+        showToastMessage('Unable to open the photo. Please try again.');
+        return;
+      }
+      showToastMessage(
+          'iOS could not load that photo. Choose a saved copy from Files.');
+      try {
+        final result =
+            await FilePicker.platform.pickFiles(type: FileType.image);
+        imagePath = result?.files.single.path;
+      } catch (_) {
+        showToastMessage('Unable to open the photo from Files.');
+        return;
+      }
+    } catch (_) {
+      showToastMessage('Unable to open the photo. Please try again.');
+      return;
     }
+    if (imagePath == null) return;
+    try {
+      final imageBytes = await File(imagePath).readAsBytes();
+      if (imageBytes.isEmpty) throw const FormatException('Empty image');
+      if (!mounted) return;
+      setState(() {
+        addPropertiesController.path = imagePath;
+        addPropertiesController.base64Image = base64Encode(imageBytes);
+      });
+    } catch (_) {
+      showToastMessage(
+          'Unable to read the selected photo. Choose another image.');
+    }
+  }
+
+  Future<void> _pickReel() async {
+    final pickedVideo = await ImagePicker().pickVideo(
+      source: ImageSource.gallery,
+      maxDuration: const Duration(seconds: 90),
+    );
+    if (pickedVideo == null) return;
+
+    final error = await addPropertiesController.validateReel(pickedVideo.path);
+    if (error != null) {
+      showToastMessage(error);
+      return;
+    }
+
+    final preview = VideoPlayerController.file(File(pickedVideo.path));
+    try {
+      await preview.initialize();
+      final size = preview.value.size;
+      final longEdge = size.width > size.height ? size.width : size.height;
+      final shortEdge = size.width > size.height ? size.height : size.width;
+      if (preview.value.duration > const Duration(seconds: 90)) {
+        await preview.dispose();
+        showToastMessage('The reel must be 90 seconds or shorter.');
+        return;
+      }
+      if (longEdge > 1920 || shortEdge > 1080) {
+        await preview.dispose();
+        showToastMessage('The reel resolution must not exceed 1080p.');
+        return;
+      }
+      await _reelPreviewController?.dispose();
+      _reelPreviewController = preview;
+      addPropertiesController.reelVideoPath = pickedVideo.path;
+      addPropertiesController.reelThumbnailPath = null;
+      addPropertiesController.reelUploadProgress = 0;
+      addPropertiesController.reelUploadStage = '';
+      if (mounted) setState(() {});
+    } catch (_) {
+      await preview.dispose();
+      showToastMessage('This video could not be opened. Choose another reel.');
+    }
+  }
+
+  Widget _numberDropdown(String label, TextEditingController controller,
+      int minimum, int maximum) {
+    final values = [
+      for (var value = minimum; value <= maximum; value++) '$value'
+    ];
+    final selected = controller.text.trim();
+    if (selected.isNotEmpty && !values.contains(selected)) values.add(selected);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.only(left: 15),
+          child: Text(label,
+              style: TextStyle(
+                fontFamily: FontFamily.gilroyBold,
+                fontSize: 16,
+                color: notifire.getwhiteblackcolor,
+              )),
+        ),
+        const SizedBox(height: 8),
+        FormField<String>(
+          initialValue: selected.isEmpty ? null : selected,
+          validator: (value) =>
+              value == null || value.isEmpty ? 'Please select $label' : null,
+          builder: (field) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 60,
+                width: Get.size.width,
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                decoration: BoxDecoration(
+                  color: notifire.getblackwhitecolor,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color:
+                        field.hasError ? Colors.red : notifire.getborderColor,
+                  ),
+                ),
+                child: DropdownButton<String>(
+                  value: field.value,
+                  hint: Text('Select $label',
+                      style: const TextStyle(color: Colors.grey)),
+                  icon: Image.asset('assets/images/Arrow - Down.png',
+                      height: 20,
+                      width: 20,
+                      color: notifire.getwhiteblackcolor),
+                  underline: const SizedBox.shrink(),
+                  isExpanded: true,
+                  menuMaxHeight: 220,
+                  dropdownColor: notifire.getbgcolor,
+                  items: values
+                      .map((value) => DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.gilroyMedium,
+                                  color: notifire.getwhiteblackcolor,
+                                  fontSize: 14,
+                                )),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    field.didChange(value);
+                    controller.text = value ?? '';
+                  },
+                ),
+              ),
+              if (field.hasError)
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, top: 5),
+                  child: Text(field.errorText!,
+                      style: const TextStyle(color: Colors.red, fontSize: 12)),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   textfield(
@@ -1237,6 +1539,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       int? max,
       TextEditingController? controller,
       TextInputType? textInputType,
+      List<TextInputFormatter>? inputFormatters,
       Function(String)? onChanged,
       String? Function(String?)? validator,
       Height}) {
@@ -1272,6 +1575,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             onChanged: onChanged,
             cursorColor: notifire.getwhiteblackcolor,
             keyboardType: textInputType,
+            inputFormatters: inputFormatters,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             maxLength: max,
             readOnly: readOnly ?? false,

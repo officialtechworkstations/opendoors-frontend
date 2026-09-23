@@ -1,12 +1,9 @@
 // ignore_for_file: must_be_immutable, deprecated_member_use, avoid_print
 
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/homepage_controller.dart';
@@ -21,6 +18,7 @@ import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class AppUpdateScreen extends StatefulWidget {
   const AppUpdateScreen({super.key, required this.isForceUpdate});
@@ -447,7 +445,7 @@ class _AppUpdateScreenState extends State<AppUpdateScreen>
                 child: SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(
+                  child: FastSpinner(
                     color: blueColor,
                   ),
                 ),

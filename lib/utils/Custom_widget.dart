@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 Button(
     {String? buttontext,
@@ -78,7 +79,7 @@ GestButton({
           ? SizedBox(
               height: 15,
               width: 15,
-              child: CircularProgressIndicator(
+              child: FastSpinner(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 strokeWidth: 2,
               ))

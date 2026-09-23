@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../controller/calendar_controller.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class BookRealEstate extends StatefulWidget {
   const BookRealEstate({super.key});
@@ -57,8 +58,10 @@ class _BookRealEstateState extends State<BookRealEstate> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      bookrealEstateController.cleanDate();
+    });
     super.dispose();
-    bookrealEstateController.cleanDate();
   }
 
   List<PickerDateRange> _generatePickerDateRanges(List<String> dates) {
@@ -71,6 +74,12 @@ class _BookRealEstateState extends State<BookRealEstate> {
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
+    final parsedGuestLimit = int.tryParse(reviewSummaryController.plimit);
+    final maxGuests =
+        parsedGuestLimit != null && parsedGuestLimit > 0 ? parsedGuestLimit : 1;
+    if (bookrealEstateController.count > maxGuests) {
+      bookrealEstateController.count = maxGuests;
+    }
     return Scaffold(
       backgroundColor: notifire.getbgcolor,
       appBar: AppBar(
@@ -355,7 +364,7 @@ class _BookRealEstateState extends State<BookRealEstate> {
                                     height: 15,
                                   ),
                                   Text(
-                                    "${"Allowed Max".tr} ${reviewSummaryController.plimit} ${"Guest".tr}",
+                                    "${"Allowed Max".tr} $maxGuests ${"Guest".tr}",
                                     style: TextStyle(
                                       color: notifire.getwhiteblackcolor,
                                       fontFamily: FontFamily.gilroyMedium,
@@ -413,8 +422,7 @@ class _BookRealEstateState extends State<BookRealEstate> {
                                   InkWell(
                                     onTap: () {
                                       if (bookrealEstateController.count <
-                                          int.parse(
-                                              reviewSummaryController.plimit)) {
+                                          maxGuests) {
                                         setState(() {
                                           bookrealEstateController.count++;
                                         });
@@ -554,7 +562,7 @@ class _BookRealEstateState extends State<BookRealEstate> {
                 ),
               )
             : Center(
-                child: CircularProgressIndicator(
+                child: FastSpinner(
                 color: Darkblue,
               ));
       }),

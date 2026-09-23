@@ -213,11 +213,12 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../Api/config.dart';
 import '../../utils/Custom_widget.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 
 class StripePaymentWeb extends StatefulWidget {
   final String url;
-  const StripePaymentWeb({Key? key,  required this.url}) : super(key: key);
+  const StripePaymentWeb({super.key,  required this.url});
 
   @override
   State<StripePaymentWeb> createState() => _StripePaymentWebState();
@@ -247,9 +248,9 @@ class _StripePaymentWebState extends State<StripePaymentWeb> {
 
             // Check the status parameter instead of Result
             var status = uri.queryParameters["status"];
-            var transaction_id = uri.queryParameters["Transaction_id"];
+            var transactionId = uri.queryParameters["Transaction_id"];
             print("Hello Status:---- $status");
-            print("Hello Status:---- $transaction_id");
+            print("Hello Status:---- $transactionId");
 
             if (status == null) {
               var tranId = uri.queryParameters["Transaction_id"];
@@ -342,7 +343,7 @@ class _StripePaymentWebState extends State<StripePaymentWeb> {
                   onPressed: () => Get.back()),
               backgroundColor: Colors.black12,
               elevation: 0.0),
-          body: Center(child: CircularProgressIndicator()));
+          body: const Center(child: FastSpinner()));
     }
   }
 

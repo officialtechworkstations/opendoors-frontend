@@ -10,8 +10,6 @@ import 'package:http/http.dart' as http;
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import '../../controller/wallet_controller.dart';
-import '../../utils/Colors.dart';
-import '../../utils/Custom_widget.dart';
 
 int verifyPaystack = -1;
 

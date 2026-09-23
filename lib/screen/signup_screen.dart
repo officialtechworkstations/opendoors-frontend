@@ -13,6 +13,8 @@ import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:intl_phone_field/countries.dart';
+import 'package:intl_phone_field/phone_number.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +26,7 @@ import '../controller/homepage_controller.dart';
 import '../controller/search_controller.dart';
 import '../controller/selectcountry_controller.dart';
 import '../model/routes_helper.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -62,17 +65,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future getCountryData() async {
-    selectCountryController.getCountryApi().then((value) {
-      for (int a = 0;
-          a < selectCountryController.countryInfo!.countryData!.length;
-          a++) {
-        if (selectCountryController.countryInfo?.countryData![a].dCon == "1") {
-          setState(() {
-            countrySelected = a;
-          });
-        }
-      }
-    });
+    await selectCountryController.getCountryApi();
+    final countries = selectCountryController.countryInfo?.countryData ?? [];
+    final defaultIndex = countries.indexWhere((country) => country.dCon == "1");
+    if (!mounted) return;
+    if (defaultIndex >= 0 && defaultIndex != countrySelected) {
+      setState(() {
+        countrySelected = defaultIndex;
+      });
+    }
+  }
+
+  void _onPhoneChanged(PhoneNumber value) {
+    cuntryCode = value.countryCode;
+    final shouldShowError = signUpController.number.text.isEmpty;
+    if (shouldShowError != isvalidate) {
+      setState(() {
+        isvalidate = shouldShowError;
+      });
+    }
+  }
+
+  void _onPhoneCountryChanged(Country country) {
+    cuntryCode = '+${country.dialCode}';
   }
 
   int countrySelected = 0;
@@ -296,19 +311,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               fontWeight: FontWeight.w600,
                               color: notifire.getwhiteblackcolor,
                             ),
-                            onChanged: (value) {
-                              setState(() {
-                                if (signUpController.number.text.isNotEmpty) {
-                                  isvalidate = false;
-                                } else {
-                                  isvalidate = true;
-                                }
-                              });
-                              cuntryCode = value.countryCode;
-                            },
-                            onCountryChanged: (value) {
-                              signUpController.number.text = '';
-                            },
+                            onChanged: _onPhoneChanged,
+                            onCountryChanged: _onPhoneCountryChanged,
 
                             invalidNumberMessage:
                                 'Please enter a valid phone number'.tr,
@@ -344,21 +348,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                             ),
-
-                            validator: (p0) {
-                              if (p0 == null || p0.completeNumber.isEmpty) {
-                                return 'Please enter your number'.tr;
-                              }
-                              if (!p0.isValidNumber()) {
-                                return 'Please enter a valid phone number'.tr;
-                              }
-                              if (p0.countryCode == 'NG' &&
-                                  (p0.number.length < 10 ||
-                                      p0.number.length > 11)) {
-                                return 'Please enter a valid phone number'.tr;
-                              } else {}
-                              return null;
-                            },
                           ),
                         ),
                         // SizedBox(
@@ -692,7 +681,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                           fontSize: 12,
                                           color:
                                               (notifire.getblackblue as Color)
-                                                  .withOpacity(0.6),
+                                                  .withValues(alpha: 0.6),
                                           fontFamily: FontFamily.gilroyBold,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -735,6 +724,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               });
 
                               signUpController.smstype().then((msgtype) {
+                                if (msgtype is! Map) {
+                                  if (mounted) {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                  }
+                                  showToastMessage(
+                                      "Unable to start sign up. Please try again."
+                                          .tr);
+                                  return;
+                                }
                                 signUpController
                                     .checkMobileNumber(cuntryCode)
                                     .then((value) {
@@ -832,6 +832,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                             .sendOtp(cuntryCode,
                                                 signUpController.number.text)
                                             .then((value) {
+                                          if (value == null) {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                            showToastMessage(
+                                                'Unable to send OTP. Please try again.'
+                                                    .tr);
+                                            return;
+                                          }
                                           if (value["Result"] == "true") {
                                             Get.toNamed(Routes.otpScreen,
                                                 arguments: {
@@ -863,6 +872,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                             setState(() {
                                               isLoading = false;
                                             });
+                                            showToastMessage(
+                                                'Unable to send OTP. Please try again.'
+                                                    .tr);
+                                            return;
                                           }
                                           if (value["Result"] == "true") {
                                             Get.toNamed(Routes.otpScreen,
@@ -917,6 +930,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                 'Invalid Mobile Number'.tr);
                                           }
                                         });
+                                      } else {
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                        showToastMessage(
+                                            "Sign up is temporarily unavailable. Please try again."
+                                                .tr);
                                       }
                                     }
                                     // print('=============otp with sms============');
@@ -988,7 +1008,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           isLoading
               ? Center(
-                  child: CircularProgressIndicator(
+                  child: FastSpinner(
                   color: Darkblue,
                 ))
               : SizedBox()
@@ -1000,11 +1020,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> initPlatformState() async {
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     OneSignal.initialize(Config.oneSignel);
-    OneSignal.Notifications.requestPermission(true).then(
-      (value) {
-        print("Signal value:- $value");
-      },
-    );
+    await OneSignal.Notifications.requestPermission(true);
   }
 
   Future<void> _startSocialSignup(String provider) async {

@@ -13,6 +13,26 @@ import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/search_controller.dart';
 
 class SearchFilterController extends GetxController implements GetxService {
+  static const Map<String, String> _amenityLabels = {
+    'swimming pool': 'Swimming Pool',
+    'ps5': 'PS5',
+    'gym': 'Gym',
+    'gym access': 'Gym',
+    'wi-fi': 'Wi-Fi',
+    'wi-fi available': 'Wi-Fi',
+    '24/7 electricity': '24/7 electricity',
+    'backup power': '24/7 electricity',
+    'balcony': 'Balcony',
+    'pool table': 'Pool Table',
+    'washing machine': 'Washing Machine',
+    'laundry room': 'Washing Machine',
+    'kid friendly': 'Kid Friendly',
+    'pet friendly': 'Pet Friendly',
+    'non-smoke free': 'Non-Smoke Free',
+    'event/parties': 'Event/Parties',
+    'event/parties allowed': 'Event/Parties',
+    'chef available': 'Chef available',
+  };
   // final GetStorage _storage = GetStorage();
 
   SearchPropertyController searchController = Get.find();
@@ -21,6 +41,7 @@ class SearchFilterController extends GetxController implements GetxService {
   var selectedBudget = Rxn<int>();
   var customMinPrice = RxnString();
   var customMaxPrice = RxnString();
+  final priceRange = const RangeValues(0, 3000000).obs;
   var selectedAmenities = <String>[].obs;
   var isUsingBudgetFilter = true.obs;
 
@@ -89,7 +110,7 @@ class SearchFilterController extends GetxController implements GetxService {
       Uri uri = Uri.parse(Config.path + Config.getFacility);
       log("uri {$uri}");
 
-      var response = await http.get(
+      var response = await http.post(
         uri,
       );
       print("response amenity::::::::::::::::: {${response.body}}");
@@ -99,8 +120,14 @@ class SearchFilterController extends GetxController implements GetxService {
 
         final List<dynamic> validItems = result['facilitylist'];
 
-        final List<AmenityOption> activeOptions =
-            validItems.map((json) => AmenityOption.fromMap(json)).toList();
+        final List<AmenityOption> activeOptions = validItems
+            .map((json) =>
+                AmenityOption.fromMap(Map<String, dynamic>.from(json)))
+            .map((option) => option.copyWith(
+                  name: _amenityLabels[option.name.trim().toLowerCase()],
+                ))
+            .toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
 
         amenityOptions = activeOptions;
       }
@@ -115,6 +142,14 @@ class SearchFilterController extends GetxController implements GetxService {
     selectedBudget.value = getData.read('selected_budget');
     customMinPrice.value = getData.read('custom_min_price');
     customMaxPrice.value = getData.read('custom_max_price');
+    final savedMin = double.tryParse(customMinPrice.value ?? '');
+    final savedMax = double.tryParse(customMaxPrice.value ?? '');
+    if (savedMin != null || savedMax != null) {
+      priceRange.value = RangeValues(
+        (savedMin ?? 0).clamp(0, 3000000).toDouble(),
+        (savedMax ?? 3000000).clamp(0, 3000000).toDouble(),
+      );
+    }
     isUsingBudgetFilter.value = getData.read('is_using_budget_filter') ?? true;
 
     List<dynamic>? savedAmenities = getData.read('selected_amenities');
@@ -127,6 +162,8 @@ class SearchFilterController extends GetxController implements GetxService {
   }
 
   void saveFilters() {
+    customMinPrice.value = priceRange.value.start.round().toString();
+    customMaxPrice.value = priceRange.value.end.round().toString();
     save('custom_min_price', customMinPrice.value);
     save('custom_max_price', customMaxPrice.value);
     save('is_using_budget_filter', isUsingBudgetFilter.value);
@@ -144,23 +181,23 @@ class SearchFilterController extends GetxController implements GetxService {
     //   duration: const Duration(seconds: 2),
     // );
 
-    final price = selectedBudget.value;
-    final finalPrice = price?.toInt();
-
     // log(selectedBudget.value.toString());
     // log(selectedAmenities.toList().toString());
     // log(selectedAmenitiesIds.toString());
 
     searchController.getSearchData(
-        countryId: getData.read("countryId"),
-        price: finalPrice,
-        facility: selectedAmenitiesIds);
+      countryId: getData.read("countryId"),
+      minPrice: priceRange.value.start.round(),
+      maxPrice: priceRange.value.end.round(),
+      facility: selectedAmenitiesIds,
+    );
   }
 
   void clearAllFilters() {
     selectedBudget.value = null;
     customMinPrice.value = null;
     customMaxPrice.value = null;
+    priceRange.value = const RangeValues(0, 3000000);
     selectedAmenities.clear();
     selectedAmenitiesIds.clear();
     isUsingBudgetFilter.value = true;
@@ -170,6 +207,7 @@ class SearchFilterController extends GetxController implements GetxService {
     getData.remove('custom_max_price');
     getData.remove('is_using_budget_filter');
     getData.remove('selected_amenities');
+    getData.remove('selected_amenities_ids');
 
     update();
   }
@@ -198,6 +236,8 @@ class SearchFilterController extends GetxController implements GetxService {
 
   bool get hasActiveFilters =>
       selectedBudget.value != null ||
+      priceRange.value.start > 0 ||
+      priceRange.value.end < 3000000 ||
       (customMinPrice.value != null && customMinPrice.value!.isNotEmpty) ||
       (customMaxPrice.value != null && customMaxPrice.value!.isNotEmpty) ||
       selectedAmenities.isNotEmpty;
@@ -212,6 +252,9 @@ class AmenityOption {
   final String img;
 
   AmenityOption(this.name, this.icon, this.color, this.id, this.img);
+
+  AmenityOption copyWith({String? name}) =>
+      AmenityOption(name ?? this.name, icon, color, id, img);
 
   factory AmenityOption.fromMap(Map<String, dynamic> map) {
     return AmenityOption(

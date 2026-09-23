@@ -8,6 +8,7 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../../Api/config.dart';
 import '../../utils/Colors.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class Khalti extends StatefulWidget {
   final String? email;
@@ -112,7 +113,7 @@ class _KhaltiState extends State<Khalti> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(
-                            child: CircularProgressIndicator(color: Darkblue,),
+                            child: FastSpinner(color: Darkblue,),
                           ),
                           SizedBox(height: Get.height * 0.02),
                           SizedBox(
@@ -151,7 +152,7 @@ class _KhaltiState extends State<Khalti> {
         ),
         body: Center(
           child: Container(
-            child: CircularProgressIndicator(color: Darkblue,),
+            child: FastSpinner(color: Darkblue,),
           ),
         ),
       );

@@ -14,6 +14,7 @@ import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class FavoriteScreen extends StatefulWidget {
   @override
@@ -50,337 +51,333 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: Scaffold(
-        backgroundColor: notifire.getcardcolor,
-        appBar: AppBar(
-          backgroundColor: notifire.getbgcolor,
-          centerTitle: true,
-          elevation: 0,
-          title: Text(
-            "Favorites".tr,
-            style: TextStyle(
-              fontFamily: FontFamily.gilroyBold,
-              fontSize: 18,
-              color: notifire.getwhiteblackcolor,
-            ),
+    return Scaffold(
+      backgroundColor: notifire.getcardcolor,
+      appBar: AppBar(
+        backgroundColor: notifire.getbgcolor,
+        centerTitle: true,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: Get.back,
+          icon: Icon(
+            Icons.arrow_back,
+            color: notifire.getwhiteblackcolor,
           ),
         ),
-        body: Column(
-          children: [
-            GetBuilder<HomePageController>(builder: (context) {
-              return homePageController.isfevorite
-                  ? homePageController.favouriteInfo!.propetylist!.isNotEmpty
-                      ? Expanded(
-                          flex: 1,
-                          child: ListView.builder(
-                            itemCount: homePageController
-                                .favouriteInfo?.propetylist!.length,
-                            physics: BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                onTap: () async {
-                                  Get.toNamed(Routes.viewDataScreen,
-                                      arguments: {
-                                        "id": homePageController.favouriteInfo
-                                            ?.propetylist![index].id
-                                      });
-                                  setState(() {
-                                    homePageController.rate = homePageController
-                                            .favouriteInfo
-                                            ?.propetylist![index]
-                                            .rate ??
-                                        "";
-                                  });
-                                },
-                                child: Container(
-                                  height: 140,
-                                  margin: EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Stack(
-                                        children: [
-                                          Container(
-                                            height: 140,
-                                            width: 130,
-                                            margin: EdgeInsets.all(10),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                              child: FadeInImage.assetNetwork(
-                                                fadeInCurve: Curves.easeInCirc,
-                                                placeholder:
-                                                    "assets/images/ezgif.com-crop.gif",
-                                                height: 140,
-                                                imageErrorBuilder: (context,
-                                                    error, stackTrace) {
-                                                  return Center(
-                                                    child: Image.asset(
-                                                      "assets/images/emty.gif",
-                                                      fit: BoxFit.cover,
-                                                      height: Get.height,
-                                                    ),
-                                                  );
-                                                },
-                                                image:
-                                                    "${Config.imageUrl}${homePageController.favouriteInfo?.propetylist![index].image ?? ""}",
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
+        title: Text(
+          "Favorites".tr,
+          style: TextStyle(
+            fontFamily: FontFamily.gilroyBold,
+            fontSize: 18,
+            color: notifire.getwhiteblackcolor,
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          GetBuilder<HomePageController>(builder: (context) {
+            return homePageController.isfevorite
+                ? homePageController.favouriteInfo!.propetylist!.isNotEmpty
+                    ? Expanded(
+                        flex: 1,
+                        child: ListView.builder(
+                          itemCount: homePageController
+                              .favouriteInfo?.propetylist!.length,
+                          physics: BouncingScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () async {
+                                Get.toNamed(Routes.viewDataScreen, arguments: {
+                                  "id": homePageController
+                                      .favouriteInfo?.propetylist![index].id
+                                });
+                                setState(() {
+                                  homePageController.rate = homePageController
+                                          .favouriteInfo
+                                          ?.propetylist![index]
+                                          .rate ??
+                                      "";
+                                });
+                              },
+                              child: Container(
+                                height: 140,
+                                margin: EdgeInsets.all(10),
+                                child: Row(
+                                  children: [
+                                    Stack(
+                                      children: [
+                                        Container(
+                                          height: 140,
+                                          width: 130,
+                                          margin: EdgeInsets.all(10),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            child: FadeInImage.assetNetwork(
+                                              fadeInCurve: Curves.easeInCirc,
+                                              placeholder:
+                                                  "assets/images/ezgif.com-crop.gif",
+                                              height: 140,
+                                              imageErrorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Center(
+                                                  child: Image.asset(
+                                                    "assets/images/emty.gif",
+                                                    fit: BoxFit.cover,
+                                                    height: Get.height,
+                                                  ),
+                                                );
+                                              },
+                                              image:
+                                                  "${Config.imageUrl}${homePageController.favouriteInfo?.propetylist![index].image ?? ""}",
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
-                                          homePageController
-                                                      .favouriteInfo
-                                                      ?.propetylist![index]
-                                                      .buyorrent ==
-                                                  "1"
-                                              ? Positioned(
-                                                  top: 15,
-                                                  right: 20,
-                                                  child: Container(
-                                                    height: 30,
-                                                    width: 45,
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Container(
-                                                          margin:
-                                                              const EdgeInsets
-                                                                  .fromLTRB(
-                                                                  0, 0, 3, 0),
-                                                          child: Image.asset(
-                                                            "assets/images/Rating.png",
-                                                            height: 12,
-                                                            width: 12,
-                                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                        ),
+                                        homePageController
+                                                    .favouriteInfo
+                                                    ?.propetylist![index]
+                                                    .buyorrent ==
+                                                "1"
+                                            ? Positioned(
+                                                top: 15,
+                                                right: 20,
+                                                child: Container(
+                                                  height: 30,
+                                                  width: 45,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Container(
+                                                        margin: const EdgeInsets
+                                                            .fromLTRB(
+                                                            0, 0, 3, 0),
+                                                        child: Image.asset(
+                                                          "assets/images/Rating.png",
+                                                          height: 12,
+                                                          width: 12,
                                                         ),
-                                                        Text(
-                                                          homePageController
-                                                                  .favouriteInfo
-                                                                  ?.propetylist![
-                                                                      index]
-                                                                  .rate ??
-                                                              "",
-                                                          style: TextStyle(
-                                                            fontFamily: FontFamily
-                                                                .gilroyMedium,
-                                                            color: blueColor,
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: Color(0xFFedeeef),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15),
-                                                    ),
+                                                      ),
+                                                      Text(
+                                                        homePageController
+                                                                .favouriteInfo
+                                                                ?.propetylist![
+                                                                    index]
+                                                                .rate ??
+                                                            "",
+                                                        style: TextStyle(
+                                                          fontFamily: FontFamily
+                                                              .gilroyMedium,
+                                                          color: blueColor,
+                                                        ),
+                                                      )
+                                                    ],
                                                   ),
-                                                )
-                                              : SizedBox.shrink(),
-                                          // REMOVE THE BOOK TAG
-                                          // Positioned(
-                                          //     top: 15,
-                                          //     right: 20,
-                                          //     child: Container(
-                                          //       height: 30,
-                                          //       width: 60,
-                                          //       alignment: Alignment.center,
-                                          //       child: Text(
-                                          //         "BOOK".tr,
-                                          //         // "BUY".tr,
-                                          //         style: TextStyle(
-                                          //             color: blueColor,
-                                          //             fontWeight:
-                                          //                 FontWeight.w600),
-                                          //       ),
-                                          //       decoration: BoxDecoration(
-                                          //         color: Color(0xFFedeeef),
-                                          //         borderRadius:
-                                          //             BorderRadius.circular(
-                                          //                 15),
-                                          //       ),
-                                          //     ),
-                                          //   ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        width: 8,
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    homePageController
-                                                            .favouriteInfo
-                                                            ?.propetylist![
-                                                                index]
-                                                            .title ??
-                                                        "",
-                                                    maxLines: 2,
-                                                    style: TextStyle(
-                                                      fontSize: 17,
-                                                      fontFamily:
-                                                          FontFamily.gilroyBold,
-                                                      color: notifire
-                                                          .getwhiteblackcolor,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
+                                                  decoration: BoxDecoration(
+                                                    color: Color(0xFFedeeef),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15),
                                                   ),
                                                 ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                InkWell(
-                                                  onTap: () {
-                                                    homePageController
-                                                        .chnageObjectIndex(
-                                                            index);
-                                                    bottomSheet();
-                                                  },
-                                                  child: Image.asset(
-                                                    "assets/images/Fev-Bold.png",
-                                                    height: 20,
-                                                    width: 20,
-                                                    color: blueColor,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 20,
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 8),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    homePageController
-                                                            .favouriteInfo
-                                                            ?.propetylist![
-                                                                index]
-                                                            .city ??
-                                                        "",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      color:
-                                                          notifire.getgreycolor,
-                                                      fontFamily: FontFamily
-                                                          .gilroyMedium,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 10),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  "${currency}${AppFormater.formatAmount(double.tryParse(homePageController.favouriteInfo?.propetylist![index].price ?? "0") ?? 0)}",
-                                                  // "${currency}${homePageController.favouriteInfo?.propetylist![index].price ?? ""}",
+                                              )
+                                            : SizedBox.shrink(),
+                                        // REMOVE THE BOOK TAG
+                                        // Positioned(
+                                        //     top: 15,
+                                        //     right: 20,
+                                        //     child: Container(
+                                        //       height: 30,
+                                        //       width: 60,
+                                        //       alignment: Alignment.center,
+                                        //       child: Text(
+                                        //         "BOOK".tr,
+                                        //         // "BUY".tr,
+                                        //         style: TextStyle(
+                                        //             color: blueColor,
+                                        //             fontWeight:
+                                        //                 FontWeight.w600),
+                                        //       ),
+                                        //       decoration: BoxDecoration(
+                                        //         color: Color(0xFFedeeef),
+                                        //         borderRadius:
+                                        //             BorderRadius.circular(
+                                        //                 15),
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  homePageController
+                                                          .favouriteInfo
+                                                          ?.propetylist![index]
+                                                          .title ??
+                                                      "",
+                                                  maxLines: 2,
                                                   style: TextStyle(
                                                     fontSize: 17,
                                                     fontFamily:
                                                         FontFamily.gilroyBold,
-                                                    color: blueColor,
+                                                    color: notifire
+                                                        .getwhiteblackcolor,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
-                                                homePageController
-                                                            .favouriteInfo
-                                                            ?.propetylist![
-                                                                index]
-                                                            .buyorrent ==
-                                                        "1"
-                                                    ? Text(
-                                                        "/night".tr,
-                                                        style: TextStyle(
-                                                          color: notifire
-                                                              .getgreycolor,
-                                                          fontFamily: FontFamily
-                                                              .gilroyMedium,
-                                                        ),
-                                                      )
-                                                    : SizedBox(),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              InkWell(
+                                                onTap: () {
+                                                  homePageController
+                                                      .chnageObjectIndex(index);
+                                                  bottomSheet();
+                                                },
+                                                child: Image.asset(
+                                                  "assets/images/Fev-Bold.png",
+                                                  height: 20,
+                                                  width: 20,
+                                                  color: blueColor,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 20,
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  homePageController
+                                                          .favouriteInfo
+                                                          ?.propetylist![index]
+                                                          .city ??
+                                                      "",
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                    color:
+                                                        notifire.getgreycolor,
+                                                    fontFamily:
+                                                        FontFamily.gilroyMedium,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 10),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "${currency}${AppFormater.formatAmount(double.tryParse(homePageController.favouriteInfo?.propetylist![index].price ?? "0") ?? 0)}",
+                                                // "${currency}${homePageController.favouriteInfo?.propetylist![index].price ?? ""}",
+                                                style: TextStyle(
+                                                  fontSize: 17,
+                                                  fontFamily:
+                                                      FontFamily.gilroyBold,
+                                                  color: blueColor,
+                                                ),
+                                              ),
+                                              homePageController
+                                                          .favouriteInfo
+                                                          ?.propetylist![index]
+                                                          .buyorrent ==
+                                                      "1"
+                                                  ? Text(
+                                                      "/night".tr,
+                                                      style: TextStyle(
+                                                        color: notifire
+                                                            .getgreycolor,
+                                                        fontFamily: FontFamily
+                                                            .gilroyMedium,
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: notifire.getblackwhitecolor,
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
-                        )
-                      : Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 5),
-                            child: Column(
-                              children: [
-                                SizedBox(height: Get.height * 0.10),
-                                Image(
-                                  image:
-                                      AssetImage("assets/images/Door Icon.png"),
-                                  height: 120,
-                                  width: 120,
+                                decoration: BoxDecoration(
+                                  color: notifire.getblackwhitecolor,
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
-                                SizedBox(height: Get.height * 0.04),
-                                Center(
-                                  child: SizedBox(
-                                    width: Get.width * 0.80,
-                                    child: Text(
-                                      "Sorry, Favorite List Empty".tr,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: notifire.getwhiteblackcolor,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: FontFamily.gilroyBold,
-                                        fontSize: 18,
-                                      ),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 5),
+                          child: Column(
+                            children: [
+                              SizedBox(height: Get.height * 0.10),
+                              Image(
+                                image:
+                                    AssetImage("assets/images/Door Icon.png"),
+                                height: 120,
+                                width: 120,
+                              ),
+                              SizedBox(height: Get.height * 0.04),
+                              Center(
+                                child: SizedBox(
+                                  width: Get.width * 0.80,
+                                  child: Text(
+                                    "Sorry, Favorite List Empty".tr,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: notifire.getwhiteblackcolor,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: FontFamily.gilroyBold,
+                                      fontSize: 18,
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        )
-                  : Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: Darkblue,
                         ),
+                      )
+                : Expanded(
+                    child: Center(
+                      child: FastSpinner(
+                        color: Darkblue,
                       ),
-                    );
-            }),
-          ],
-        ),
+                    ),
+                  );
+          }),
+        ],
       ),
     );
   }

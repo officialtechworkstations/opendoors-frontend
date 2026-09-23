@@ -15,6 +15,7 @@ import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class OurRecommendationScreen extends StatefulWidget {
   const OurRecommendationScreen({super.key});
@@ -76,7 +77,7 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
             ),
           ),
           title: Text(
-            "Our Recommendation".tr,
+            "Our Listings".tr,
             style: TextStyle(
               fontSize: 17,
               fontFamily: FontFamily.gilroyBold,
@@ -526,7 +527,7 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
                           )
                         : Expanded(
                             child: Center(
-                              child: CircularProgressIndicator(
+                              child: FastSpinner(
                                 color: Darkblue,
                               ),
                             ),
@@ -534,7 +535,7 @@ class _OurRecommendationScreenState extends State<OurRecommendationScreen> {
                   ],
                 );
               })
-            : CircularProgressIndicator(
+            : FastSpinner(
                 color: Darkblue,
               ),
       ),

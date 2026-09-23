@@ -21,6 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../controller/dashboard_controller.dart';
 import '../controller/search_controller.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -186,8 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: notifire.getwhiteblackcolor,
                     ),
                     onCountryChanged: (value) {
-                      loginController.number.text = '';
-                      loginController.password.text = '';
+                      cuntryCode = '+${value.dialCode}';
                     },
                     onChanged: (value) {
                       setState(() {
@@ -232,16 +232,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    // invalidNumberMessage: "Please enter your mobile number".tr,
-                    validator: (p0) {
-                      if (p0 == null || loginController.number.text.isEmpty) {
-                        return 'Please enter your number';
-                      }
-                      if (!p0.isValidNumber()) {
-                        return 'Please enter a valid phone number'.tr;
-                      } else {}
-                      return null;
-                    },
                   ),
                 ),
                 // SizedBox(
@@ -391,7 +381,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 isLogin
                     ? Center(
-                        child: CircularProgressIndicator(
+                        child: FastSpinner(
                         color: Darkblue,
                       ))
                     : GestButton(

@@ -16,6 +16,7 @@ import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class MyBookingScreen extends StatefulWidget {
   const MyBookingScreen({super.key});
@@ -554,7 +555,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(
+                  child: FastSpinner(
                     color: Darkblue,
                   ),
                 ),
@@ -810,7 +811,7 @@ class _MyBookingScreenState extends State<MyBookingScreen>
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(
+                  child: FastSpinner(
                     color: Darkblue,
                   ),
                 ),

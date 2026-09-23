@@ -37,6 +37,7 @@ import '../payment/mercadopago.dart';
 import '../payment/midtrans.dart';
 import '../payment/payfast.dart';
 import '../payment/senangpay.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class SubscribeScreen extends StatefulWidget {
   const SubscribeScreen({super.key});
@@ -116,7 +117,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
       ),
       body: subscribeController.isPlanLoading
           ? Center(
-              child: CircularProgressIndicator(
+              child: FastSpinner(
                 color: Darkblue,
               ),
             )
@@ -330,7 +331,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                                     },
                                   )
                                 : Center(
-                                    child: CircularProgressIndicator(
+                                    child: FastSpinner(
                                       color: Darkblue,
                                     ),
                                   ),
@@ -907,7 +908,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                                   },
                                 )
                               : Center(
-                                  child: CircularProgressIndicator(
+                                  child: FastSpinner(
                                     color: Darkblue,
                                   ),
                                 );
@@ -1128,7 +1129,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                 children: [
                   Padding(
                     padding: EdgeInsets.all(20),
-                    child: CircularProgressIndicator(
+                    child: FastSpinner(
                       color: Darkblue,
                     ),
                   ),

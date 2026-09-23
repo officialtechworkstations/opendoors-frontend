@@ -1,10 +1,10 @@
 // Screen
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:io';
 
 import 'package:opendoors/screen/kyc/widgets/controller.dart';
 import 'package:opendoors/screen/kyc/widgets/model.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class KYCScreen extends StatelessWidget {
   final bool showSkipOption;
@@ -43,7 +43,7 @@ class KYCScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoadingRequirements.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: FastSpinner());
         }
 
         return Column(
@@ -326,8 +326,7 @@ class KYCScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      doc.acceptableFileTypes.join(', ').toUpperCase() +
-                          ' (Max 5MB)',
+                      '${doc.acceptableFileTypes.join(', ').toUpperCase()} (Max 5MB)',
                       style: TextStyle(fontSize: 12, color: Colors.grey[400]),
                     ),
                   ],
@@ -410,9 +409,9 @@ class KYCScreen extends StatelessWidget {
                     right: 0,
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 6),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.black54,
-                        borderRadius: const BorderRadius.only(
+                        borderRadius: BorderRadius.only(
                           bottomLeft: Radius.circular(12),
                           bottomRight: Radius.circular(12),
                         ),
@@ -494,7 +493,7 @@ class KYCScreen extends StatelessWidget {
             ? const SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(
+                child: FastSpinner(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),

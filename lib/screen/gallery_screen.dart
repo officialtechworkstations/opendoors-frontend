@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/Colors.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
@@ -139,7 +140,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   )
                 : Center(
-                    child: CircularProgressIndicator(color: Darkblue,),
+                    child: FastSpinner(color: Darkblue,),
                   ),
           ],
         );

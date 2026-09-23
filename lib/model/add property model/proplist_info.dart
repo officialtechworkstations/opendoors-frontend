@@ -3,6 +3,7 @@
 //     final propListInfo = propListInfoFromJson(jsonString);
 import 'dart:developer';
 import 'dart:convert';
+import 'package:opendoors/model/reel.dart';
 
 PropListInfo propListInfoFromJson(String str) =>
     PropListInfo.fromJson(json.decode(str));
@@ -69,6 +70,7 @@ class Proplist {
   String? partyAllowed;
   String? partyCost;
   String? cautionFee;
+  Reel? reel;
 
   Proplist(
       {this.id,
@@ -96,7 +98,8 @@ class Proplist {
       this.address,
       this.partyAllowed,
       this.partyCost,
-      this.cautionFee});
+      this.cautionFee,
+      this.reel});
 
   factory Proplist.fromJson(Map<String, dynamic> json) {
     log(json.toString());
@@ -126,7 +129,10 @@ class Proplist {
         address: json["address"],
         partyAllowed: json["party_allowed"],
         partyCost: json["party_cost"],
-        cautionFee: json["caution_fee"]);
+        cautionFee: json["caution_fee"],
+        reel: json['reel'] is Map<String, dynamic>
+            ? Reel.fromJson(json['reel'] as Map<String, dynamic>)
+            : null);
   }
 
   Map<String, dynamic> toJson() => {

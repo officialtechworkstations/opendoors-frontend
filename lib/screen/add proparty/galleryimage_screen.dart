@@ -10,6 +10,7 @@ import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class GallertImageScreen extends StatefulWidget {
   const GallertImageScreen({super.key});
@@ -287,7 +288,7 @@ class _GallertImageScreenState extends State<GallertImageScreen> {
                             ],
                           )
                       : Center(
-                          child: CircularProgressIndicator(color: Darkblue,),
+                          child: FastSpinner(color: Darkblue,),
                         ),
                 );
               }),

@@ -1,4 +1,3 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:googleapis_auth/auth_io.dart';
 
 import 'Api/config.dart';
@@ -32,7 +31,6 @@ class FirebaseAccesstoken {
 
     final accessToken = client.credentials.accessToken.data;
     Config.firebaseKey = accessToken;
-    print("+++++++++++++++++:---- ${Config.firebaseKey}");
     return accessToken;
   }
   // Future<String> getAccessToken() async {

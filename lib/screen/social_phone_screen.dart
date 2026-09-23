@@ -141,7 +141,7 @@ class _SocialPhoneScreenState extends State<SocialPhoneScreen> {
                               });
                             },
                             onCountryChanged: (value) {
-                              signUpController.number.text = "";
+                              cuntryCode = '+${value.dialCode}';
                             },
                             invalidNumberMessage:
                                 'Please enter a valid phone number'.tr,
@@ -179,21 +179,6 @@ class _SocialPhoneScreenState extends State<SocialPhoneScreen> {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                             ),
-                            validator: (phone) {
-                              if (phone == null ||
-                                  phone.completeNumber.isEmpty) {
-                                return 'Please enter your number'.tr;
-                              }
-                              if (!phone.isValidNumber()) {
-                                return 'Please enter a valid phone number'.tr;
-                              }
-                              if (phone.countryCode == 'NG' &&
-                                  (phone.number.length < 10 ||
-                                      phone.number.length > 11)) {
-                                return 'Please enter a valid phone number'.tr;
-                              }
-                              return null;
-                            },
                           ),
                         ),
                         SizedBox(height: 25),

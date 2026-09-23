@@ -1,7 +1,5 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_brace_in_string_interps, prefer_interpolation_to_compose_strings, avoid_print
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
@@ -15,6 +13,7 @@ import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class ListOfPropertyScreen extends StatefulWidget {
   const ListOfPropertyScreen({super.key});
@@ -218,6 +217,11 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                               ?.proplist![index]
                                               .cautionFee ??
                                           "",
+                                      reelId1: listOfPropertiController
+                                          .propListInfo
+                                          ?.proplist![index]
+                                          .reel
+                                          ?.id,
                                     );
                                     print(
                                         "========------->> ${listOfPropertiController.propListInfo!.proplist![index].propertyType}");
@@ -682,6 +686,12 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                                                                     index]
                                                                 .cautionFee ??
                                                             "",
+                                                    reelId1:
+                                                        listOfPropertiController
+                                                            .propListInfo
+                                                            ?.proplist![index]
+                                                            .reel
+                                                            ?.id,
                                                   );
                                                   Get.toNamed(
                                                     Routes.addPropertyScreen,
@@ -743,7 +753,7 @@ class _ListOfPropertyScreenState extends State<ListOfPropertyScreen> {
                               ],
                             )
                       : Center(
-                          child: CircularProgressIndicator(
+                          child: FastSpinner(
                             color: Darkblue,
                           ),
                         ),

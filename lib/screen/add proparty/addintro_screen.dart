@@ -7,6 +7,7 @@ import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class BoardingPage extends StatefulWidget {
   @override
@@ -55,7 +56,7 @@ class _BoardingScreenState extends State<BoardingPage> {
           SizedBox(
               height: MediaQuery.of(context).size.height *
                   0.04),
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height / 1.9,
             width: MediaQuery.of(context).size.width,
             // alignment: Alignment.topRight,
@@ -172,7 +173,7 @@ class _BoardingScreenState extends State<BoardingPage> {
                                   ),
                                 ),
                               ),
-                            ) : Center(child: CircularProgressIndicator(color: Darkblue,)),
+                            ) : Center(child: FastSpinner(color: Darkblue,)),
                           )
                         : Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10),

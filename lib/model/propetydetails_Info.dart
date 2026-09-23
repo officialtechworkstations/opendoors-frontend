@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'package:opendoors/model/reel.dart';
 
 PropetydetailsInfo propetydetailsInfoFromJson(String str) =>
     PropetydetailsInfo.fromJson(json.decode(str));
@@ -20,6 +21,7 @@ class PropetydetailsInfo {
   String? responseCode;
   String? result;
   String? responseMsg;
+  Reel? reel;
 
   PropetydetailsInfo({
     this.propetydetails,
@@ -30,29 +32,39 @@ class PropetydetailsInfo {
     this.responseCode,
     this.result,
     this.responseMsg,
+    this.reel,
   });
 
-  factory PropetydetailsInfo.fromJson(Map<String, dynamic> json) =>
-      PropetydetailsInfo(
-        propetydetails: json["propetydetails"] == null
-            ? null
-            : Propetydetails.fromJson(json["propetydetails"]),
-        facility: json["facility"] == null
-            ? []
-            : List<Facility>.from(
-                json["facility"]!.map((x) => Facility.fromJson(x))),
-        gallery: json["gallery"] == null
-            ? []
-            : List<String>.from(json["gallery"]!.map((x) => x)),
-        reviewlist: json["reviewlist"] == null
-            ? []
-            : List<Reviewlist>.from(
-                json["reviewlist"]!.map((x) => Reviewlist.fromJson(x))),
-        totalReview: json["total_review"],
-        responseCode: json["ResponseCode"],
-        result: json["Result"],
-        responseMsg: json["ResponseMsg"],
-      );
+  factory PropetydetailsInfo.fromJson(Map<String, dynamic> json) {
+    final propertyData = json['PropertyData'];
+    final propertyDetails = json['propetydetails'];
+    final reelJson = json['reel'] ??
+        (propertyData is Map ? propertyData['reel'] : null) ??
+        (propertyDetails is Map ? propertyDetails['reel'] : null);
+    return PropetydetailsInfo(
+      propetydetails: json["propetydetails"] == null
+          ? null
+          : Propetydetails.fromJson(json["propetydetails"]),
+      facility: json["facility"] == null
+          ? []
+          : List<Facility>.from(
+              json["facility"]!.map((x) => Facility.fromJson(x))),
+      gallery: json["gallery"] == null
+          ? []
+          : List<String>.from(json["gallery"]!.map((x) => x)),
+      reviewlist: json["reviewlist"] == null
+          ? []
+          : List<Reviewlist>.from(
+              json["reviewlist"]!.map((x) => Reviewlist.fromJson(x))),
+      totalReview: json["total_review"],
+      responseCode: json["ResponseCode"],
+      result: json["Result"],
+      responseMsg: json["ResponseMsg"],
+      reel: reelJson is Map
+          ? Reel.fromJson(Map<String, dynamic>.from(reelJson))
+          : null,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "propetydetails": propetydetails?.toJson(),

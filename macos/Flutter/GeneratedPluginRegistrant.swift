@@ -24,6 +24,8 @@ import sign_in_with_apple
 import smart_auth
 import sqflite_darwin
 import url_launcher_macos
+import video_compress
+import video_player_avfoundation
 import webview_flutter_wkwebview
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
@@ -46,5 +48,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   SmartAuthPlugin.register(with: registry.registrar(forPlugin: "SmartAuthPlugin"))
   SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
+  VideoCompressPlugin.register(with: registry.registrar(forPlugin: "VideoCompressPlugin"))
+  VideoPlayerPlugin.register(with: registry.registrar(forPlugin: "VideoPlayerPlugin"))
   FLTWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "FLTWebViewFlutterPlugin"))
 }

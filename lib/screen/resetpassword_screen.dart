@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../controller/login_controller.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   static String verifay = "";
@@ -199,7 +200,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           cuntryCode = value.countryCode;
                         },
                         onCountryChanged: (value) {
-                          number.text = '';
+                          cuntryCode = '+${value.dialCode}';
                         },
                         invalidNumberMessage:
                             'Please enter a valid phone number'.tr,
@@ -247,20 +248,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        validator: (p0) {
-                          if (p0 == null || p0.completeNumber.isEmpty) {
-                            return 'Please enter your number'.tr;
-                          }
-                          if (!p0.isValidNumber()) {
-                            return 'Please enter a valid phone number'.tr;
-                          }
-                          if (p0.countryCode == 'NG' &&
-                              (p0.number.length < 10 ||
-                                  p0.number.length > 11)) {
-                            return 'Please enter a valid phone number'.tr;
-                          } else {}
-                          return null;
-                        },
                         // validator: (p0) {
                         //   if (p0!.completeNumber.isEmpty) {
                         //     return 'Please enter your number'.tr;
@@ -280,7 +267,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       child: SizedBox(
                       height: 30,
                       width: 30,
-                      child: CircularProgressIndicator(
+                      child: FastSpinner(
                         color: Darkblue,
                       ),
                     ))

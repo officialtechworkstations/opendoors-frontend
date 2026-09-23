@@ -1,6 +1,5 @@
 // ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last, avoid_print, unnecessary_brace_in_string_interps, unused_local_variable, unnecessary_new
 
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +18,7 @@ import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class EReceiptScreen extends StatefulWidget {
   const EReceiptScreen({super.key});
@@ -1036,7 +1036,7 @@ class _EReceiptScreenState extends State<EReceiptScreen> {
                 ),
               )
             : Center(
-                child: CircularProgressIndicator(
+                child: FastSpinner(
                   color: Darkblue,
                 ),
               );

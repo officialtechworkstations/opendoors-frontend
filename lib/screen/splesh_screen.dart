@@ -10,12 +10,10 @@ import 'package:get/get.dart';
 import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/homepage_controller.dart';
 import 'package:opendoors/model/app_settings.dart';
-import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/screen/app_update_screen.dart';
 import 'package:opendoors/screen/bottombar_screen.dart';
 import 'package:opendoors/screen/login_screen.dart';
 import 'package:opendoors/screen/onbording_screen.dart';
-import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -53,9 +51,6 @@ class _SpleshScreenState extends State<SpleshScreen> {
 
     getData.remove("lCode");
     save("lanValue", 0);
-    homePageController.getHomeDataApi(
-      countryId: getData.read("countryId"),
-    );
     homePageController.getChatNoApi().then((val) {
       appUpdateCheck();
     });
@@ -73,6 +68,10 @@ class _SpleshScreenState extends State<SpleshScreen> {
   }
 
   setScreenInit() {
+    if (getData.read("UserLogin") == null) {
+      setScreen();
+      return;
+    }
     homePageController
         .getCatWiseData(
       cId: "0",
@@ -209,12 +208,25 @@ class _SpleshScreenState extends State<SpleshScreen> {
 //    await Permission.phone.request();
 // }
 
-Future getLocation() async {
-  LocationPermission permission;
-  permission = await Geolocator.checkPermission();
-  permission = await Geolocator.requestPermission();
-  if (permission == LocationPermission.denied) {
+Future<void> getLocation() async {
+  try {
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      lat = 0.0;
+      long = 0.0;
+    }
+  } on PermissionDeniedException catch (error) {
+    debugPrint('Location permission denied: $error');
     lat = 0.0;
     long = 0.0;
-  } else {}
+  } catch (error) {
+    debugPrint('Unable to check location permission: $error');
+    lat = 0.0;
+    long = 0.0;
+  }
 }

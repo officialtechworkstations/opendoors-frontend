@@ -17,6 +17,7 @@ import 'package:opendoors/utils/formaters.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class MyEarningsScreen extends StatefulWidget {
   const MyEarningsScreen({super.key});
@@ -314,7 +315,7 @@ class _MyEarningsScreenState extends State<MyEarningsScreen> {
                       ),
                     )
               : Center(
-                  child: CircularProgressIndicator(
+                  child: FastSpinner(
                     color: Darkblue,
                   ),
                 ),

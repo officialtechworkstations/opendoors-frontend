@@ -27,7 +27,11 @@ class SearchPropertyController extends GetxController implements GetxService {
 
   HomesearchModel? homesearchData;
   Future getSearchData(
-      {String? countryId, List<String>? facility, int? price}) async {
+      {String? countryId,
+      List<String>? facility,
+      int? price,
+      int? minPrice,
+      int? maxPrice}) async {
     try {
       // List<dynamic>? savedAmenities = getData.read('selected_amenities');
       // getData.read('selected_budget');
@@ -38,6 +42,8 @@ class SearchPropertyController extends GetxController implements GetxService {
         "country_id": countryId,
         "facility": facility ?? [],
         "price": price ?? 0,
+        "min_price": minPrice ?? 0,
+        "max_price": maxPrice ?? 0,
       };
       print("$map");
 

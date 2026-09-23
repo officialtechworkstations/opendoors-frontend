@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class SocialAuthSection extends StatelessWidget {
   const SocialAuthSection({
@@ -113,7 +114,7 @@ class _SocialAuthButton extends StatelessWidget {
             ? SizedBox(
                 height: 18,
                 width: 18,
-                child: CircularProgressIndicator(
+                child: FastSpinner(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(blueColor),
                 ),

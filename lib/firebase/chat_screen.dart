@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +23,7 @@ import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class ChatPage extends StatefulWidget {
   final String resiverUserId;
@@ -133,7 +133,7 @@ class _ChatPageState extends State<ChatPage> {
         return;
       }
       fmctoken = fields?["token"]?.toString() ?? "";
-      print("TOKEN ID > <> <> <> <> ${fmctoken}");
+      print("TOKEN ID > <> <> <> <> $fmctoken");
     });
   }
 
@@ -144,7 +144,7 @@ class _ChatPageState extends State<ChatPage> {
     final chatRoomId = ids.join("_");
 
     final title = widget.propertyTitle!;
-    final image = widget.propertyImage!;
+    final image = widget.propertyImage ?? '';
     final address = widget.propertyAddress ?? "";
     final propertyId = widget.propertyId ?? "";
     final info = (widget.propertyMessage != null &&
@@ -162,40 +162,51 @@ class _ChatPageState extends State<ChatPage> {
       "propertyId": propertyId,
     });
 
-    final snapshot = await FirebaseFirestore.instance
-        .collection("opendoors_chats")
-        .doc(chatRoomId)
-        .collection("message")
-        .orderBy("timestamp", descending: true)
-        .limit(1)
-        .get();
+    // Guard against Firestore transient errors (unavailable) which should
+    // not crash the screen — property message sending is best-effort.
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection("opendoors_chats")
+          .doc(chatRoomId)
+          .collection("message")
+          .orderBy("timestamp", descending: true)
+          .limit(1)
+          .get();
 
-    bool alreadySent = false;
-    if (snapshot.docs.isNotEmpty) {
-      final lastMsg = snapshot.docs.first.data() as Map<String, dynamic>?;
-      final msgText = lastMsg?['message']?.toString() ?? '';
-      if (msgText.contains(title) && msgText.contains("property")) {
-        alreadySent = false; // intentionally set to false for now
-      }
-    }
-
-    if (!alreadySent) {
-      FirebaseFirestore.instance
-          .collection('opendoors_users')
-          .doc(widget.resiverUserId)
-          .get()
-          .then((value) async {
-        final fields = value.data();
-        if (fields != null && fields["isOnline"] == false) {
-          final token = fields["token"]?.toString() ?? "";
-          if (token.isNotEmpty) {
-            sendPushMessage("Property inquiry: $title",
-                getData.read("UserLogin")["name"], token);
-          }
+      bool alreadySent = false;
+      if (snapshot.docs.isNotEmpty) {
+        final lastMsg = snapshot.docs.first.data() as Map<String, dynamic>?;
+        final msgText = lastMsg?['message']?.toString() ?? '';
+        if (msgText.contains(title) && msgText.contains("property")) {
+          alreadySent = false; // intentionally set to false for now
         }
-        await chatservices.sendMessage(
-            receiverId: widget.resiverUserId, messeage: messageJson);
-      });
+      }
+
+      if (!alreadySent) {
+        FirebaseFirestore.instance
+            .collection('opendoors_users')
+            .doc(widget.resiverUserId)
+            .get()
+            .then((value) async {
+          final fields = value.data();
+          if (fields != null && fields["isOnline"] == false) {
+            final token = fields["token"]?.toString() ?? "";
+            if (token.isNotEmpty) {
+              sendPushMessage("Property inquiry: $title",
+                  getData.read("UserLogin")["name"], token);
+            }
+          }
+          await chatservices.sendMessage(
+              receiverId: widget.resiverUserId, messeage: messageJson);
+        }).catchError((e) {
+          // Silently swallow transient Firestore errors; user can re-send later.
+          print("Chat: failed to send initial property message: $e");
+        });
+      }
+    } catch (e) {
+      // Transient Firebase errors (unavailable) are swallowed here so the
+      // chat screen still opens successfully.
+      print("Chat: _sendInitialPropertyMessage skipped: $e");
     }
   }
 
@@ -224,7 +235,7 @@ class _ChatPageState extends State<ChatPage> {
       isUserOnlie(getData.read("UserLogin")["id"], true);
     }
 
-    if (widget.propertyTitle != null && widget.propertyImage != null) {
+    if (widget.propertyTitle != null) {
       _sendInitialPropertyMessage();
     }
 
@@ -530,7 +541,7 @@ class _ChatPageState extends State<ChatPage> {
             return Text("Error${snapshot.error}");
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: FastSpinner());
           }
           final docs = snapshot.data!.docs;
           if (docs.isNotEmpty &&
@@ -653,7 +664,7 @@ class _ChatPageState extends State<ChatPage> {
                                   ? const SizedBox(
                                       width: 10,
                                       height: 10,
-                                      child: CircularProgressIndicator(
+                                      child: FastSpinner(
                                         strokeWidth: 2.0,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(

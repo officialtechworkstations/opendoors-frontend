@@ -35,6 +35,7 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../payment/Paystackweb.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class AddWalletScreen extends StatefulWidget {
   const AddWalletScreen({super.key});
@@ -653,7 +654,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(
+                            child: FastSpinner(
                               color: Darkblue,
                             ),
                           );

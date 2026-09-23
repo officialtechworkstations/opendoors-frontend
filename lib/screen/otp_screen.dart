@@ -23,6 +23,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Api/data_store.dart';
 import '../controller/homepage_controller.dart';
 import '../controller/search_controller.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class OtpScreen extends StatefulWidget {
   @override
@@ -335,7 +336,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           width: 10,
                           child: Visibility(
                             visible: isResending,
-                            child: CircularProgressIndicator.adaptive(
+                            child: FastSpinner.adaptive(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation(blueColor),
                             ),
@@ -479,7 +480,7 @@ class _OtpScreenState extends State<OtpScreen> {
           ),
           isLoading
               ? Center(
-                  child: CircularProgressIndicator(
+                  child: FastSpinner(
                   color: Darkblue,
                 ))
               : SizedBox()

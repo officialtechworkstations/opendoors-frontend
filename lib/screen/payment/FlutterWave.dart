@@ -8,6 +8,7 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../../utils/Colors.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class FlutterWave extends StatefulWidget {
   final String? email;
@@ -111,7 +112,7 @@ class _FlutterWaveState extends State<FlutterWave> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(
-                            child: CircularProgressIndicator(color: Darkblue,),
+                            child: FastSpinner(color: Darkblue,),
                           ),
                           SizedBox(height: Get.height * 0.02),
                           SizedBox(
@@ -150,7 +151,7 @@ class _FlutterWaveState extends State<FlutterWave> {
         ),
         body: Center(
           child: Container(
-            child: CircularProgressIndicator(color: Darkblue,),
+            child: FastSpinner(color: Darkblue,),
           ),
         ),
       );

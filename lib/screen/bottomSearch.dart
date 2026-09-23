@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Api/data_store.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class BottomSearchScreen extends StatefulWidget {
   const BottomSearchScreen({super.key});
@@ -395,7 +396,7 @@ class _BottomSearchScreenState extends State<BottomSearchScreen> {
                                   ),
                                 )
                               : Center(
-                                  child: CircularProgressIndicator(
+                                  child: FastSpinner(
                                     color: Darkblue,
                                   ),
                                 )

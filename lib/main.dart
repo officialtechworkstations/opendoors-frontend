@@ -25,8 +25,8 @@ import 'firebase_options.dart';
 import 'helpar/get_di.dart' as di;
 
 void main() async {
-  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

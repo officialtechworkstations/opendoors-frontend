@@ -8,6 +8,7 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../../utils/Colors.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class WebviewPage extends StatefulWidget {
   final String url;
@@ -97,7 +98,7 @@ class _WebviewPageState extends State<WebviewPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             SizedBox(
-                              child: CircularProgressIndicator(
+                              child: FastSpinner(
                                 color: Darkblue,
                               ),
                             ),
@@ -140,7 +141,7 @@ class _WebviewPageState extends State<WebviewPage> {
           body: SafeArea(
             child: Center(
               child: Container(
-                child: CircularProgressIndicator(
+                child: FastSpinner(
                   color: Darkblue,
                 ),
               ),

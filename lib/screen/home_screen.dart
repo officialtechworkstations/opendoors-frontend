@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:badges/badges.dart' as bg;
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -22,7 +21,7 @@ import 'package:opendoors/firebase/chat_screen.dart';
 import 'package:opendoors/firebase/chats_list.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
-import 'package:opendoors/screen/property_filter_screen.dart';
+import 'package:opendoors/screen/favorite_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:http/http.dart' as http;
@@ -31,6 +30,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../firebase_accesstoken.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 var lat;
 var long;
@@ -86,20 +86,26 @@ class _HomeScreenState extends State<HomeScreen> {
           })
         : null;
 
-    FirebaseAccesstoken accesstoken = new FirebaseAccesstoken();
-    accesstoken.getAccessToken();
+    FirebaseAccesstoken accesstoken = FirebaseAccesstoken();
+    accesstoken.getAccessToken().catchError((error) {
+      debugPrint('Unable to obtain Firebase access token: $error');
+      return '';
+    });
   }
 
   networkimageconvert() {
     (() async {
-      http.Response response =
-          await http.get(Uri.parse(Config.imageUrl + networkimage.toString()));
+      try {
+        http.Response response = await http
+            .get(Uri.parse(Config.imageUrl + networkimage.toString()));
 
-      if (mounted) {
-        print(response.bodyBytes);
-        setState(() {
-          base64Image = const Base64Encoder().convert(response.bodyBytes);
-        });
+        if (mounted && response.statusCode == 200) {
+          setState(() {
+            base64Image = const Base64Encoder().convert(response.bodyBytes);
+          });
+        }
+      } catch (error) {
+        debugPrint('Unable to load profile image: $error');
       }
     })();
   }
@@ -110,33 +116,42 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future getUserLocation() async {
-    setState(() {});
+    try {
+      var currentLocation = await locateUser();
+      debugPrint('location: ${currentLocation.latitude}');
+      lat = currentLocation.latitude;
+      long = currentLocation.longitude;
 
-    var currentLocation = await locateUser();
-    debugPrint('location: ${currentLocation.latitude}');
-    lat = currentLocation.latitude;
-    long = currentLocation.longitude;
-
-    List<Placemark> addresses = await placemarkFromCoordinates(
-        currentLocation.latitude, currentLocation.longitude);
-    setState(() {
-      if (getData.read("homeCall") == true) {
-        setState(() {
+      List<Placemark> addresses = await placemarkFromCoordinates(
+          currentLocation.latitude, currentLocation.longitude);
+      if (!mounted) return;
+      setState(() {
+        if (getData.read("homeCall") == true) {
           homePageController.getHomeDataApi(
             countryId: getData.read("countryId"),
           );
-        });
-        save("homeCall", false);
-      }
-      first = addresses.first.name;
-    });
+          save("homeCall", false);
+        }
+        if (addresses.isNotEmpty) {
+          first = addresses.first.name;
+        }
+      });
+    } catch (error) {
+      debugPrint('Unable to determine user location: $error');
+      lat = 0.0;
+      long = 0.0;
+    }
   }
 
   Future getUserLocation1() async {
-    isLoding = true;
-    setState(() {});
-    var currentLocation = await locateUser();
-    debugPrint('location: ${currentLocation.latitude}');
+    try {
+      isLoding = true;
+      setState(() {});
+      var currentLocation = await locateUser();
+      debugPrint('location: ${currentLocation.latitude}');
+    } catch (error) {
+      debugPrint('Unable to refresh user location: $error');
+    }
   }
 
   late ColorNotifire notifire;
@@ -236,6 +251,20 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             actions: [
+              IconButton(
+                tooltip: 'Favorites',
+                onPressed: () {
+                  if (getData.read("UserLogin") != null) {
+                    Get.to(() => FavoriteScreen());
+                  } else {
+                    Get.toNamed(Routes.login);
+                  }
+                },
+                icon: Icon(
+                  Icons.favorite_border,
+                  color: notifire.getwhiteblackcolor,
+                ),
+              ),
               InkWell(
                 onTap: () {
                   if (getData.read("UserLogin") != null) {
@@ -353,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         categoryAndSeeAllWidget("Featured".tr, "See All".tr),
                         listFeatured(),
                         categoryAndSeeAllWidget(
-                            "Our Recommendation".tr, "See All".tr),
+                            "Our Listings".tr, "See All".tr),
                         SizedBox(
                           height: 55,
                           child: Padding(
@@ -810,7 +839,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   )
                             : Center(
-                                child: CircularProgressIndicator(
+                                child: FastSpinner(
                                   color: Darkblue,
                                 ),
                               )
@@ -820,7 +849,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: Get.height,
                       width: Get.width,
                       child: Center(
-                        child: CircularProgressIndicator(
+                        child: FastSpinner(
                           color: Darkblue,
                         ),
                       ),
@@ -893,7 +922,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (name == "Featured".tr) {
               Get.toNamed(Routes.featuredScreen);
             }
-            if (name == "Our Recommendation".tr) {
+            if (name == "Our Listings".tr) {
               Get.toNamed(Routes.ourRecommendationScreen);
               homePageController.getCatWiseData(
                   cId: "0", countryId: getData.read("countryId"));

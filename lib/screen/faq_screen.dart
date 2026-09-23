@@ -11,6 +11,7 @@ import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class FaqScreen extends StatefulWidget {
   const FaqScreen({super.key});
@@ -129,7 +130,7 @@ class _FaqScreenState extends State<FaqScreen> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: const [
                   SizedBox(height: 250),
-                  Center(child: CircularProgressIndicator()),
+                  Center(child: FastSpinner()),
                 ],
               );
       }),
@@ -189,7 +190,7 @@ class _FaqScreenState extends State<FaqScreen> with TickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: const [
                 SizedBox(height: 250),
-                Center(child: CircularProgressIndicator()),
+                Center(child: FastSpinner()),
               ],
             );
     });

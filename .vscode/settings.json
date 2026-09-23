@@ -1,0 +1,5 @@
+{
+    "cmake.sourceDirectory": "/Users/odurindedaniel/Development/opendoors-frontend/windows",
+    "cmake.buildDirectory": "${workspaceFolder}/windows/build",
+    "cmake.configureOnOpen": false
+}

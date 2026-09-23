@@ -1,15 +1,18 @@
 // ignore_for_file: avoid_print, prefer_typing_uninitialized_variables, prefer_interpolation_to_compose_strings, non_constant_identifier_names
 
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
+import 'package:opendoors/Api/reels_api_service.dart';
 import 'package:opendoors/controller/listofproperti_controller.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:http/http.dart' as http;
+import 'package:video_compress/video_compress.dart';
+import 'package:opendoors/utils/app_logger.dart';
 
 class AddPropertiesController extends GetxController implements GetxService {
   ListOfPropertiController listOfPropertiController = Get.find();
@@ -30,6 +33,13 @@ class AddPropertiesController extends GetxController implements GetxService {
 
   String? path;
   String? base64Image;
+  String? reelVideoPath;
+  String? reelThumbnailPath;
+  String? existingReelId;
+  String? createdPropertyId;
+  double reelUploadProgress = 0;
+  String reelUploadStage = '';
+  final ReelsApiService reelsApiService = ReelsApiService();
 
   String countryId = "1";
 
@@ -59,6 +69,7 @@ class AddPropertiesController extends GetxController implements GetxService {
   String eCityAndCountry = "";
   String propId = "";
   String eImage = "";
+  String eReelId = "";
   String eGest = "";
   String buyOrRent = "";
   String Id = "";
@@ -106,7 +117,8 @@ class AddPropertiesController extends GetxController implements GetxService {
       countryName1,
       party_allowed1,
       party_cost1,
-      caution_fee1}) {
+      caution_fee1,
+      reelId1}) {
     eTitle = eTitle1 ?? "";
     eNumber = eNumber1 ?? "";
     eAddress = eAddress1 ?? "";
@@ -133,6 +145,8 @@ class AddPropertiesController extends GetxController implements GetxService {
     party_allowed = party_allowed1 == "1";
     eparty_cost = party_cost1 ?? "0";
     ecaution_fee = caution_fee1 ?? "0";
+    eReelId = reelId1?.toString() ?? "";
+    existingReelId = eReelId;
     update();
   }
 
@@ -163,6 +177,12 @@ class AddPropertiesController extends GetxController implements GetxService {
     lat = null;
     long = null;
     pImage = "";
+    reelVideoPath = null;
+    reelThumbnailPath = null;
+    existingReelId = null;
+    createdPropertyId = null;
+    reelUploadProgress = 0;
+    reelUploadStage = '';
     // party_allowed = false;
     update();
   }
@@ -186,20 +206,20 @@ class AddPropertiesController extends GetxController implements GetxService {
         "beds": totalBeds.text,
         "bathroom": totalBathroom.text,
         "sqft": pSqft.text,
-        "rate": pRating.text,
+        "rate": pRating.text.isEmpty ? "0" : pRating.text,
         "latitude": lat?.toString() ?? "",
         "longtitude": long?.toString() ?? "",
         "mobile": pNumber.text,
-        "price": pPrice.text,
+        "price": pPrice.text.replaceAll(',', ''),
         "img": base64Image,
         "party_allowed": party_allowed ? "1" : "0",
         "party_cost": pPartyCost.text.isNotEmpty ? pPartyCost.text : "0",
-        "caution_fee": pCaution.text.isNotEmpty ? pCaution.text : "0"
+        "caution_fee":
+            pCaution.text.isNotEmpty ? pCaution.text.replaceAll(',', '') : "0"
       };
-      print(":::::::::::::::" + map.toString());
+      AppLogger.info('PropertyUpload', 'Creating property');
       setBusy(true);
 
-      // log(":::::::::::::::" + map.toString());
       Uri uri = Uri.parse(Config.path + Config.addPropertyApi);
       var response = await http.post(
         uri,
@@ -207,21 +227,154 @@ class AddPropertiesController extends GetxController implements GetxService {
       );
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
-        print(result.toString());
+        AppLogger.info('PropertyUpload', 'Create response received', data: {
+          'status': response.statusCode,
+          'result': result['Result'],
+          'response_code': result['ResponseCode'],
+          'prop_id': result['prop_id'],
+        });
         if (result["Result"] == "true") {
-          listOfPropertiController.getPropertiList();
-          showToastMessage(result["ResponseMsg"]);
-          emptyAllDetails();
-          Get.back();
+          final newPropertyId = result['prop_id']?.toString();
+          if (newPropertyId == null || newPropertyId.isEmpty) {
+            showToastMessage(
+              'Property was created, but the server did not return its ID.',
+            );
+            return;
+          }
+          createdPropertyId = newPropertyId;
+          await _uploadReelAndFinish(propertyId: newPropertyId);
         } else {
           showToastMessage(result["ResponseMsg"]);
         }
       }
-    } catch (e) {
-      print(e.toString());
+    } catch (error, stackTrace) {
+      AppLogger.error('PropertyUpload', 'Property creation failed',
+          error: error, stackTrace: stackTrace);
     } finally {
       setBusy(false);
     }
+  }
+
+  Future<void> submitPropertyWithReel() async {
+    if (reelVideoPath == null) {
+      showToastMessage('Please upload a property reel.');
+      return;
+    }
+    if (reelThumbnailPath == null) {
+      setBusy(true);
+      try {
+        await _prepareReelForUpload();
+      } catch (error) {
+        showToastMessage('Unable to prepare reel: $error');
+        return;
+      } finally {
+        setBusy(false);
+      }
+    }
+    if (createdPropertyId != null) {
+      setBusy(true);
+      try {
+        await _uploadReelAndFinish(propertyId: createdPropertyId!);
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+    await addPropertyApi();
+  }
+
+  Future<void> _prepareReelForUpload() async {
+    final originalPath = reelVideoPath;
+    if (originalPath == null) {
+      throw const ReelsApiException('Please select a reel.');
+    }
+    reelUploadStage = 'Compressing reel';
+    reelUploadProgress = 0;
+    update();
+    final mediaInfo = await VideoCompress.compressVideo(
+      originalPath,
+      quality: VideoQuality.Res1280x720Quality,
+      deleteOrigin: false,
+      includeAudio: true,
+      frameRate: 30,
+    );
+    final compressedFile = mediaInfo?.file;
+    if (compressedFile == null || !await compressedFile.exists()) {
+      throw const ReelsApiException('Video compression failed.');
+    }
+    final thumbnail = await VideoCompress.getFileThumbnail(
+      compressedFile.path,
+      quality: 80,
+      position: 1000,
+    );
+    if (!await thumbnail.exists()) {
+      throw const ReelsApiException('Thumbnail generation failed.');
+    }
+    final validationError = await validateReel(compressedFile.path);
+    if (validationError != null) {
+      throw ReelsApiException(validationError);
+    }
+    reelVideoPath = compressedFile.path;
+    reelThumbnailPath = thumbnail.path;
+    reelUploadStage = 'Ready to upload';
+    update();
+  }
+
+  Future<void> _uploadReelAndFinish({
+    required String propertyId,
+    bool isEdit = false,
+  }) async {
+    final videoPath = reelVideoPath;
+    if (videoPath == null) return;
+    try {
+      reelUploadStage = 'Uploading reel';
+      reelUploadProgress = 0;
+      update();
+      void onProgress(int sent, int total) {
+        reelUploadProgress = total == 0 ? 0 : sent / total;
+        update();
+      }
+
+      if (isEdit && existingReelId?.isNotEmpty == true) {
+        await reelsApiService.update(
+          reelId: existingReelId!,
+          videoPath: videoPath,
+          thumbnailPath: reelThumbnailPath!,
+          onProgress: onProgress,
+        );
+      } else {
+        await reelsApiService.create(
+          propertyId: propertyId,
+          videoPath: videoPath,
+          thumbnailPath: reelThumbnailPath,
+          onProgress: onProgress,
+        );
+      }
+      await listOfPropertiController.getPropertiList();
+      const message = 'Property and reel saved successfully.';
+      emptyAllDetails();
+      showToastMessage(message);
+      Get.back();
+    } on ReelsApiException catch (error) {
+      showToastMessage(
+        isEdit
+            ? 'Property updated, but the reel upload failed: ${error.message}.'
+            : 'Property created, but the reel upload failed: ${error.message}. Tap submit to retry.',
+      );
+    }
+  }
+
+  Future<String?> validateReel(String videoPath) async {
+    const maxBytes = 300 * 1024 * 1024;
+    final extension = videoPath.split('.').last.toLowerCase();
+    const extensions = {'mp4', 'mov', 'avi', 'mkv', 'webm'};
+    if (!extensions.contains(extension)) {
+      return 'Choose an MP4, MOV, AVI, MKV, or WEBM video.';
+    }
+    if (await File(videoPath).length() > maxBytes) {
+      return 'The reel must be 300 MB or smaller.';
+    }
+    return null;
   }
 
   testLoading() async {
@@ -231,8 +384,22 @@ class AddPropertiesController extends GetxController implements GetxService {
   }
 
   editPropertyApi() async {
+    if (reelVideoPath != null && reelThumbnailPath == null) {
+      setBusy(true);
+      try {
+        await _prepareReelForUpload();
+      } catch (error) {
+        showToastMessage('Unable to prepare reel: $error');
+        return;
+      } finally {
+        setBusy(false);
+      }
+    }
     try {
-      log("Selected Indexes: $selectedIndexes");
+      AppLogger.debug('PropertyUpload', 'Updating property', data: {
+        'property_id': propId,
+        'facility_count': selectedIndexes.length,
+      });
       String str = selectedIndexes.toSet().toList().join(",");
       Map map = {
         "uid": getData.read("UserLogin")["id"],
@@ -252,19 +419,18 @@ class AddPropertiesController extends GetxController implements GetxService {
         "beds": totalBeds.text,
         "bathroom": totalBathroom.text,
         "sqft": pSqft.text,
-        "rate": pRating.text,
+        "rate": pRating.text.isEmpty ? "0" : pRating.text,
         "latitude": lat?.toString() ?? "",
         "longtitude": long?.toString() ?? "",
         "mobile": pNumber.text,
-        "price": pPrice.text,
+        "price": pPrice.text.replaceAll(',', ''),
         "img": path != null ? base64Image : "0",
         "prop_id": propId,
         "party_allowed": party_allowed ? "1" : "0",
         "party_cost": pPartyCost.text.isNotEmpty ? pPartyCost.text : "0",
-        "caution_fee": pCaution.text.isNotEmpty ? pCaution.text : "0"
+        "caution_fee":
+            pCaution.text.isNotEmpty ? pCaution.text.replaceAll(',', '') : "0"
       };
-      print(":::::::::::::::" + map.toString());
-      log(":::::::::::::::" + map.toString());
       setBusy(true);
 
       Uri uri = Uri.parse(Config.path + Config.editPropertyApi);
@@ -274,17 +440,27 @@ class AddPropertiesController extends GetxController implements GetxService {
       );
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
-        print(result.toString());
+        AppLogger.info('PropertyUpload', 'Update response received', data: {
+          'status': response.statusCode,
+          'result': result['Result'],
+          'response_code': result['ResponseCode'],
+          'property_id': propId,
+        });
         if (result["Result"] == "true") {
-          listOfPropertiController.getPropertiList();
-          showToastMessage(result["ResponseMsg"]);
-          Get.back();
+          if (reelVideoPath != null) {
+            await _uploadReelAndFinish(propertyId: propId, isEdit: true);
+          } else {
+            await listOfPropertiController.getPropertiList();
+            showToastMessage(result["ResponseMsg"]);
+            Get.back();
+          }
         } else {
           showToastMessage(result["ResponseMsg"]);
         }
       }
-    } catch (e) {
-      print(e.toString());
+    } catch (error, stackTrace) {
+      AppLogger.error('PropertyUpload', 'Property update failed',
+          error: error, stackTrace: stackTrace, data: {'property_id': propId});
     } finally {
       setBusy(false);
     }

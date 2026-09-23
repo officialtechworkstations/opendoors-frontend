@@ -12,6 +12,7 @@ import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:opendoors/utils/formaters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class MemberShipDetails extends StatefulWidget {
   const MemberShipDetails({super.key});
@@ -361,7 +362,7 @@ class _MemberShipDetailsState extends State<MemberShipDetails> {
                         ),
                       )
                 : Center(
-                    child: CircularProgressIndicator(
+                    child: FastSpinner(
                       color: Darkblue,
                     ),
                   );

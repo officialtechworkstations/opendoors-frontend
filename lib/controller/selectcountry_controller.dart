@@ -7,6 +7,7 @@ import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/model/country_info.dart';
 import 'package:http/http.dart' as http;
+import 'package:opendoors/utils/app_logger.dart';
 
 class SelectCountryController extends GetxController implements GetxService {
   CountryInfo? countryInfo;
@@ -16,14 +17,14 @@ class SelectCountryController extends GetxController implements GetxService {
 
   bool isLoading = false;
 
-
- Future changeCountryIndex(int index) async{
+  Future changeCountryIndex(int index) async {
     currentIndex = index;
     save("currentIndex", currentIndex);
     update();
   }
 
   Future getCountryApi() async {
+    if (isLoading && countryInfo != null) return;
     try {
       Map map = {
         "uid": getData.read("UserLogin") == null
@@ -35,9 +36,17 @@ class SelectCountryController extends GetxController implements GetxService {
         uri,
         body: jsonEncode(map),
       );
-      print("<><><><><><><><><><><><><><>< ${response.body}>>");
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
+        if (result['Result']?.toString() != 'true' ||
+            result['CountryData'] is! List) {
+          AppLogger.warning('CountryApi', 'Country request rejected', data: {
+            'status': response.statusCode,
+            'response_code': result['ResponseCode'],
+            'message': result['ResponseMsg'],
+          });
+          return;
+        }
         countryList = [];
         for (var element in result["CountryData"]) {
           countryList.add(element["title"]);
@@ -46,8 +55,9 @@ class SelectCountryController extends GetxController implements GetxService {
       }
       isLoading = true;
       update();
-    } catch (e) {
-      print(e.toString());
+    } catch (error, stackTrace) {
+      AppLogger.error('CountryApi', 'Country request failed',
+          error: error, stackTrace: stackTrace);
     }
   }
 }

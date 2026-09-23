@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print, unused_local_variable, prefer_interpolation_to_compose_strings, prefer_typing_uninitialized_variables, prefer_if_null_operators, prefer_const_constructors
 
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -18,6 +17,7 @@ import 'package:opendoors/model/map_info.dart';
 import 'package:opendoors/model/propetydetails_Info.dart';
 // import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
+import 'package:opendoors/utils/app_logger.dart';
 import 'package:http/http.dart' as http;
 
 import '../screen/home_screen.dart';
@@ -82,10 +82,7 @@ class HomePageController extends GetxController implements GetxService {
         .asUint8List();
   }
 
-  HomePageController() {
-    getHomeDataApi();
-    getCatWiseData(cId: "0", countryId: getData.read("countryId"));
-  }
+  HomePageController();
 
   chnageObjectIndex(int index) {
     currentIndex = 0;
@@ -119,36 +116,42 @@ class HomePageController extends GetxController implements GetxService {
 
   String addProp = "";
   Future getHomeDataApi({String? countryId}) async {
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>COUNTRy CODE ${countryId}");
     try {
       isLoading = false;
+      final resolvedCountryId =
+          countryId ?? getData.read("countryId")?.toString() ?? "1";
       Map map = {
         "uid": getData.read("UserLogin") == null
             ? "0"
             : "${getData.read("UserLogin")["id"]}",
-        "country_id": countryId,
+        "country_id": resolvedCountryId,
       };
-      print("--------(Map)-------->>" + map.toString());
       Uri uri = Uri.parse(Config.path + Config.homeDataApi);
       var response = await http.post(
         uri,
         body: jsonEncode(map),
       );
-      log(">>>>>>>>>>>>>>>>>>>>>>>> ????????????????????? ${response.body}");
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
+        if (result['Result']?.toString() != 'true' ||
+            result['HomeData'] is! Map) {
+          AppLogger.warning('HomeApi', 'Home data request rejected', data: {
+            'status': response.statusCode,
+            'response_code': result['ResponseCode'],
+            'message': result['ResponseMsg'],
+          });
+          return;
+        }
         homeDatatInfo = HomeDatatInfo.fromJson(result);
-        addProp = homeDatatInfo?.homeData!.showAddProperty ?? "";
-        print("ADDDPORP >>>>>>>>>>>>>>>>>> ${addProp}");
-        print("CAT PROP >>>>>>>>>>>>>>>>>> ${result["HomeData"]["Catlist"]}");
-        var maplist = mapInfo.reversed.toList();
-        currency = homeDatatInfo?.homeData!.currency ?? "";
+        addProp = homeDatatInfo?.homeData?.showAddProperty ?? "";
+        currency = homeDatatInfo?.homeData?.currency ?? "";
         update();
       }
       isLoading = true;
       update();
-    } catch (e) {
-      print(e.toString());
+    } catch (error, stackTrace) {
+      AppLogger.error('HomeApi', 'Home data request failed',
+          error: error, stackTrace: stackTrace);
     }
   }
 
@@ -177,7 +180,7 @@ class HomePageController extends GetxController implements GetxService {
         var result = json.decode(response.body);
         print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $result");
         propetydetailsInfo = PropetydetailsInfo.fromJson(result);
-        print("> <> <> <> <> <><> <> <> ${propetydetailsInfo}");
+        print("> <> <> <> <> <><> <> <> $propetydetailsInfo");
       }
 
       isProperty = true;
@@ -273,19 +276,17 @@ class HomePageController extends GetxController implements GetxService {
 
   Future getCatWiseData(
       {required String? cId, required String? countryId}) async {
-    print("++++++ -------- %##%#%#%#%# ${countryId}");
+    final resolvedCountryId =
+        countryId ?? getData.read("countryId")?.toString() ?? "1";
     Map map = {
       "cid": cId ?? "0",
       "uid": getData.read("UserLogin") == null
           ? "0"
           : getData.read("UserLogin")["id"].toString(),
-      "country_id": countryId,
+      "country_id": resolvedCountryId,
     };
 
     Uri uri = Uri.parse(Config.path + Config.catWiseData);
-
-    print("++++++ -------- +++++++ ------- ++++++${map}");
-    print("++++++ -------- +++++++ ------- ++++++${uri}");
 
     var response = await http.post(
       uri,
@@ -293,10 +294,17 @@ class HomePageController extends GetxController implements GetxService {
     );
     if (response.statusCode == 200) {
       var result = jsonDecode(response.body);
+      if (result['Result']?.toString() != 'true') {
+        AppLogger.warning('HomeApi', 'Category request rejected', data: {
+          'status': response.statusCode,
+          'response_code': result['ResponseCode'],
+          'message': result['ResponseMsg'],
+        });
+        return;
+      }
       catWiseInfo = CatWiseInfo.fromJson(result);
       isCatWise = true;
       update();
-      print("< >? < > < > < > < > < > < > < > <>?${catWiseInfo!.responseMsg}>");
     }
   }
 

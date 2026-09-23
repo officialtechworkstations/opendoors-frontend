@@ -111,4 +111,17 @@ class Config {
   static const String socialLogin = 'u_social_login.php';
   static const String socialRegisterInit = 'u_social_register_init.php';
   static const String socialRegister = 'u_social_register.php';
+
+  // Reels
+  static const String reelsList = 'reels/index.php';
+  static const String reelRead = 'reels/read.php';
+  static const String reelCreate = 'reels/create.php';
+  static const String reelUpdate = 'reels/update.php';
+  static const String reelDelete = 'reels/delete.php';
+  static const String reelLike = 'reels/like.php';
+  static const String reelSave = 'reels/save.php';
+  static const String reelViews = 'reels/add-views.php';
+  static const String reelComments = 'reels/comments.php';
+  static const String likedReels = 'reels/liked.php';
+  static const String savedReels = 'reels/saved.php';
 }

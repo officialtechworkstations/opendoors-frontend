@@ -62,23 +62,28 @@ class SignUpController extends GetxController implements GetxService {
   }
 
   Future smstype() async {
-    var response =
-        await http.get(Uri.parse(Config.path + Config.smstype), headers: {
-      'Content-Type': 'application/json',
-    });
+    try {
+      var response =
+          await http.get(Uri.parse(Config.path + Config.smstype), headers: {
+        'Content-Type': 'application/json',
+      });
 
-    print('=======================smstype======================');
-    print(response.body.toString());
-    print('=======================smstype======================');
-
-    if (response.statusCode == 200) {
-      var smsdecode = jsonDecode(response.body);
-      update();
+      print('=======================smstype======================');
       print(response.body.toString());
-      print(
-          " SMS CODE TYPE >>>>>>>>>>>>>> : : : : : :${smsdecode["SMS_TYPE"]}");
-      return smsdecode;
+      print('=======================smstype======================');
+
+      if (response.statusCode == 200) {
+        var smsdecode = jsonDecode(response.body);
+        update();
+        print(response.body.toString());
+        print(
+            " SMS CODE TYPE >>>>>>>>>>>>>> : : : : : :${smsdecode["SMS_TYPE"]}");
+        return smsdecode;
+      }
+    } catch (e) {
+      print("smstype error: $e");
     }
+    return null;
   }
 
   ensureNoZeroInitial(String number) {
@@ -90,7 +95,7 @@ class SignUpController extends GetxController implements GetxService {
   }
 
   Future checkMobileNumber(String cuntryCode) async {
-    print("${cuntryCode}");
+    print(cuntryCode);
 
     try {
       final nb = ensureNoZeroInitial(number.text);
@@ -272,40 +277,64 @@ class SignUpController extends GetxController implements GetxService {
   }
 
   Future setUserApiData(String cuntryCode) async {
-    final prefs = await SharedPreferences.getInstance();
-    final nb = ensureNoZeroInitial(number.text);
-    Map map = {
-      "name": name.text,
-      "email": email.text,
-      "mobile": nb,
-      "ccode": cuntryCode,
-      "password": password.text,
-      "accept_newsletter": newsletter ? "1" : "0",
-    };
-    log('-----------------------------------');
-    // log(map.toString());
-    log('-----------------------------------');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final nb = ensureNoZeroInitial(number.text);
+      Map map = {
+        "name": name.text,
+        "email": email.text,
+        "mobile": nb,
+        "ccode": cuntryCode,
+        "password": password.text,
+        "accept_newsletter": newsletter ? "1" : "0",
+      };
+      log('-----------------------------------');
+      // log(map.toString());
+      log('-----------------------------------');
 
-    Uri uri = Uri.parse(Config.path + Config.registerUser);
-    var response = await http.post(
-      uri,
-      body: jsonEncode(map),
-    );
+      Uri uri = Uri.parse(Config.path + Config.registerUser);
+      var response = await http.post(
+        uri,
+        body: jsonEncode(map),
+      );
 
-    if (response.statusCode == 200) {
-      var result = jsonDecode(response.body);
-      if (result["Result"] == "true") {
-        await prefs.setBool('Firstuser', true);
-        signUpMsg = result["ResponseMsg"];
-        showToastMessage(signUpMsg);
-        save("UserLogin", result["UserLogin"]);
-        firebaseNewuser();
-        OneSignal.User.addTags({"user_id": getData.read("UserLogin")["id"]});
-        update();
+      if (response.statusCode == 200) {
+        var result = jsonDecode(response.body);
+        if (result["Result"] == "true") {
+          await prefs.setBool('Firstuser', true);
+          signUpMsg = result["ResponseMsg"];
+          showToastMessage(signUpMsg);
+          save("UserLogin", result["UserLogin"]);
+          final accessToken = result['access_token']?.toString();
+          if (accessToken != null && accessToken.isNotEmpty) {
+            final expiresIn =
+                int.tryParse(result['expires_in']?.toString() ?? '') ?? 86400;
+            save('accessToken', accessToken);
+            save(
+              'accessTokenExpiresAt',
+              DateTime.now()
+                  .add(Duration(seconds: expiresIn))
+                  .millisecondsSinceEpoch,
+            );
+          }
+          firebaseNewuser();
+          OneSignal.User.addTags({"user_id": getData.read("UserLogin")["id"]});
+          update();
+        }
+        return result;
       }
+      return {
+        "Result": "false",
+        "ResponseMsg":
+            "Unable to sign up (HTTP ${response.statusCode}). Please try again."
+      };
+    } catch (e) {
+      print("setUserApiData error: $e");
+      return {
+        "Result": "false",
+        "ResponseMsg": "Unable to sign up. Please try again."
+      };
     }
-    print("${jsonDecode(response.body)}");
-    return jsonDecode(response.body);
   }
 
   firebaseNewuser() async {

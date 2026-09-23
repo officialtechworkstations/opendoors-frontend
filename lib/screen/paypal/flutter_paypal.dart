@@ -17,7 +17,7 @@ class UsePaypalScreen extends StatefulWidget {
   final String returnURL, cancelURL, note, clientId, secretKey;
   final List transactions;
   final bool sandboxMode;
-  const UsePaypalScreen({
+  const UsePaypalScreen({super.key, 
     required this.onSuccess,
     required this.onError,
     required this.onCancel,

@@ -426,9 +426,37 @@ class FilterBottomSheet extends StatelessWidget {
         const SizedBox(height: 16),
 
         // Budget Options or Custom Range
-        Obx(() => controller.isUsingBudgetFilter.value
-            ? _buildBudgetOptions(context)
-            : _buildCustomRangeInputs()),
+        Obx(
+          () => Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '₦${_formatNumber(controller.priceRange.value.start.round())}',
+                    style: TextStyle(color: notifire.getwhiteblackcolor),
+                  ),
+                  Text(
+                    '₦${_formatNumber(controller.priceRange.value.end.round())}',
+                    style: TextStyle(color: notifire.getwhiteblackcolor),
+                  ),
+                ],
+              ),
+              RangeSlider(
+                values: controller.priceRange.value,
+                min: 0,
+                max: 3000000,
+                divisions: 60,
+                labels: RangeLabels(
+                  '₦${_formatNumber(controller.priceRange.value.start.round())}',
+                  '₦${_formatNumber(controller.priceRange.value.end.round())}',
+                ),
+                activeColor: Darkblue,
+                onChanged: (value) => controller.priceRange.value = value,
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

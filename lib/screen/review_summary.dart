@@ -1,6 +1,5 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, unused_local_variable, unnecessary_brace_in_string_interps, prefer_interpolation_to_compose_strings, avoid_print, unnecessary_string_interpolations, prefer_const_constructors_in_immutables, prefer_typing_uninitialized_variables, deprecated_member_use
 
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -42,6 +41,7 @@ import '../screen/paypal/flutter_paypal.dart';
 import '../utils/Colors.dart';
 import '../utils/Custom_widget.dart';
 import '../utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class ReviewSummaryScreen extends StatefulWidget {
   ReviewSummaryScreen({super.key});
@@ -1445,7 +1445,7 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(
+                            child: FastSpinner(
                               color: Darkblue,
                             ),
                           );
@@ -1829,9 +1829,8 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
     );
   }
 
-  bookApiData(otid) {
-    bookrealEstateController
-        .bookApiData(
+  Future<void> bookApiData(otid) async {
+    final value = await bookrealEstateController.bookApiData(
       pid: reviewSummaryController.id,
       subtotal:
           (price * bookrealEstateController.days.length - copAmt).toString(),
@@ -1855,32 +1854,21 @@ class _ReviewSummaryScreenState extends State<ReviewSummaryScreen> {
       ccode: ccode,
       country: "",
       noGuest: bookrealEstateController.count.toString(),
-    )
-        .then(
-      (value) {
-        if (value != null && value["Result"] == "true") {
-          print("ASDA $value");
-          congratiulationDialog();
-        } else {
-          print("ASDA $value");
-          if (value == "Booking Confirmed Successfully!!!") {
-            return;
-          }
-          showToastMessage(value == null
-              ? "Something went wrong!"
-              : "${value["ResponseMsg"]}");
-        }
-      },
     );
 
-    bookrealEstateController.count = 1;
-    bookrealEstateController.checkIn = '';
-    bookrealEstateController.checkOut = '';
-    bookrealEstateController.selectedDate = DateTime.now();
-    bookrealEstateController.selectedDates = [];
-    bookrealEstateController.selectedDatees = '';
+    if (value != null && value["Result"] == "true") {
+      bookrealEstateController.count = 1;
+      bookrealEstateController.checkIn = '';
+      bookrealEstateController.checkOut = '';
+      bookrealEstateController.selectedDate = DateTime.now();
+      bookrealEstateController.selectedDates = [];
+      bookrealEstateController.selectedDatees = '';
+      congratiulationDialog();
+      return;
+    }
 
-    showToastMessage("Payment Successful");
+    showToastMessage(value?["ResponseMsg"] ??
+        "Unable to confirm booking. Please try again.");
   }
 
   String _getReference() {

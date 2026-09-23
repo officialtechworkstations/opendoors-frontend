@@ -15,6 +15,7 @@ import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class SelectCountryScreen extends StatefulWidget {
   const SelectCountryScreen({super.key});
@@ -165,7 +166,7 @@ class _SelectCountryScreenState extends State<SelectCountryScreen> {
                     ),
                 )
                 : Center(
-                    child: CircularProgressIndicator(color: Darkblue,),
+                    child: FastSpinner(color: Darkblue,),
                   ),
             Positioned(
               bottom: 10,

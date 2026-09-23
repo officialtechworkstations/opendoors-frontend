@@ -390,5 +390,8 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
 Future<dynamic> editProfile(String uid, String name) async {
   CollectionReference collectionReference =
       FirebaseFirestore.instance.collection('opendoors_users');
-  collectionReference.doc(uid).update({"name": name});
+  await collectionReference.doc(uid).set(
+    {"uid": uid, "name": name},
+    SetOptions(merge: true),
+  );
 }

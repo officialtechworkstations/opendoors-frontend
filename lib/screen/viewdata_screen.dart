@@ -19,15 +19,18 @@ import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/screen/login_screen.dart';
+import 'package:opendoors/screen/reels_feed_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:opendoors/utils/formaters.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class ViewDataScreen extends StatefulWidget {
   @override
@@ -43,6 +46,79 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
   CalendarController calendarController = Get.put(CalendarController());
 
   int selectIndex = 0;
+
+  String? _mediaUrl(String? path) {
+    final value = path?.trim();
+    if (value == null || value.isEmpty || value == 'null') return null;
+    return Uri.parse(Config.imageUrl).resolve(value).toString();
+  }
+
+  void _openImagePreview(int initialIndex) {
+    final images = homePageController.propetydetailsInfo?.propetydetails?.image
+            ?.map((image) => _mediaUrl(image.image))
+            .whereType<String>()
+            .toList() ??
+        [];
+    if (images.isEmpty) return;
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (dialogContext) => _PropertyImagePreview(
+        images: images,
+        initialIndex: initialIndex.clamp(0, images.length - 1),
+      ),
+    );
+  }
+
+  void _openReel() {
+    final reel = homePageController.propetydetailsInfo?.reel;
+    if (reel?.isReady != true) return;
+    Get.to(
+      () => Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        body: ReelPlayerPage(reel: reel!, active: true),
+      ),
+    );
+  }
+
+  Widget _mediaButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) =>
+      Material(
+        color: const Color(0xCC141414),
+        elevation: 4,
+        shadowColor: Colors.black45,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.24)),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Text(label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontFamily: FontFamily.gilroyBold,
+                    )),
+              ],
+            ),
+          ),
+        ),
+      );
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
@@ -53,18 +129,33 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
     }
   }
 
-  Future<dynamic> isMeassageAvalable(String uid) async {
-    CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection('opendoors_users');
-    collectionReference.doc(uid).get().then((value) {
-      var fields;
-      fields = value.data();
+  Future<void> isMeassageAvalable(String uid) async {
+    if (uid.trim().isEmpty) return;
+    final document =
+        FirebaseFirestore.instance.collection('opendoors_users').doc(uid);
 
-      setState(() {
-        useremail = fields["name"];
-        fmctoken = fields["token"];
-      });
-    });
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        final value = await document.get();
+        if (!mounted) return;
+        final fields = value.data();
+        setState(() {
+          useremail = fields?["name"]?.toString() ?? '';
+          fmctoken = fields?["token"]?.toString() ?? '';
+        });
+        return;
+      } on FirebaseException catch (error) {
+        final retryable = error.code == 'unavailable' ||
+            error.code == 'deadline-exceeded' ||
+            error.code == 'resource-exhausted';
+        if (!retryable || attempt == 2) return;
+        await Future<void>.delayed(
+          Duration(milliseconds: 300 * (1 << attempt)),
+        );
+      } catch (_) {
+        return;
+      }
+    }
   }
 
   String latitude = "";
@@ -94,7 +185,9 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
   void initState() {
     super.initState();
     if (Get.arguments is Map) {
-      selectedId = (Get.arguments["id"] ?? Get.arguments["propertyId"])?.toString() ?? "";
+      selectedId =
+          (Get.arguments["id"] ?? Get.arguments["propertyId"])?.toString() ??
+              "";
     } else if (Get.arguments != null) {
       selectedId = Get.arguments.toString();
     }
@@ -133,7 +226,7 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
     _markers.add(
       Marker(
         markerId: MarkerId(showLocation.toString()),
-        icon: BitmapDescriptor.fromBytes(markIcons),
+        icon: BitmapDescriptor.bytes(markIcons),
         position: LatLng(
           double.parse(
               homePageController.propetydetailsInfo?.propetydetails!.latitude ??
@@ -243,7 +336,8 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                     ?.propetydetails!.image!.length,
                                 physics: BouncingScrollPhysics(),
                                 itemBuilder: (context, index) {
-                                  return Container(
+                                  return GestureDetector(
+                                    onTap: () => _openImagePreview(index),
                                     child: FadeInImage.assetNetwork(
                                       fadeInCurve: Curves.easeInCirc,
                                       placeholder:
@@ -271,6 +365,30 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                     selectIndex = value;
                                   });
                                 },
+                              ),
+                            ),
+                            Positioned(
+                              left: 16,
+                              bottom: 34,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _mediaButton(
+                                    icon: Icons.photo_library_outlined,
+                                    label: 'View Image',
+                                    onTap: () => _openImagePreview(selectIndex),
+                                  ),
+                                  if (homePageController
+                                          .propetydetailsInfo?.reel?.isReady ==
+                                      true) ...[
+                                    const SizedBox(height: 8),
+                                    _mediaButton(
+                                      icon: Icons.play_circle_outline,
+                                      label: 'View Reel',
+                                      onTap: _openReel,
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
                             homePageController.propetydetailsInfo!
@@ -331,7 +449,9 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(8),
-                                          color: BlackColor.withOpacity(0.5),
+                                          color: BlackColor.withValues(
+                                            alpha: 0.5,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -853,44 +973,32 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                               height: 10,
                             ),
                             ListTile(
-                              leading: Container(
-                                height: 60,
-                                width: 60,
-                                clipBehavior: Clip.hardEdge,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                ),
-                                child: FadeInImage.assetNetwork(
+                              leading: Builder(builder: (context) {
+                                final avatarUrl = _mediaUrl(homePageController
+                                    .propetydetailsInfo
+                                    ?.propetydetails
+                                    ?.ownerImage);
+                                final fallback = Image.asset(
+                                  'assets/images/profile-default.png',
+                                  width: 60,
+                                  height: 60,
                                   fit: BoxFit.cover,
-                                  imageErrorBuilder:
-                                      (context, error, stackTrace) {
-                                    return Center(
-                                      child: Image.asset(
-                                        "assets/images/ezgif.com-crop.gif",
-                                        fit: BoxFit.cover,
-                                        height: Get.height,
-                                      ),
-                                    );
-                                  },
-                                  image:
-                                      "${Config.imageUrl}${homePageController.propetydetailsInfo?.propetydetails!.ownerImage}",
-                                  placeholder:
-                                      "assets/images/ezgif.com-crop.gif",
-                                ),
-                              ),
-                              // leading: Container(
-                              //   height: 60,
-                              //   width: 60,
-                              //   decoration: BoxDecoration(
-                              //     shape: BoxShape.circle,
-                              //     image: DecorationImage(
-                              //       image: NetworkImage(
-                              //         "${Config.imageUrl}${homePageController.propetydetailsInfo?.propetydetails!.ownerImage}",
-                              //       ),
-                              //       fit: BoxFit.cover,
-                              //     ),
-                              //   ),
-                              // ),
+                                );
+                                return ClipOval(
+                                  child: SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: avatarUrl == null
+                                        ? fallback
+                                        : Image.network(
+                                            avatarUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                fallback,
+                                          ),
+                                  ),
+                                );
+                              }),
                               title: Text(
                                 homePageController.propetydetailsInfo
                                         ?.propetydetails!.ownerName ??
@@ -1359,229 +1467,183 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                     Positioned(
                       bottom: 0,
                       child: Container(
-                        height: 80,
+                        height: 78,
                         width: Get.size.width,
-                        color: notifire.getblackwhitecolor,
+                        decoration: BoxDecoration(
+                          color: notifire.getblackwhitecolor,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.10),
+                              blurRadius: 14,
+                              offset: const Offset(0, -4),
+                            ),
+                          ],
+                        ),
                         child: Row(
                           children: [
                             Expanded(
-                              flex: 1,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 10, left: 15),
-                                    child: Text(
-                                      "Price".tr,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 16, right: 8),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      homePageController.propetydetailsInfo
+                                                  ?.propetydetails?.buyorrent ==
+                                              "1"
+                                          ? '${"Price".tr} / ${"night".tr}'
+                                          : "Price".tr,
                                       style: TextStyle(
+                                        fontSize: 12,
                                         fontFamily: FontFamily.gilroyMedium,
                                         color: greycolor,
                                       ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 10, left: 15),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "${currency}${AppFormater.formatAmount(double.tryParse(homePageController.propetydetailsInfo?.propetydetails!.price ?? "0") ?? 0)}",
-                                          // "${currency}${homePageController.propetydetailsInfo?.propetydetails!.price ?? ""}",
-                                          style: TextStyle(
-                                            color: Darkblue,
-                                            fontFamily: FontFamily.gilroyBold,
-                                            fontSize: 22,
-                                          ),
+                                    const SizedBox(height: 5),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        '$currency ${AppFormater.formatAmount(double.tryParse(homePageController.propetydetailsInfo?.propetydetails?.price ?? "0") ?? 0)}',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          color: Darkblue,
+                                          fontFamily: FontFamily.gilroyBold,
+                                          fontSize: 20,
                                         ),
-                                        homePageController
-                                                    .propetydetailsInfo
-                                                    ?.propetydetails!
-                                                    .buyorrent ==
-                                                "1"
-                                            ? Text(
-                                                "/night".tr,
-                                                style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontFamily:
-                                                      FontFamily.gilroyMedium,
-                                                ),
-                                              )
-                                            : Text(""),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                            // Text(homePageController.propetydetailsInfo
-                            //         ?.propetydetails!.buyorrent
-                            //         ?.toString() ??
-                            //     ''),
-                            // Text(homePageController.propetydetailsInfo
-                            //         ?.propetydetails!.buyorrent?.runtimeType
-                            //         .toString() ??
-                            //     ''),
-                            // Text(homePageController.propetydetailsInfo
-                            //         ?.propetydetails!.isEnquiry
-                            //         ?.toString() ??
-                            //     ''),
-                            // Text(homePageController.propetydetailsInfo
-                            //         ?.propetydetails!.isEnquiry?.runtimeType
-                            //         .toString() ??
-                            //     ''),
-                            GetBuilder<BookrealEstateController>(
-                                builder: (context) {
-                              return GetBuilder<CalendarController>(
-                                  builder: (context) {
-                                return StatefulBuilder(
-                                    builder: (context, setState) {
-                                  return Expanded(
-                                    child: homePageController.propetydetailsInfo
-                                                ?.propetydetails!.buyorrent ==
-                                            "1"
-                                        ? GestButton(
-                                            Width: Get.size.width,
-                                            height: 70,
-                                            buttoncolor: Darkblue,
-                                            margin: EdgeInsets.only(
-                                                top: 10, right: 10, bottom: 10),
-                                            buttontext: "Reserve".tr,
-                                            // buttontext: "Book".tr,
-                                            onclick: () {
-                                              if (getData.read("UserLogin") !=
-                                                  null) {
-                                                Get.toNamed(
-                                                    Routes.bookRealEstate);
-                                                bookrealEstateController
-                                                    .cleanDate();
-                                                print(
-                                                    ">:>:>:>:>:>:>:>:>:> PROPERTY ID : > ${homePageController.propetydetailsInfo?.propetydetails!.id}");
-                                                calendarController
-                                                    .calendar(homePageController
-                                                        .propetydetailsInfo!
-                                                        .propetydetails!
-                                                        .id)
-                                                    .then(
-                                                      (value) {},
-                                                    );
-                                                reviewSummaryController
-                                                    .getProductObject(
-                                                  pim: homePageController
-                                                      .propetydetailsInfo
-                                                      ?.propetydetails!
-                                                      .image![0]
-                                                      .image,
-                                                  pti: homePageController
-                                                          .propetydetailsInfo
-                                                          ?.propetydetails!
-                                                          .title ??
-                                                      "",
-                                                  pci: homePageController
-                                                          .propetydetailsInfo
-                                                          ?.propetydetails!
-                                                          .city ??
-                                                      "",
-                                                  pPr: homePageController
-                                                      .propetydetailsInfo
-                                                      ?.propetydetails!
-                                                      .price,
-                                                  pId: homePageController
-                                                          .propetydetailsInfo
-                                                          ?.propetydetails!
-                                                          .id ??
-                                                      "",
-                                                  pLimit: homePageController
-                                                          .propetydetailsInfo
-                                                          ?.propetydetails!
-                                                          .plimit ??
-                                                      "1",
-                                                );
-                                              } else {
-                                                showToastMessage(
-                                                    "Please login and Book".tr);
-
-                                                Get.to(() => LoginScreen());
-                                              }
-                                            },
-                                            style: TextStyle(
-                                              fontFamily: FontFamily.gilroyBold,
-                                              color: WhiteColor,
-                                              fontSize: 16,
-                                            ),
-                                          )
-                                        : homePageController
+                            SizedBox(
+                              width: Get.width * 0.34,
+                              child: homePageController.propetydetailsInfo
+                                          ?.propetydetails!.buyorrent ==
+                                      "1"
+                                  ? GestButton(
+                                      height: 50,
+                                      buttoncolor: Darkblue,
+                                      margin: EdgeInsets.only(right: 16),
+                                      buttontext: "Reserve".tr,
+                                      // buttontext: "Book".tr,
+                                      onclick: () {
+                                        if (getData.read("UserLogin") != null) {
+                                          bookrealEstateController.cleanDate();
+                                          Get.toNamed(Routes.bookRealEstate);
+                                          print(
+                                              ">:>:>:>:>:>:>:>:>:> PROPERTY ID : > ${homePageController.propetydetailsInfo?.propetydetails!.id}");
+                                          calendarController
+                                              .calendar(homePageController
+                                                  .propetydetailsInfo!
+                                                  .propetydetails!
+                                                  .id)
+                                              .then(
+                                                (value) {},
+                                              );
+                                          reviewSummaryController
+                                              .getProductObject(
+                                            pim: homePageController
+                                                .propetydetailsInfo
+                                                ?.propetydetails!
+                                                .image![0]
+                                                .image,
+                                            pti: homePageController
                                                     .propetydetailsInfo
                                                     ?.propetydetails!
-                                                    .isEnquiry ==
-                                                1
-                                            ? GestButton(
-                                                Width: Get.size.width,
-                                                height: 70,
-                                                buttoncolor: RedColor,
-                                                margin: EdgeInsets.only(
-                                                    top: 10,
-                                                    right: 10,
-                                                    bottom: 10),
-                                                buttontext: "Contacted".tr,
-                                                onclick: () {
-                                                  Fluttertoast.showToast(
-                                                    msg:
-                                                        "Enquiry Already Send!!"
-                                                            .tr,
-                                                    gravity:
-                                                        ToastGravity.BOTTOM,
-                                                    timeInSecForIosWeb: 1,
-                                                    backgroundColor: RedColor,
-                                                    textColor: Colors.white,
-                                                    fontSize: 14.0,
-                                                  );
-                                                },
-                                                style: TextStyle(
-                                                  fontFamily:
-                                                      FontFamily.gilroyBold,
-                                                  color: WhiteColor,
-                                                  fontSize: 16,
-                                                ),
-                                              )
-                                            : GestButton(
-                                                Width: Get.size.width,
-                                                height: 70,
-                                                buttoncolor: Darkblue,
-                                                margin: EdgeInsets.only(
-                                                    top: 10,
-                                                    right: 10,
-                                                    bottom: 10),
-                                                buttontext: "Inquiry".tr,
-                                                onclick: () {
-                                                  if (getData
-                                                          .read("UserLogin") !=
-                                                      null) {
-                                                    homePageController
-                                                        .enquirySetApi(
-                                                      pId: homePageController
-                                                          .propetydetailsInfo
-                                                          ?.propetydetails!
-                                                          .id,
-                                                    );
-                                                    Get.back();
-                                                  } else {
-                                                    showToastMessage(
-                                                        "Please login and send enquery"
-                                                            .tr);
-                                                  }
-                                                },
-                                                style: TextStyle(
-                                                  fontFamily:
-                                                      FontFamily.gilroyBold,
-                                                  color: WhiteColor,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                  );
-                                });
-                              });
-                            })
+                                                    .title ??
+                                                "",
+                                            pci: homePageController
+                                                    .propetydetailsInfo
+                                                    ?.propetydetails!
+                                                    .city ??
+                                                "",
+                                            pPr: homePageController
+                                                .propetydetailsInfo
+                                                ?.propetydetails!
+                                                .price,
+                                            pId: homePageController
+                                                    .propetydetailsInfo
+                                                    ?.propetydetails!
+                                                    .id ??
+                                                "",
+                                            pLimit: homePageController
+                                                    .propetydetailsInfo
+                                                    ?.propetydetails!
+                                                    .plimit ??
+                                                "1",
+                                          );
+                                        } else {
+                                          showToastMessage(
+                                              "Please login and Book".tr);
+
+                                          Get.to(() => LoginScreen());
+                                        }
+                                      },
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.gilroyBold,
+                                        color: WhiteColor,
+                                        fontSize: 16,
+                                      ),
+                                    )
+                                  : homePageController.propetydetailsInfo
+                                              ?.propetydetails!.isEnquiry ==
+                                          1
+                                      ? GestButton(
+                                          height: 50,
+                                          buttoncolor: RedColor,
+                                          margin: EdgeInsets.only(right: 16),
+                                          buttontext: "Contacted".tr,
+                                          onclick: () {
+                                            Fluttertoast.showToast(
+                                              msg: "Enquiry Already Send!!".tr,
+                                              gravity: ToastGravity.BOTTOM,
+                                              timeInSecForIosWeb: 1,
+                                              backgroundColor: RedColor,
+                                              textColor: Colors.white,
+                                              fontSize: 14.0,
+                                            );
+                                          },
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.gilroyBold,
+                                            color: WhiteColor,
+                                            fontSize: 16,
+                                          ),
+                                        )
+                                      : GestButton(
+                                          height: 50,
+                                          buttoncolor: Darkblue,
+                                          margin: EdgeInsets.only(right: 16),
+                                          buttontext: "Inquiry".tr,
+                                          onclick: () {
+                                            if (getData.read("UserLogin") !=
+                                                null) {
+                                              homePageController.enquirySetApi(
+                                                pId: homePageController
+                                                    .propetydetailsInfo
+                                                    ?.propetydetails!
+                                                    .id,
+                                              );
+                                              Get.back();
+                                            } else {
+                                              showToastMessage(
+                                                  "Please login and send enquery"
+                                                      .tr);
+                                            }
+                                          },
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.gilroyBold,
+                                            color: WhiteColor,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                            ),
                           ],
                         ),
                       ),
@@ -1590,7 +1652,7 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                 ),
               )
             : Center(
-                child: CircularProgressIndicator(
+                child: FastSpinner(
                   color: Darkblue,
                 ),
               ),
@@ -1890,6 +1952,94 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
       },
     );
   }
+}
+
+class _PropertyImagePreview extends StatefulWidget {
+  const _PropertyImagePreview({
+    required this.images,
+    required this.initialIndex,
+  });
+
+  final List<String> images;
+  final int initialIndex;
+
+  @override
+  State<_PropertyImagePreview> createState() => _PropertyImagePreviewState();
+}
+
+class _PropertyImagePreviewState extends State<_PropertyImagePreview> {
+  late final PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Dialog(
+        backgroundColor: Colors.black,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 60),
+        clipBehavior: Clip.antiAlias,
+        child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.72,
+          child: Stack(
+            children: [
+              PhotoViewGallery.builder(
+                pageController: _pageController,
+                itemCount: widget.images.length,
+                onPageChanged: (index) => setState(() => _currentIndex = index),
+                backgroundDecoration: const BoxDecoration(color: Colors.black),
+                loadingBuilder: (_, __) =>
+                    const Center(child: FastSpinner(color: Colors.white)),
+                builder: (context, index) => PhotoViewGalleryPageOptions(
+                  imageProvider: NetworkImage(widget.images[index]),
+                  errorBuilder: (_, __, ___) => const Center(
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      color: Colors.white70,
+                      size: 48,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  tooltip: 'Close image preview',
+                ),
+              ),
+              if (widget.images.length > 1)
+                Positioned(
+                  bottom: 16,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Text(
+                      '${_currentIndex + 1} / ${widget.images.length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        shadows: [Shadow(color: Colors.black, blurRadius: 4)],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
 }
 
 class IndicatorViewPage extends StatelessWidget {

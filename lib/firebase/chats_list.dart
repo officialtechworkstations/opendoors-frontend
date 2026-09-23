@@ -12,6 +12,7 @@ import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class ChatList extends StatefulWidget {
   const ChatList({super.key});
@@ -183,8 +184,9 @@ class _ChatListState extends State<ChatList> {
             final Map<String, dynamic> data =
                 doc.data()! as Map<String, dynamic>;
             final String uid = (data['uid'] ?? doc.id).toString();
-            if (uid.isEmpty || uid == currentUserId)
+            if (uid.isEmpty || uid == currentUserId) {
               return const SizedBox.shrink();
+            }
 
             return StreamBuilder<QuerySnapshot>(
               // commented out loading the entire chat history for optimization:
@@ -250,7 +252,7 @@ class _ChatListState extends State<ChatList> {
     // Guard: if the user session hasn't loaded yet, show a spinner.
     final rawId = getData.read('UserLogin')?['id'];
     if (rawId == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: FastSpinner());
     }
     final String currentUserId = rawId.toString();
 
@@ -332,14 +334,16 @@ class _ChatListState extends State<ChatList> {
           resiverUseremail: name,
         ));
       },
-      leading: proPic == 'null'
+      leading: (proPic == 'null' || proPic.isEmpty)
           ? const CircleAvatar(
               backgroundColor: Colors.transparent,
               radius: 25,
-              backgroundImage: AssetImage('assets/images/profile-default.png'))
+              backgroundImage:
+                  AssetImage('assets/images/profile-default.png'))
           : CircleAvatar(
               backgroundColor: Colors.transparent,
               radius: 25,
+              onBackgroundImageError: (_, __) {},
               backgroundImage: NetworkImage('${Config.imageUrl}$proPic')),
       title: Text(
         name,

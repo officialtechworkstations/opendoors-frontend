@@ -25,6 +25,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/app_logger.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -91,7 +93,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       http.Response response =
           await http.get(Uri.parse(Config.imageUrl + networkimage.toString()));
       if (mounted) {
-        print(response.bodyBytes);
+        AppLogger.debug('Profile', 'Profile image downloaded', data: {
+          'byte_count': response.bodyBytes.length,
+        });
         setState(() {
           base64Image = const Base64Encoder().convert(response.bodyBytes);
         });
@@ -102,7 +106,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<dynamic> isUserLogOut(String uid) async {
     CollectionReference collectionReference =
         FirebaseFirestore.instance.collection('opendoors_users');
-    collectionReference.doc(uid).update({"token": ""});
+    await collectionReference.doc(uid).set(
+      {"uid": uid, "token": ""},
+      SetOptions(merge: true),
+    );
   }
 
   @override
@@ -451,7 +458,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             },
                           )
                         : Center(
-                            child: CircularProgressIndicator(
+                            child: FastSpinner(
                               color: Darkblue,
                             ),
                           );
@@ -560,8 +567,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
+                  // Extra space so the Logout row clears the bottom nav bar.
                   SizedBox(
-                    height: 30,
+                    height: 24 + MediaQuery.of(Get.context!).padding.bottom + 70,
                   ),
                 ],
               ),
@@ -575,9 +583,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<dynamic> tokenemty() async {
     CollectionReference collectionReference =
         FirebaseFirestore.instance.collection('opendoors_users');
-    collectionReference
-        .doc(getData.read("UserLogin")["id"])
-        .update({"token": ""});
+    final uid = getData.read("UserLogin")?["id"]?.toString();
+    if (uid == null || uid.isEmpty) return;
+    await collectionReference.doc(uid).set(
+      {"uid": uid, "token": ""},
+      SetOptions(merge: true),
+    );
   }
 
   Widget settingWidget({Function()? onTap, String? name, String? imagePath}) {
@@ -799,24 +810,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: InkWell(
                     onTap: () async {
                       final prefs = await SharedPreferences.getInstance();
-                      setState(() async {
-                        isUserLogOut(getData.read("UserLogin")["id"]).then(
-                          (value) async {
-                            save('isLoginBack', true);
-                            await prefs.remove('Firstuser');
-                            getData.remove("UserLogin");
-                            getData.remove("countryId");
-                            getData.remove("countryName");
-                            getData.remove("currentIndex");
-                            tokenemty();
+                      final userId = getData.read("UserLogin")?["id"];
+                      if (userId != null) {
+                        try {
+                          await isUserLogOut(userId.toString());
+                        } catch (error, stackTrace) {
+                          AppLogger.error(
+                            'Auth',
+                            'Remote logout failed; continuing local logout',
+                            error: error,
+                            stackTrace: stackTrace,
+                            data: {'error': error.toString()},
+                          );
+                          // Local logout should still complete if Firebase is
+                          // temporarily unavailable.
+                        }
+                      }
 
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoginScreen()));
-                          },
-                        );
-                      });
+                      save('isLoginBack', true);
+                      await prefs.remove('Firstuser');
+                      getData.remove("UserLogin");
+                      getData.remove("countryId");
+                      getData.remove("countryName");
+                      getData.remove("currentIndex");
+                      getData.remove("accessToken");
+                      getData.remove("accessTokenExpiresAt");
+
+                      Get.offAll(() => LoginScreen());
                     },
                     child: Container(
                       height: 60,

@@ -3,8 +3,6 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/controller/reviewsummary_controller.dart';
 import 'package:opendoors/model/paystackmodel.dart';

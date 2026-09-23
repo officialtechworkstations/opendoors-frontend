@@ -14,7 +14,6 @@ import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
 import 'package:opendoors/screen/kyc/kyc_upload.dart';
-import 'package:opendoors/screen/kyc/partner_kyc.dart';
 import 'package:opendoors/screen/kyc/widget2/kyc_controller.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
@@ -30,6 +29,7 @@ import '../../controller/galleryimage_controller.dart';
 import '../../controller/listofproperti_controller.dart';
 import '../../controller/myearning_controller.dart';
 import '../login_screen.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class MembershipScreen extends StatefulWidget {
   const MembershipScreen({super.key});
@@ -571,13 +571,19 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                             borderRadius: BorderRadius.only(
                                               bottomRight: Radius.circular(15),
                                             ),
-                                            image: DecorationImage(
-                                              image: NetworkImage(
-                                                "${Config.imageUrl}${dashBoardController.dashBoardInfo?.reportData[index].url ?? ""}",
-                                              ),
-                                              colorFilter: ColorFilter.mode(
-                                                  Darkblue, BlendMode.srcIn),
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.only(
+                                              bottomRight: Radius.circular(15),
+                                            ),
+                                            child: Image.network(
+                                              "${Config.imageUrl}${dashBoardController.dashBoardInfo?.reportData[index].url ?? ""}",
                                               fit: BoxFit.cover,
+                                              color: Darkblue,
+                                              colorBlendMode: BlendMode.srcIn,
+                                              errorBuilder: (_, __, ___) =>
+                                                  Icon(Icons.home_outlined,
+                                                      color: Darkblue),
                                             ),
                                           ),
                                         ),
@@ -603,7 +609,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
                   ),
                 )
               : Center(
-                  child: CircularProgressIndicator(
+                  child: FastSpinner(
                     color: Darkblue,
                   ),
                 );
@@ -615,7 +621,10 @@ class _MembershipScreenState extends State<MembershipScreen> {
   Future<dynamic> isUserLogOut(String uid) async {
     CollectionReference collectionReference =
         FirebaseFirestore.instance.collection('opendoors_users');
-    collectionReference.doc(uid).update({"token": ""});
+    await collectionReference.doc(uid).set(
+      {"uid": uid, "token": ""},
+      SetOptions(merge: true),
+    );
   }
 
   Future logoutSheet() {
@@ -744,8 +753,11 @@ class _MembershipScreenState extends State<MembershipScreen> {
   Future<dynamic> tokenemty() async {
     CollectionReference collectionReference =
         FirebaseFirestore.instance.collection('opendoors_users');
-    collectionReference
-        .doc(getData.read("UserLogin")["id"])
-        .update({"token": ""});
+    final uid = getData.read("UserLogin")?["id"]?.toString();
+    if (uid == null || uid.isEmpty) return;
+    await collectionReference.doc(uid).set(
+      {"uid": uid, "token": ""},
+      SetOptions(merge: true),
+    );
   }
 }

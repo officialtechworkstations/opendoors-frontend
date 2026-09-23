@@ -10,6 +10,7 @@ import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class ExtraImageScreen extends StatefulWidget {
   const ExtraImageScreen({super.key});
@@ -278,7 +279,7 @@ class _ExtraImageScreenState extends State<ExtraImageScreen> {
                             ],
                           )
                       : Center(
-                          child: CircularProgressIndicator(color: Darkblue,),
+                          child: FastSpinner(color: Darkblue,),
                         ),
                   decoration: BoxDecoration(
                     color: notifire.getblackwhitecolor,

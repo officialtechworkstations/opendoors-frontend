@@ -64,7 +64,7 @@ class _SenangpayState extends State<Senangpay> {
               accessToken = uri.queryParameters["token"];
             } else {
               if (uri.queryParameters["msg"] == "Payment_was_successful") {
-                payerID = await uri.queryParameters["transaction_id"];
+                payerID = uri.queryParameters["transaction_id"];
                 Get.back(result: payerID);
               } else {
                 Get.back();

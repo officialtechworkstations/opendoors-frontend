@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../model/fontfamily_model.dart';
 import '../../utils/Colors.dart';
 import '../../utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/fast_spinner.dart';
 
 class ReviewlistScreen extends StatefulWidget {
   const ReviewlistScreen({super.key});
@@ -53,7 +54,7 @@ class _ReviewlistScreenState extends State<ReviewlistScreen> {
         ),
       ),
       backgroundColor: notifire.getbgcolor,
-      body: reviewlistController.isLoading ? const Center(child: CircularProgressIndicator()) : Padding(
+      body: reviewlistController.isLoading ? const Center(child: FastSpinner()) : Padding(
         padding: const EdgeInsets.only(left: 20, right: 20),
         child: ListView.builder(
           shrinkWrap: true,

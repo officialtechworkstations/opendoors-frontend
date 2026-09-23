@@ -282,9 +282,17 @@ class BookrealEstateController extends GetxController implements GetxService {
         showToastMessage(bookresult);
         return result;
       }
-      update();
+      return {
+        "Result": "false",
+        "ResponseMsg":
+            "Unable to confirm booking (HTTP ${response.statusCode}). Please try again."
+      };
     } catch (e) {
       print(e.toString());
+      return {
+        "Result": "false",
+        "ResponseMsg": "Unable to confirm booking. Please try again."
+      };
     }
   }
 }
