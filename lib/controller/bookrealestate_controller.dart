@@ -22,7 +22,7 @@ class BookrealEstateController extends GetxController implements GetxService {
 
   DateTime selectedDate = DateTime.now();
   List<DateTime> selectedDates = [];
-  String selectedDatees = '';
+  String  selectedDatees = '';
   String dateCount = '';
 
   String checkIn = '';

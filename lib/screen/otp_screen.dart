@@ -24,6 +24,7 @@ import '../Api/data_store.dart';
 import '../controller/homepage_controller.dart';
 import '../controller/search_controller.dart';
 import 'package:opendoors/utils/fast_spinner.dart';
+import 'package:opendoors/utils/otp_code_tracker.dart';
 
 class OtpScreen extends StatefulWidget {
   @override
@@ -31,10 +32,12 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
+  late final OtpCodeTracker _otpCodes;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    _otpCodes = OtpCodeTracker(Get.arguments["otpCode"]);
   }
 
   TextEditingController pinPutController = TextEditingController();
@@ -52,8 +55,6 @@ class _OtpScreenState extends State<OtpScreen> {
   String countryCode = Get.arguments["cuntryCode"];
 
   String rout = Get.arguments["route"];
-
-  String otpCode = Get.arguments["otpCode"].toString();
 
   String email = Get.arguments?["email"] ?? "";
 
@@ -117,12 +118,51 @@ class _OtpScreenState extends State<OtpScreen> {
 
   bool isLoading = false;
   bool isResending = false;
+
+  Future<void> _resendOtp() async {
+    if (isResending) return;
+
+    setState(() => isResending = true);
+    try {
+      final settings = await signUpController.smstype();
+      dynamic response;
+
+      switch (settings?["SMS_TYPE"]) {
+        case "Msg91":
+          response = await signUpController.sendOtp(countryCode, phoneNumber);
+          break;
+        case "Twilio":
+          response = await signUpController.twilloOtp(countryCode, phoneNumber);
+          break;
+        case "Termii":
+          response = await signUpController.termiOtp(countryCode, phoneNumber);
+          break;
+        default:
+          showToastMessage("Unable to send OTP. Please try again.".tr);
+          return;
+      }
+
+      final newCode = response?["otp"];
+      if (newCode == null) {
+        showToastMessage("Unable to send OTP. Please try again.".tr);
+        return;
+      }
+
+      _otpCodes.add(newCode);
+      pinPutController.clear();
+    } catch (error) {
+      log("OTP resend failed: $error");
+      showToastMessage("Unable to send OTP. Please try again.".tr);
+    } finally {
+      if (mounted) {
+        setState(() => isResending = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    final message = rout == "resetScreen"
-        ? "${"We have sent a reset password otp code to".tr}\n${email}"
-        : "${"We have sent the verification code to".tr}\n${email}";
     return Scaffold(
       backgroundColor: notifire.getbgcolor,
       body: Stack(
@@ -238,87 +278,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           ),
                         ),
                         InkWell(
-                          onTap: isResending
-                              ? null
-                              : () {
-                                  // signUpController.smstype().then((value) {
-                                  //   if(value["SMS_TYPE"] == "Msg91"){
-                                  //     signUpController.sendOtp(countryCode, phoneNumber).then((value) {
-                                  //       setState(() {
-                                  //         otpCode = value["otp"].toString();
-                                  //       });
-                                  //     },);
-                                  //   } else if(value["SMS_TYPE"] == "Twilio") {
-                                  //     signUpController.twilloOtp(countryCode, phoneNumber).then((value) {
-                                  //       setState(() {
-                                  //         otpCode = value["otp"].toString();
-                                  //       });
-                                  //     },);
-                                  //   }
-                                  // });
-
-                                  // =========sms method setup=========
-                                  setState(() {
-                                    isResending = true;
-                                  });
-                                  signUpController.smstype().then((value) {
-                                    if (value["SMS_TYPE"] == "Msg91") {
-                                      signUpController
-                                          .sendOtp(countryCode, phoneNumber)
-                                          .then(
-                                        (value) {
-                                          setState(() {
-                                            otpCode = value["otp"].toString();
-                                          });
-                                        },
-                                      );
-                                    } else if (value["SMS_TYPE"] == "Twilio") {
-                                      signUpController
-                                          .twilloOtp(countryCode, phoneNumber)
-                                          .then(
-                                        (value) {
-                                          setState(() {
-                                            otpCode = value["otp"].toString();
-                                          });
-                                        },
-                                      );
-                                    } else if (value["SMS_TYPE"] == "Termii") {
-                                      signUpController
-                                          .termiOtp(countryCode, phoneNumber)
-                                          .then(
-                                        (res) {
-                                          setState(() {
-                                            otpCode = res["otp"].toString();
-                                          });
-                                        },
-                                      );
-                                    }
-                                  }).whenComplete(() {
-                                    setState(() {
-                                      isResending = false;
-                                    });
-                                  });
-                                  // =========sms method setup=========
-
-                                  // // =========email method setup=========
-                                  // setState(() {
-                                  //   isResending = true;
-                                  // });
-                                  // signUpController.emailOtp(email).then((res) {
-                                  //   if (res["Result"] == "true") {
-                                  //     setState(() {
-                                  //       otpCode = res["otp"].toString();
-                                  //     });
-                                  //   }
-                                  // }).whenComplete(() {
-                                  //   setState(() {
-                                  //     isResending = false;
-                                  //   });
-                                  // });
-                                  //  // =========email method setup=========
-
-                                  pinPutController.text = "";
-                                },
+                          onTap: isResending ? null : _resendOtp,
                           child: Container(
                             height: 30,
                             alignment: Alignment.center,
@@ -361,8 +321,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                     onclick: () {
-                      print("OTP CODE :   $otpCode");
-                      if (otpCode == code) {
+                      if (_otpCodes.accepts(code)) {
                         setState(() {
                           isLoading = true;
                         });

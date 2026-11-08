@@ -423,7 +423,7 @@ class _SocialPhoneScreenState extends State<SocialPhoneScreen> {
                                           fontSize: 12,
                                           color:
                                               (notifire.getblackblue as Color)
-                                                  .withOpacity(0.6),
+                                                  .withValues(alpha: 0.6),
                                           fontFamily: FontFamily.gilroyBold,
                                           overflow: TextOverflow.ellipsis,
                                         ),

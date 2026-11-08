@@ -10,11 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/controller/addproperties_controller.dart';
 import 'package:opendoors/controller/dashboard_controller.dart';
 import 'package:opendoors/controller/enquiry_controller.dart';
 import 'package:opendoors/controller/selectcountry_controller.dart';
+import 'package:opendoors/screen/add%20proparty/property_location_picker.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
@@ -59,6 +61,12 @@ class _ThousandsSeparatorFormatter extends TextInputFormatter {
   }
 }
 
+class _LocationFeedbackException implements Exception {
+  const _LocationFeedbackException(this.message);
+
+  final String message;
+}
+
 List<String> list = ["Rent"];
 
 List<String> propartyStatus = ["Publish", "UnPublish"];
@@ -71,6 +79,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   SelectCountryController selectCountryController = Get.find();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   VideoPlayerController? _reelPreviewController;
+  bool _fetchingLocation = false;
+  bool _locationFetched = false;
+  String? _locationFeedback;
 
   String manegeRoute = Get.arguments["add"];
 
@@ -98,13 +109,99 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   Future<Position> locateUser() async {
-    return Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    return Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .timeout(const Duration(seconds: 15));
+  }
+
+  Future<void> _fetchCurrentLocation() async {
+    if (_fetchingLocation) return;
+    setState(() {
+      _fetchingLocation = true;
+      _locationFeedback = null;
+    });
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        throw const _LocationFeedbackException(
+            'Turn on location services and try again.');
+      }
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        throw const _LocationFeedbackException(
+            'Allow location access in your device settings and try again.');
+      }
+      final position = await locateUser();
+      if (!mounted) return;
+      addPropertiesController.getCurrentLatAndLong(
+          position.latitude, position.longitude);
+      setState(() {
+        _locationFetched = true;
+        _locationFeedback = 'Current location fetched and saved to this form.';
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _locationFetched = false;
+        _locationFeedback = error is _LocationFeedbackException
+            ? error.message
+            : 'Could not fetch your location. Please try again.';
+      });
+    } finally {
+      if (mounted) setState(() => _fetchingLocation = false);
+    }
+  }
+
+  Future<void> _openMapPicker() async {
+    final latitude =
+        double.tryParse(addPropertiesController.lat?.toString() ?? '');
+    final longitude =
+        double.tryParse(addPropertiesController.long?.toString() ?? '');
+    final existingPosition = latitude != null &&
+            longitude != null &&
+            latitude >= -90 &&
+            latitude <= 90 &&
+            longitude >= -180 &&
+            longitude <= 180 &&
+            !(latitude == 0 && longitude == 0)
+        ? LatLng(latitude, longitude)
+        : null;
+    final query = [
+      addPropertiesController.pAddress.text.trim(),
+      addPropertiesController.pCityAndCountry.text.trim(),
+    ].where((part) => part.isNotEmpty).join(', ');
+    final selected = await Navigator.of(context).push<LatLng>(
+      MaterialPageRoute(
+        builder: (_) => PropertyLocationPicker(
+          initialQuery: query,
+          initialPosition: existingPosition,
+        ),
+      ),
+    );
+    if (!mounted || selected == null) return;
+    addPropertiesController.getCurrentLatAndLong(
+        selected.latitude, selected.longitude);
+    setState(() {
+      _locationFetched = true;
+      _locationFeedback = 'Property location pinned and saved to this form.';
+    });
+  }
+
+  void _onAddressChanged() {
+    if (!_locationFetched || !mounted) return;
+    setState(() {
+      _locationFetched = false;
+      _locationFeedback = 'Address changed. Confirm the property pin again.';
+    });
   }
 
   @override
   void initState() {
     super.initState();
+    addPropertiesController.pAddress.addListener(_onAddressChanged);
+    addPropertiesController.pCityAndCountry.addListener(_onAddressChanged);
     print(".....//.......//.....//" + manegeRoute);
     if (manegeRoute == "edit") {
       setState(() {
@@ -138,14 +235,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         addPropertiesController.long = addPropertiesController.elong;
         addPropertiesController.pImage = addPropertiesController.eImage;
         addPropertiesController.pGest.text = addPropertiesController.eGest;
-        List list = addPropertiesController.fList.split(",");
-        for (var i = 0; i < list.length; i++) {
-          if (dashBoardController.facilityInfo?.facilitylist![i].title ==
-              list[i]) {
-            addPropertiesController.selectedIndexes
-                .add(dashBoardController.facilityInfo!.facilitylist![i].id);
-          }
-        }
+        final selectedFacilities = addPropertiesController.fList
+            .split(',')
+            .map((title) => title.trim().toLowerCase())
+            .toSet();
+        addPropertiesController.selectedIndexes = dashBoardController
+                .facilityInfo?.facilitylist
+                ?.where((facility) => selectedFacilities
+                    .contains((facility.title ?? '').trim().toLowerCase()))
+                .map((facility) => facility.id)
+                .whereType<String>()
+                .toList() ??
+            [];
         selectProperty = addPropertiesController.pName;
         selectCountry = addPropertiesController.countryName;
         setState(() {});
@@ -164,6 +265,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   @override
   void dispose() {
+    addPropertiesController.pAddress.removeListener(_onAddressChanged);
+    addPropertiesController.pCityAndCountry.removeListener(_onAddressChanged);
     _reelPreviewController?.dispose();
     super.dispose();
   }
@@ -885,36 +988,63 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                           SizedBox(
                             height: 10,
                           ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: _openMapPicker,
+                                icon: const Icon(Icons.location_on_outlined),
+                                label: const Text('Pin Property on Map'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Darkblue,
+                                  side: BorderSide(color: Darkblue),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 13),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(15, 4, 15, 10),
+                            child: Text(
+                              'Use this when you are not at the property.',
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyMedium,
+                                fontSize: 12,
+                                color: notifire.getgreycolor,
+                              ),
+                            ),
+                          ),
                           InkWell(
-                            onTap: () async {
-                              LocationPermission permission;
-                              permission = await Geolocator.checkPermission();
-                              permission = await Geolocator.requestPermission();
-                              if (permission == LocationPermission.denied) {}
-                              var currentLocation = await locateUser();
-                              debugPrint(
-                                  'location: ${currentLocation.latitude}');
-                              addPropertiesController.getCurrentLatAndLong(
-                                currentLocation.latitude,
-                                currentLocation.longitude,
-                              );
-                              print("????????????" +
-                                  currentLocation.latitude.toString());
-                            },
+                            onTap: _fetchingLocation
+                                ? null
+                                : _fetchCurrentLocation,
                             child: Padding(
                               padding: const EdgeInsets.only(left: 15),
                               child: Row(
                                 children: [
-                                  Image.asset(
-                                    "assets/images/Navigation.png",
-                                    height: 25,
-                                    width: 25,
-                                  ),
+                                  _fetchingLocation
+                                      ? SizedBox(
+                                          height: 25,
+                                          width: 25,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Darkblue,
+                                          ),
+                                        )
+                                      : Image.asset(
+                                          "assets/images/Navigation.png",
+                                          height: 25,
+                                          width: 25,
+                                        ),
                                   SizedBox(
                                     width: 8,
                                   ),
                                   Text(
-                                    "Click for Current Location".tr,
+                                    _fetchingLocation
+                                        ? 'Fetching current location...'
+                                        : "Click for Current Location".tr,
                                     style: TextStyle(
                                       color: notifire.getwhiteblackcolor,
                                       fontFamily: FontFamily.gilroyMedium,
@@ -925,17 +1055,58 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               ),
                             ),
                           ),
+                          if (_locationFeedback != null)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(15, 8, 15, 0),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    _locationFetched
+                                        ? Icons.check_circle_rounded
+                                        : Icons.error_outline_rounded,
+                                    size: 18,
+                                    color: _locationFetched
+                                        ? Colors.green.shade700
+                                        : Colors.red.shade700,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      _locationFeedback!,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.gilroyMedium,
+                                        fontSize: 13,
+                                        color: _locationFetched
+                                            ? Colors.green.shade700
+                                            : Colors.red.shade700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           SizedBox(
                             height: 15,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 15),
                             child: Text(
-                              "Upload Image".tr,
+                              "Property Photos".tr,
                               style: TextStyle(
                                 fontFamily: FontFamily.gilroyBold,
                                 fontSize: 16,
                                 color: notifire.getwhiteblackcolor,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(15, 4, 15, 0),
+                            child: Text(
+                              'Select one or more photos. The first photo is the cover.',
+                              style: TextStyle(
+                                fontFamily: FontFamily.gilroyMedium,
+                                fontSize: 12,
+                                color: notifire.getgreycolor,
                               ),
                             ),
                           ),
@@ -955,34 +1126,26 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                 borderRadius: BorderRadius.circular(15),
                                 child: manegeRoute == "Add"
                                     ? Container(
-                                        height: 80,
+                                        height: 120,
                                         margin: EdgeInsets.symmetric(
                                             horizontal: 20),
                                         width: Get.size.width,
                                         alignment: Alignment.center,
-                                        child: addPropertiesController.path ==
-                                                null
+                                        child: addPropertiesController
+                                                .imagePaths.isEmpty
                                             ? Image.asset(
                                                 "assets/images/image-upload.png",
                                                 height: 40,
                                                 width: 42,
                                               )
-                                            : Image.file(
-                                                File(
-                                                  addPropertiesController.path
-                                                      .toString(),
-                                                ),
-                                                height: 50,
-                                                width: 50,
-                                                fit: BoxFit.cover,
-                                              ),
+                                            : _selectedPhotoStrip(),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(15),
                                         ),
                                       )
                                     : Container(
-                                        height: 80,
+                                        height: 120,
                                         margin: EdgeInsets.symmetric(
                                             horizontal: 20),
                                         width: Get.size.width,
@@ -1002,16 +1165,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                                     width: 50,
                                                     fit: BoxFit.cover,
                                                   )
-                                                : Image.file(
-                                                    File(
-                                                      addPropertiesController
-                                                          .path
-                                                          .toString(),
-                                                    ),
-                                                    height: 50,
-                                                    width: 50,
-                                                    fit: BoxFit.cover,
-                                                  ),
+                                                : _selectedPhotoStrip(),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(15),
@@ -1359,11 +1513,64 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
+  Widget _selectedPhotoStrip() {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      itemCount: addPropertiesController.imagePaths.length + 1,
+      separatorBuilder: (_, __) => const SizedBox(width: 8),
+      itemBuilder: (context, index) {
+        if (index == addPropertiesController.imagePaths.length) {
+          return const SizedBox(
+            width: 64,
+            child: Icon(Icons.add_photo_alternate_outlined, size: 34),
+          );
+        }
+        final path = addPropertiesController.imagePaths[index];
+        return Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.file(File(path),
+                  width: 88, height: 88, fit: BoxFit.cover),
+            ),
+            Positioned(
+              right: 2,
+              top: 2,
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    addPropertiesController.imagePaths.removeAt(index);
+                    addPropertiesController.base64Images.removeAt(index);
+                    addPropertiesController.path =
+                        addPropertiesController.imagePaths.isEmpty
+                            ? null
+                            : addPropertiesController.imagePaths.first;
+                    addPropertiesController.base64Image =
+                        addPropertiesController.base64Images.isEmpty
+                            ? ''
+                            : addPropertiesController.base64Images.first;
+                  });
+                },
+                child: const CircleAvatar(
+                  radius: 11,
+                  backgroundColor: Colors.black87,
+                  child: Icon(Icons.close, size: 14, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _openGallery(BuildContext context) async {
-    String? imagePath;
+    List<String> imagePaths = [];
     try {
-      imagePath =
-          (await ImagePicker().pickImage(source: ImageSource.gallery))?.path;
+      imagePaths = (await ImagePicker().pickMultiImage())
+          .map((file) => file.path)
+          .toList();
     } on PlatformException catch (error) {
       if (error.code != 'invalid_image') {
         showToastMessage('Unable to open the photo. Please try again.');
@@ -1372,9 +1579,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       showToastMessage(
           'iOS could not load that photo. Choose a saved copy from Files.');
       try {
-        final result =
-            await FilePicker.platform.pickFiles(type: FileType.image);
-        imagePath = result?.files.single.path;
+        final result = await FilePicker.platform
+            .pickFiles(type: FileType.image, allowMultiple: true);
+        imagePaths = result?.files
+                .map((file) => file.path)
+                .whereType<String>()
+                .toList() ??
+            [];
       } catch (_) {
         showToastMessage('Unable to open the photo from Files.');
         return;
@@ -1383,14 +1594,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       showToastMessage('Unable to open the photo. Please try again.');
       return;
     }
-    if (imagePath == null) return;
+    if (imagePaths.isEmpty) return;
     try {
-      final imageBytes = await File(imagePath).readAsBytes();
-      if (imageBytes.isEmpty) throw const FormatException('Empty image');
+      final encoded = <String>[];
+      for (final imagePath in imagePaths) {
+        final imageBytes = await File(imagePath).readAsBytes();
+        if (imageBytes.isEmpty) throw const FormatException('Empty image');
+        encoded.add(base64Encode(imageBytes));
+      }
       if (!mounted) return;
       setState(() {
-        addPropertiesController.path = imagePath;
-        addPropertiesController.base64Image = base64Encode(imageBytes);
+        addPropertiesController.imagePaths.addAll(imagePaths);
+        addPropertiesController.base64Images.addAll(encoded);
+        addPropertiesController.path = addPropertiesController.imagePaths.first;
+        addPropertiesController.base64Image =
+            addPropertiesController.base64Images.first;
       });
     } catch (_) {
       showToastMessage(

@@ -7,27 +7,35 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:opendoors/Api/reels_api_service.dart';
+import 'package:opendoors/Api/nearby_properties_api.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/firebase/chat_screen.dart';
 import 'package:opendoors/model/reel.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
+import 'package:opendoors/screen/login_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/property_share.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:video_player/video_player.dart';
 import 'package:opendoors/utils/fast_spinner.dart';
 
 class ReelsFeedScreen extends StatefulWidget {
-  const ReelsFeedScreen({super.key});
+  const ReelsFeedScreen({super.key, this.active = true});
+
+  final bool active;
 
   @override
   State<ReelsFeedScreen> createState() => _ReelsFeedScreenState();
 }
 
-class _ReelsFeedScreenState extends State<ReelsFeedScreen> {
+class _ReelsFeedScreenState extends State<ReelsFeedScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   final ReelsApiService _api = ReelsApiService();
   final List<Reel> _reels = [];
   int _activeIndex = 0;
@@ -41,6 +49,7 @@ class _ReelsFeedScreenState extends State<ReelsFeedScreen> {
   double _feedSwipeDistance = 0;
   bool _commentsOpen = false;
   Position? _position;
+  Set<String>? _nearbyPropertyIds;
   int _requestVersion = 0;
 
   // Pre-warm cache: keeps at most 2 initialised controllers so adjacent
@@ -99,33 +108,22 @@ class _ReelsFeedScreenState extends State<ReelsFeedScreen> {
     ).timeout(const Duration(seconds: 15));
   }
 
-  bool _isNearby(Reel reel) {
-    final property = reel.property;
-    if (_position == null ||
-        property?.latitude == null ||
-        property?.longitude == null) {
-      return false;
-    }
-    return Geolocator.distanceBetween(
-          _position!.latitude,
-          _position!.longitude,
-          property!.latitude!,
-          property.longitude!,
-        ) <=
-        15000;
-  }
-
   Future<ReelsPage> _nearby({int cursor = 0}) async {
+    final nearbyIds = _nearbyPropertyIds ?? const <String>{};
+    if (nearbyIds.isEmpty) {
+      return const ReelsPage(reels: [], nextCursor: 0, hasMore: false);
+    }
     final found = <Reel>[];
     var nextCursor = cursor;
     var hasMore = true;
-    var scanned = 0;
-    while (hasMore && found.length < 10 && scanned < 5) {
+    final seenCursors = <int>{};
+    while (hasMore && found.length < 10 && seenCursors.add(nextCursor)) {
       final page = await _api.list(cursor: nextCursor);
-      found.addAll(page.reels.where(_isNearby));
+      found.addAll(page.reels.where(
+        (reel) => nearbyIds.contains(reel.propertyId),
+      ));
       hasMore = page.hasMore && page.nextCursor != nextCursor;
       nextCursor = page.nextCursor;
-      scanned++;
     }
     return ReelsPage(reels: found, nextCursor: nextCursor, hasMore: hasMore);
   }
@@ -152,6 +150,31 @@ class _ReelsFeedScreenState extends State<ReelsFeedScreen> {
     _loadInitial();
   }
 
+  @override
+  void didUpdateWidget(covariant ReelsFeedScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.active && !oldWidget.active && _feed == 3) {
+      _refreshNearbyLocation();
+    }
+  }
+
+  Future<void> _refreshNearbyLocation() async {
+    try {
+      final current = await _getLocation();
+      if (!mounted || !widget.active || _feed != 3) return;
+      final previous = _position;
+      if (previous == null ||
+          Geolocator.distanceBetween(previous.latitude, previous.longitude,
+                  current.latitude, current.longitude) >
+              1000) {
+        _position = current;
+        _loadInitial();
+      }
+    } catch (_) {
+      // Keep the current feed if a location refresh temporarily fails.
+    }
+  }
+
   Future<void> _loadInitial() async {
     final version = ++_requestVersion;
     if (mounted) {
@@ -163,7 +186,20 @@ class _ReelsFeedScreenState extends State<ReelsFeedScreen> {
       });
     }
     try {
-      if (_feed == 3) _position = await _getLocation();
+      if (_feed == 3) {
+        _position = await _getLocation();
+        final nearbyProperties = await NearbyPropertiesApi().fetch(
+          latitude: _position!.latitude,
+          longitude: _position!.longitude,
+          radiusKm: 15,
+          countryId: getData.read('countryId')?.toString(),
+        );
+        if (!mounted || version != _requestVersion) return;
+        _nearbyPropertyIds = nearbyProperties
+            .map((property) => property.id)
+            .whereType<String>()
+            .toSet();
+      }
       final page = await _fetch();
       if (!mounted || version != _requestVersion) return;
       setState(() {
@@ -179,10 +215,12 @@ class _ReelsFeedScreenState extends State<ReelsFeedScreen> {
       if (mounted && version == _requestVersion) {
         setState(() => _error = error.message);
       }
-    } catch (_) {
+    } catch (error) {
+      debugPrint('Nearby reels failed: $error');
       if (mounted && version == _requestVersion) {
-        setState(
-            () => _error = 'Unable to get your location. Please try again.');
+        setState(() => _error = _feed == 3
+            ? 'Unable to load nearby reels. Check your location and connection, then try again.'
+            : 'Unable to load reels. Please try again.');
       }
     } finally {
       if (mounted && version == _requestVersion) {
@@ -220,6 +258,7 @@ class _ReelsFeedScreenState extends State<ReelsFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final notifire = Provider.of<ColorNotifire>(context);
     return Scaffold(
       backgroundColor: notifire.getbgcolor,
@@ -451,7 +490,8 @@ class _ReelsFeedScreenState extends State<ReelsFeedScreen> {
           itemBuilder: (context, index) => ReelPlayerPage(
             key: ValueKey(_reels[index].id),
             reel: _reels[index],
-            active: index == _activeIndex,
+            active: widget.active && index == _activeIndex,
+            centerOverlayBottomInset: 80,
             cachedController: _takeCached(_reels[index].videoUrl ?? ''),
             onCommentsChanged: (open) {
               if (mounted && index == _activeIndex) {
@@ -519,6 +559,7 @@ class ReelPlayerPage extends StatefulWidget {
     this.onChanged,
     this.onCommentsChanged,
     this.bottomOverlayInset = 0,
+    this.centerOverlayBottomInset = 0,
     this.cachedController,
     super.key,
   });
@@ -528,6 +569,7 @@ class ReelPlayerPage extends StatefulWidget {
   final ValueChanged<Reel>? onChanged;
   final ValueChanged<bool>? onCommentsChanged;
   final double bottomOverlayInset;
+  final double centerOverlayBottomInset;
 
   /// A pre-warmed controller handed over from the parent cache. The widget
   /// takes full ownership (disposes it when done).
@@ -552,6 +594,7 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
   String? _error;
   final ReelsApiService _api = ReelsApiService();
   bool _liking = false, _saving = false, _viewSent = false;
+  bool _openingOwnerChat = false;
   bool _descriptionExpanded = false;
   // Long-press speed boost state
   int _savedSpeedIndex = 2;
@@ -585,6 +628,77 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
     if (mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(error.toString())));
+    }
+  }
+
+  void _openProperty() {
+    final propertyId = widget.reel.propertyId;
+    if (propertyId.isEmpty) return;
+    _controller?.pause();
+    _isPlayingNotifier.value = false;
+    Get.toNamed(Routes.viewDataScreen, arguments: {'id': propertyId});
+  }
+
+  Future<void> _openOwnerChat({
+    bool includePropertyContext = false,
+    String? propertyMessage,
+  }) async {
+    if (_openingOwnerChat) return;
+    if (getData.read('UserLogin') == null) {
+      Get.to(() => LoginScreen());
+      return;
+    }
+    setState(() => _openingOwnerChat = true);
+    try {
+      var reel = _displayReel.value;
+      var property = _property;
+      var ownerId = (property?.ownerId ?? reel.ownerId)?.trim();
+      if (ownerId == null ||
+          ownerId.isEmpty ||
+          ownerId == '0' ||
+          ownerId == 'null') {
+        final details = await _api.propertyDetails(reel.propertyId);
+        if (!mounted) return;
+        if (details != null) {
+          setState(() => _propertyDetails = details);
+          _publish(reel.copyWith(
+            property: details,
+            ownerId: details.ownerId,
+            ownerName: details.ownerName,
+            ownerImage: details.ownerImage,
+          ));
+          reel = _displayReel.value;
+          property = details;
+          ownerId = details.ownerId?.trim();
+        }
+      }
+      if (!mounted) return;
+      if (ownerId == null ||
+          ownerId.isEmpty ||
+          ownerId == '0' ||
+          ownerId == 'null') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Owner chat is unavailable for this reel.'),
+          ),
+        );
+        return;
+      }
+      _controller?.pause();
+      _isPlayingNotifier.value = false;
+      Get.to(() => ChatPage(
+            resiverUserId: ownerId!,
+            resiverUseremail: '',
+            proPic: property?.ownerImage ?? reel.ownerImage ?? '',
+            propertyTitle: includePropertyContext ? property?.title : null,
+            propertyAddress: includePropertyContext ? property?.address : null,
+            propertyMessage: includePropertyContext ? propertyMessage : null,
+            propertyId: includePropertyContext ? reel.propertyId : null,
+          ));
+    } catch (error) {
+      _showError(error);
+    } finally {
+      if (mounted) setState(() => _openingOwnerChat = false);
     }
   }
 
@@ -652,7 +766,9 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
   Future<void> _loadPropertyDetails() async {
     final existing = widget.reel.property;
     if ((existing?.description?.trim().isNotEmpty == true) &&
-        (existing?.ownerName?.trim().isNotEmpty == true)) {
+        (existing?.ownerName?.trim().isNotEmpty == true) &&
+        (existing?.ownerId?.trim().isNotEmpty == true ||
+            widget.reel.ownerId?.trim().isNotEmpty == true)) {
       return;
     }
     try {
@@ -663,6 +779,7 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
         property: details,
         ownerName: details.ownerName,
         ownerImage: details.ownerImage,
+        ownerId: details.ownerId,
       ));
     } catch (_) {
       // The reel remains usable when supplementary property data is unavailable.
@@ -889,7 +1006,6 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                 constraints.maxHeight * .55, constraints.maxHeight * .85);
             final sheetHeight = openSheetHeight * progress;
             final videoHeight = constraints.maxHeight - sheetHeight;
-            final isPlaying = _controller?.value.isPlaying == true;
             final isReady = _controller?.value.isInitialized == true;
             return Stack(
               fit: StackFit.expand,
@@ -906,34 +1022,38 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                     _buildMetadata(context, progress),
                     // Play/pause icon — driven by _isPlayingNotifier so it
                     // updates instantly on tap without waiting for async play/pause.
-                    ValueListenableBuilder<bool>(
-                      valueListenable: _isPlayingNotifier,
-                      builder: (_, playing, __) {
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 160),
-                          transitionBuilder: (child, anim) => FadeTransition(
-                            opacity: anim,
-                            child: ScaleTransition(
-                              scale: Tween<double>(begin: 0.75, end: 1.0)
-                                  .animate(CurvedAnimation(
-                                      parent: anim, curve: Curves.easeOut)),
-                              child: child,
-                            ),
-                          ),
-                          child: (!isReady || playing)
-                              ? const SizedBox.shrink(key: ValueKey('none'))
-                              : const IgnorePointer(
-                                  key: ValueKey('paused'),
-                                  child: Center(
-                                    child: Icon(
+                    Positioned.fill(
+                      top: MediaQuery.paddingOf(context).top,
+                      bottom: _navigationTopInset(context) +
+                          widget.centerOverlayBottomInset,
+                      child: IgnorePointer(
+                        child: Center(
+                          child: ValueListenableBuilder<bool>(
+                            valueListenable: _isPlayingNotifier,
+                            builder: (_, playing, __) => AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 160),
+                              transitionBuilder: (child, anim) =>
+                                  FadeTransition(
+                                opacity: anim,
+                                child: ScaleTransition(
+                                  scale: Tween<double>(begin: 0.75, end: 1.0)
+                                      .animate(CurvedAnimation(
+                                          parent: anim, curve: Curves.easeOut)),
+                                  child: child,
+                                ),
+                              ),
+                              child: (!isReady || playing)
+                                  ? const SizedBox.shrink(key: ValueKey('none'))
+                                  : const Icon(
                                       Icons.play_arrow_rounded,
+                                      key: ValueKey('paused'),
                                       color: Color(0xffFF4D00),
                                       size: 72,
                                     ),
-                                  ),
-                                ),
-                        );
-                      },
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                     if (isReady)
                       Positioned(
@@ -1032,7 +1152,7 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                               (_activeBoostSpeed! < 1
                                       ? Colors.blueAccent
                                       : const Color(0xffFF4D00))
-                                  .withOpacity(opacity),
+                                  .withValues(alpha: opacity),
                               Colors.transparent,
                             ],
                           ),
@@ -1055,7 +1175,7 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                                   _activeBoostSpeed! < 1
                                       ? Icons.fast_rewind_rounded
                                       : Icons.fast_forward_rounded,
-                                  color: Colors.white.withOpacity(iconOpacity),
+                                  color: Colors.white.withValues(alpha: iconOpacity),
                                   size: 32,
                                   shadows: const [
                                     Shadow(
@@ -1069,7 +1189,7 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                               Text(
                                 _activeBoostSpeed! < 1 ? '0.5×' : '2×',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(iconOpacity),
+                                  color: Colors.white.withValues(alpha: iconOpacity),
                                   fontSize: 13,
                                   fontFamily: FontFamily.gilroyBold,
                                   shadows: const [
@@ -1252,32 +1372,51 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                         // Owner avatar
                         Padding(
                           padding: const EdgeInsets.only(bottom: 12),
-                          child: ClipOval(
-                            child: SizedBox(
-                              width: 44,
-                              height: 44,
-                              child: () {
-                                final ownerImage =
-                                    _property?.ownerImage ?? reel.ownerImage;
-                                if (ownerImage != null &&
-                                    ownerImage.isNotEmpty) {
-                                  final url = ownerImage.startsWith('http')
-                                      ? ownerImage
-                                      : '${Config.imageUrl}$ownerImage';
-                                  return Image.network(
-                                    url,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Image.asset(
-                                      'assets/images/profile-default.png',
-                                      fit: BoxFit.cover,
-                                    ),
-                                  );
-                                }
-                                return Image.asset(
-                                  'assets/images/profile-default.png',
-                                  fit: BoxFit.cover,
-                                );
-                              }(),
+                          child: Tooltip(
+                            message: 'Message property owner',
+                            child: InkWell(
+                              onTap: _openingOwnerChat
+                                  ? null
+                                  : () => _openOwnerChat(),
+                              customBorder: const CircleBorder(),
+                              child: ClipOval(
+                                child: SizedBox(
+                                  width: 44,
+                                  height: 44,
+                                  child: _openingOwnerChat
+                                      ? const Center(
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : () {
+                                          final ownerImage =
+                                              _property?.ownerImage ??
+                                                  reel.ownerImage;
+                                          if (ownerImage != null &&
+                                              ownerImage.isNotEmpty) {
+                                            final url = ownerImage
+                                                    .startsWith('http')
+                                                ? ownerImage
+                                                : '${Config.imageUrl}$ownerImage';
+                                            return Image.network(
+                                              url,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  Image.asset(
+                                                'assets/images/profile-default.png',
+                                                fit: BoxFit.cover,
+                                              ),
+                                            );
+                                          }
+                                          return Image.asset(
+                                            'assets/images/profile-default.png',
+                                            fit: BoxFit.cover,
+                                          );
+                                        }(),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -1320,13 +1459,7 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                           icon: Icons.reply_rounded,
                           color: Colors.white,
                           label: 'Share',
-                          onTap: () => _showShareSheet(
-                            context,
-                            widget.reel.videoUrl,
-                            _property?.title,
-                            _property,
-                            widget.reel,
-                          ),
+                          onTap: _shareReel,
                           tooltip: 'Share reel',
                           flipHorizontal: true,
                         ),
@@ -1351,7 +1484,31 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
     return '$count';
   }
 
-  static void _showShareSheet(
+  Future<void> _shareReel() async {
+    final reel = widget.reel;
+    ReelProperty? property = _property;
+    if (property?.imageUrl?.trim().isNotEmpty != true) {
+      try {
+        property = await _api.propertyDetails(reel.propertyId) ?? property;
+      } catch (_) {
+        // Sharing the reel still works when property details are unavailable.
+      }
+    }
+    if (!mounted) return;
+    await PropertyShare.share(
+      context: context,
+      message:
+          'Check out this property on OpenDoors${property?.title?.isNotEmpty == true ? ': ${property!.title}' : ''}',
+      subject: property?.title ?? 'OpenDoors reel',
+      link: reel.videoUrl,
+      propertyImage: property?.imageUrl,
+    );
+  }
+
+  // Retained for the legacy in-app sharing actions; the reel button now opens
+  // the native share sheet directly.
+  // ignore: unused_element
+  void _showShareSheet(
     BuildContext context,
     String? url,
     String? title,
@@ -1406,7 +1563,7 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: subTextColor.withOpacity(0.35),
+                color: subTextColor.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -1440,7 +1597,7 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                   icon: Icons.link_rounded,
                   label: 'Copy Link',
                   color: accentColor,
-                  bgColor: accentColor.withOpacity(0.12),
+                  bgColor: accentColor.withValues(alpha: 0.12),
                   onTap: () {
                     Navigator.pop(sheetCtx);
                     Clipboard.setData(ClipboardData(text: url));
@@ -1457,7 +1614,7 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                   icon: Icons.ios_share_rounded,
                   label: 'Share Via…',
                   color: const Color(0xff007AFF),
-                  bgColor: const Color(0xff007AFF).withOpacity(0.12),
+                  bgColor: const Color(0xff007AFF).withValues(alpha: 0.12),
                   onTap: () async {
                     Navigator.pop(sheetCtx);
                     // Await dismiss animation so UIKit is free to present
@@ -1475,40 +1632,12 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                   icon: Icons.chat_bubble_rounded,
                   label: 'Message',
                   color: const Color(0xff34C759),
-                  bgColor: const Color(0xff34C759).withOpacity(0.12),
+                  bgColor: const Color(0xff34C759).withValues(alpha: 0.12),
                   onTap: () {
-                    // Resolve the best available owner user ID. The property
-                    // details fetch may have provided a richer ID than what
-                    // was in the reel listing response.
-                    final ownerId = (reel.ownerId?.isNotEmpty == true
-                                ? reel.ownerId
-                                : reel.ownerName)
-                            ?.trim() ??
-                        '';
-                    if (ownerId.isEmpty) {
-                      // Guard: Firestore .doc() requires a non-empty path.
-                      Navigator.pop(sheetCtx);
-                      ScaffoldMessenger.of(rootCtx).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Unable to open chat — owner info not loaded yet. Please try again in a moment.'),
-                          behavior: SnackBarBehavior.floating,
-                          duration: Duration(seconds: 3),
-                        ),
-                      );
-                      return;
-                    }
                     Navigator.pop(sheetCtx);
-                    Get.to(
-                      () => ChatPage(
-                        resiverUserId: ownerId,
-                        resiverUseremail: '',
-                        proPic: property?.ownerImage ?? reel.ownerImage ?? '',
-                        propertyTitle: property?.title ?? title,
-                        propertyAddress: property?.address,
-                        propertyMessage: shareText,
-                        propertyId: reel.propertyId,
-                      ),
+                    _openOwnerChat(
+                      includePropertyContext: true,
+                      propertyMessage: shareText,
                     );
                   },
                 ),
@@ -1583,17 +1712,23 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Property title
-                Text(
-                  _property?.title ?? 'View property',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xffFF4D00),
-                    fontSize: 20,
-                    height: 1.15,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: FontFamily.gilroyBold,
-                    shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                GestureDetector(
+                  onTap: _openProperty,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      _property?.title ?? 'View property',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xffFF4D00),
+                        fontSize: 20,
+                        height: 1.15,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: FontFamily.gilroyBold,
+                        shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                      ),
+                    ),
                   ),
                 ),
                 // Address pill
@@ -1702,52 +1837,6 @@ class _ReelPlayerPageState extends State<ReelPlayerPage>
                       },
                     ),
                   ),
-                const SizedBox(height: 10),
-                // View property CTA — no gradient, solid accent colour
-                GestureDetector(
-                  onTap: () {
-                    _controller?.pause();
-                    _isPlayingNotifier.value = false;
-                    Get.toNamed(
-                      Routes.viewDataScreen,
-                      arguments: {'id': widget.reel.propertyId},
-                    );
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffFF4D00),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xffFF4D00).withOpacity(0.35),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.home_rounded, color: Colors.white, size: 15),
-                        SizedBox(width: 6),
-                        Text(
-                          'View Property',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontFamily: FontFamily.gilroyBold,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        Icon(Icons.arrow_forward_rounded,
-                            color: Colors.white, size: 14),
-                      ],
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -1947,8 +2036,8 @@ class _ReelCommentsSheetState extends State<ReelCommentsSheet> {
                   const BorderRadius.vertical(top: Radius.circular(24)),
               border: Border.all(
                 color: isDark
-                    ? Colors.white.withOpacity(0.08)
-                    : Colors.black.withOpacity(0.07),
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.07),
                 width: 1,
               ),
             ),
@@ -1976,7 +2065,7 @@ class _ReelCommentsSheetState extends State<ReelCommentsSheet> {
                           width: 36,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: subTextColor.withOpacity(0.4),
+                            color: subTextColor.withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -2027,9 +2116,9 @@ class _ReelCommentsSheetState extends State<ReelCommentsSheet> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                    border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     _error!,
@@ -2066,7 +2155,7 @@ class _ReelCommentsSheetState extends State<ReelCommentsSheet> {
                                     Icon(
                                       Icons.chat_bubble_outline_rounded,
                                       size: 48,
-                                      color: subTextColor.withOpacity(0.4),
+                                      color: subTextColor.withValues(alpha: 0.4),
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
@@ -2081,7 +2170,7 @@ class _ReelCommentsSheetState extends State<ReelCommentsSheet> {
                                     Text(
                                       'Be the first to comment!',
                                       style: TextStyle(
-                                        color: subTextColor.withOpacity(0.6),
+                                        color: subTextColor.withValues(alpha: 0.6),
                                         fontSize: 13,
                                         fontFamily: FontFamily.gilroyMedium,
                                       ),
@@ -2141,7 +2230,7 @@ class _ReelCommentsSheetState extends State<ReelCommentsSheet> {
                                   CircleAvatar(
                                     radius: 18,
                                     backgroundColor:
-                                        accentColor.withOpacity(0.15),
+                                        accentColor.withValues(alpha: 0.15),
                                     // Always use backgroundImage only — no child text
                                     // so the placeholder image is fully visible
                                     // (a child renders on top of backgroundImage).
@@ -2287,12 +2376,12 @@ class _ReelCommentsSheetState extends State<ReelCommentsSheet> {
                             height: 42,
                             decoration: BoxDecoration(
                               color: _sending
-                                  ? accentColor.withOpacity(0.5)
+                                  ? accentColor.withValues(alpha: 0.5)
                                   : accentColor,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: accentColor.withOpacity(0.35),
+                                  color: accentColor.withValues(alpha: 0.35),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -2493,7 +2582,7 @@ class _ActionButtonState extends State<_ActionButton>
                     end: Alignment.bottomRight,
                     colors: [
                       widget.color,
-                      widget.color.withOpacity(0.75),
+                      widget.color.withValues(alpha: 0.75),
                     ],
                   ).createShader(bounds),
                   child: Icon(
@@ -2504,7 +2593,7 @@ class _ActionButtonState extends State<_ActionButton>
                       Shadow(
                         color: widget.color == Colors.white
                             ? Colors.black45
-                            : widget.color.withOpacity(0.6),
+                            : widget.color.withValues(alpha: 0.6),
                         blurRadius: 12,
                       ),
                       const Shadow(

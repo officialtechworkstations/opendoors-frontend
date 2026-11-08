@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -116,26 +117,49 @@ class LoginController extends GetxController implements GetxService {
 
   Future getLoginApiData(String cuntryCode, context) async {
     final prefs = await SharedPreferences.getInstance();
-    final numb = ensureNoZeroInitial(number.text);
-    Map map = {
-      "mobile": numb,
-      "ccode": cuntryCode,
-      "password": password.text,
-    };
+    final enteredNumber = number.text.trim();
+    final normalizedNumber = ensureNoZeroInitial(enteredNumber);
     Uri uri = Uri.parse(Config.path + Config.loginApi);
     final stopwatch = Stopwatch()..start();
     AppLogger.info('Auth', 'Password login request started', data: {
       'country_code': cuntryCode,
-      'has_mobile': numb.isNotEmpty,
+      'has_mobile': normalizedNumber.isNotEmpty,
+      'mobile_length': normalizedNumber.length,
     });
-    var response = await http.post(
-      uri,
-      body: jsonEncode(map),
-    );
+
+    Future<http.Response> sendLoginRequest(String mobile) {
+      return http.post(
+        uri,
+        body: jsonEncode({
+          "mobile": mobile,
+          "ccode": cuntryCode,
+          "password": password.text,
+        }),
+      );
+    }
+
+    var response = await sendLoginRequest(normalizedNumber);
+    var result = jsonDecode(response.body);
+
+    // Older accounts were stored before registration began removing the
+    // national trunk prefix. Retry the 0-prefixed value for those records,
+    // even when the user entered the newer 10-digit local format.
+    final legacyNumber = normalizedNumber.isEmpty ||
+            normalizedNumber.startsWith('0') ||
+            cuntryCode != '+234'
+        ? enteredNumber
+        : '0$normalizedNumber';
+    if (response.statusCode == 200 &&
+        result["Result"] != "true" &&
+        result["ResponseCode"].toString() == "401" &&
+        legacyNumber != normalizedNumber) {
+      AppLogger.info('Auth', 'Retrying password login for legacy mobile format',
+          data: {'mobile_length': legacyNumber.length});
+      response = await sendLoginRequest(legacyNumber);
+      result = jsonDecode(response.body);
+    }
 
     if (response.statusCode == 200) {
-      await prefs.setBool('Firstuser', true);
-      var result = jsonDecode(response.body);
       AppLogger.info('Auth', 'Password login response received', data: {
         'status': response.statusCode,
         'duration_ms': stopwatch.elapsedMilliseconds,
@@ -147,6 +171,7 @@ class LoginController extends GetxController implements GetxService {
       showToastMessage(userMessage);
 
       if (resultCheck == "true") {
+        await prefs.setBool('Firstuser', true);
         save("homeCall", true);
         save("UserLogin", result["UserLogin"]);
         await _saveAccessToken(result);
@@ -163,7 +188,15 @@ class LoginController extends GetxController implements GetxService {
       showToastMessage(result["ResponseMsg"]);
       return result;
     }
-    return jsonDecode(response.body);
+    try {
+      return jsonDecode(response.body);
+    } catch (_) {
+      return {
+        "Result": "false",
+        "ResponseCode": response.statusCode.toString(),
+        "ResponseMsg": "Unable to sign in. Please try again."
+      };
+    }
   }
 
   void setfirebaselogin({context, required String email}) async {
@@ -377,7 +410,30 @@ class LoginController extends GetxController implements GetxService {
         email: googleUser.email,
         name: googleUser.displayName,
       );
-    } catch (e) {
+    } on PlatformException catch (error, stackTrace) {
+      AppLogger.error(
+        'Auth',
+        'Google sign-in platform error',
+        error: error,
+        stackTrace: stackTrace,
+      );
+
+      if (error.code == 'sign_in_failed' &&
+          (error.message?.contains('ApiException: 10') ?? false)) {
+        showToastMessage(
+          'Google Sign-In is not configured for this Android build.',
+        );
+        return null;
+      }
+
+      rethrow;
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Auth',
+        'Google sign-in failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }

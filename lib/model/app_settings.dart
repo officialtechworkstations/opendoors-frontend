@@ -11,7 +11,7 @@ class AppSetting {
     this.providerCurrentBuildNumberIosApp,
   });
 
-  AppSetting.fromJson(final Map<String, dynamic> json) {
+  AppSetting.fromJson(Map<String, dynamic> json) {
     providerCurrentVersionAndroidApp = json["playstore_version"];
     providerCurrentVersionIosApp = json["appstore_version"];
     providerCompulsaryUpdateForceUpdate = json["app_force_update"] ?? "0";

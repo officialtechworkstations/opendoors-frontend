@@ -6,6 +6,7 @@ class ReelProperty {
     this.price,
     this.description,
     this.ownerName,
+    this.ownerId,
     this.ownerImage,
     this.beds,
     this.bathroom,
@@ -18,7 +19,7 @@ class ReelProperty {
   final String? address;
   final String? imageUrl;
   final String? price;
-  final String? description, ownerName, ownerImage;
+  final String? description, ownerName, ownerId, ownerImage;
   final String? beds;
   final String? bathroom;
   final double? latitude, longitude;
@@ -36,6 +37,8 @@ class ReelProperty {
                 json['desc'])
             ?.toString(),
         ownerName: (json['owner_name'] ?? json['user_name'])?.toString(),
+        ownerId: (json['owner_id'] ?? json['user_id'] ?? json['creator_id'])
+            ?.toString(),
         ownerImage: (json['owner_image'] ?? json['user_image'])?.toString(),
         beds: json['beds']?.toString(),
         bathroom: json['bathroom']?.toString(),
@@ -172,14 +175,14 @@ class Reel {
         'avatar',
       ]),
       ownerId: _firstString(json, [
-        owner,
-        property
-      ], const [
-        'owner_id',
-        'user_id',
-        'creator_id',
-        'id',
-      ]),
+            owner,
+            property
+          ], const [
+            'owner_id',
+            'user_id',
+            'creator_id',
+          ]) ??
+          owner?['id']?.toString(),
       likesCount: int.tryParse(json['likes_count']?.toString() ?? '') ?? 0,
       savesCount: int.tryParse(json['saves_count']?.toString() ?? '') ?? 0,
       commentsCount:

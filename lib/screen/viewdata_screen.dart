@@ -24,6 +24,7 @@ import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:opendoors/utils/formaters.dart';
+import 'package:opendoors/utils/property_share.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -166,6 +167,34 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
 
   final List<Marker> _markers = <Marker>[];
 
+  LatLng? get _propertyPosition {
+    final details = homePageController.propetydetailsInfo?.propetydetails;
+    final latitude = double.tryParse(details?.latitude ?? '');
+    final longitude = double.tryParse(details?.longtitude ?? '');
+    if (latitude == null ||
+        longitude == null ||
+        latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180 ||
+        (latitude == 0 && longitude == 0)) {
+      return null;
+    }
+    return LatLng(latitude, longitude);
+  }
+
+  Future<void> _openDirections() async {
+    final position = _propertyPosition;
+    if (position == null) return;
+    final uri = Uri.https('www.google.com', '/maps/dir/', {
+      'api': '1',
+      'destination': '${position.latitude},${position.longitude}',
+    });
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      showToastMessage('Could not open directions.');
+    }
+  }
+
   Future<Uint8List> getImages(String path, int width) async {
     ByteData data = await rootBundle.load(path);
     ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
@@ -220,22 +249,25 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
   }
 
   loadData() async {
+    final position = _propertyPosition;
+    if (position == null) {
+      if (mounted) setState(() {});
+      return;
+    }
     final Uint8List markIcons =
         await getImages("assets/images/MapPin.png", 100);
 
+    _markers.clear();
     _markers.add(
       Marker(
-        markerId: MarkerId(showLocation.toString()),
+        markerId: MarkerId(selectedId),
         icon: BitmapDescriptor.bytes(markIcons),
-        position: LatLng(
-          double.parse(
-              homePageController.propetydetailsInfo?.propetydetails!.latitude ??
-                  ""),
-          double.parse(homePageController
-                  .propetydetailsInfo!.propetydetails!.longtitude ??
-              ""),
+        position: position,
+        infoWindow: InfoWindow(
+          title: homePageController.propetydetailsInfo?.propetydetails?.title,
+          snippet:
+              homePageController.propetydetailsInfo?.propetydetails?.address,
         ),
-        infoWindow: InfoWindow(),
       ),
     );
 
@@ -277,6 +309,25 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                         ),
                       ),
                       actions: [
+                        IconButton(
+                          tooltip: 'Share property',
+                          icon: Icon(Icons.ios_share_rounded, color: blueColor),
+                          onPressed: () async {
+                            final property = homePageController
+                                .propetydetailsInfo?.propetydetails;
+                            if (property == null) return;
+                            await PropertyShare.share(
+                              context: context,
+                              message:
+                                  'Hello, I am interested in "${property.title?.trim().isNotEmpty == true ? property.title!.trim() : 'this property'}" on OpenDoors.',
+                              subject: property.title ?? 'OpenDoors property',
+                              link: property.shareUrl,
+                              propertyImage: property.image?.isNotEmpty == true
+                                  ? property.image!.first.image
+                                  : null,
+                            );
+                          },
+                        ),
                         GetBuilder<HomePageController>(builder: (context) {
                           return InkWell(
                             onTap: () {
@@ -637,20 +688,17 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                               height: 10,
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(left: 10),
-                              child: Wrap(
-                                runSpacing: 10,
-                                spacing: 4,
-                                // crossAxisAlignment:
-                                //     WrapCrossAlignment.,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // SizedBox(
                                   //   width: 10,
                                   // ),
                                   Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
+                                    padding: const EdgeInsets.only(bottom: 10),
                                     child: Row(
-                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Container(
                                           height: 40,
@@ -696,9 +744,8 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                       "1")
                                     Padding(
                                       padding:
-                                          const EdgeInsets.only(right: 8.0),
+                                          const EdgeInsets.only(bottom: 10),
                                       child: Row(
-                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Container(
                                             height: 40,
@@ -774,9 +821,8 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                           '0.00')
                                     Padding(
                                       padding:
-                                          const EdgeInsets.only(right: 8.0),
+                                          const EdgeInsets.only(bottom: 10),
                                       child: Row(
-                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Container(
                                             height: 40,
@@ -850,109 +896,6 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                 ],
                               ),
                             ),
-
-                            if (homePageController
-                                        .propetydetailsInfo?.facility !=
-                                    null &&
-                                homePageController.propetydetailsInfo!.facility!
-                                    .isNotEmpty) ...[
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: Divider(),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 15, top: 10),
-                                child: Text(
-                                  "Facilities",
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontFamily: FontFamily.gilroyBold,
-                                    color: notifire.getwhiteblackcolor,
-                                  ),
-                                ),
-                              ),
-                            ],
-
-                            // SizedBox(
-                            //   height: 10,
-                            // ),
-                            // homePageController.propetydetailsInfo?.facility.
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 15),
-                                child: Row(
-                                  // spacing: 8,
-                                  // runSpacing: 8,
-                                  children: homePageController
-                                              .propetydetailsInfo?.facility ==
-                                          null
-                                      ? []
-                                      : homePageController
-                                          .propetydetailsInfo!.facility!
-                                          .map((amenity) => Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 8.0),
-                                                child: FilterChip(
-                                                    onSelected: (value) {},
-                                                    label: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(12),
-                                                          child: FadeInImage
-                                                              .assetNetwork(
-                                                            height: 20,
-                                                            width: 20,
-                                                            fit: BoxFit.cover,
-                                                            imageErrorBuilder:
-                                                                (context, error,
-                                                                    stackTrace) {
-                                                              return Center(
-                                                                child:
-                                                                    Image.asset(
-                                                                  "assets/images/ezgif.com-crop.gif",
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                  height: Get
-                                                                      .height,
-                                                                ),
-                                                              );
-                                                            },
-                                                            image:
-                                                                "${Config.imageUrl}${amenity.img ?? ""}",
-                                                            placeholder:
-                                                                "assets/images/ezgif.com-crop.gif",
-                                                          ),
-                                                        ),
-                                                        // Icon(
-                                                        //   amenity.icon,
-                                                        //   size: 16,
-                                                        //   color:
-                                                        //       Colors.white,
-                                                        // ),
-                                                        const SizedBox(
-                                                            width: 6),
-                                                        Text(amenity.title ??
-                                                            ''),
-                                                      ],
-                                                    ),
-                                                    checkmarkColor:
-                                                        Colors.white,
-                                                    backgroundColor: Color(
-                                                        0xFFeef4ff) // Colors.grey.shade300,
-                                                    ),
-                                              ))
-                                          .toList(),
-                                ),
-                              ),
-                            ),
-
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
@@ -1313,57 +1256,72 @@ class _ViewDataScreenState extends State<ViewDataScreen> {
                                 ),
                               ],
                             ),
-                            Container(
-                              height: 200,
-                              width: Get.size.width,
-                              margin: EdgeInsets.all(10),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: GoogleMap(
-                                  initialCameraPosition: CameraPosition(
-                                    target: LatLng(
-                                      double.parse(homePageController
-                                              .propetydetailsInfo
-                                              ?.propetydetails!
-                                              .latitude ??
-                                          ""),
-                                      double.parse(homePageController
-                                              .propetydetailsInfo
-                                              ?.propetydetails!
-                                              .longtitude ??
-                                          ""),
+                            if (_propertyPosition != null)
+                              Container(
+                                height: 200,
+                                width: Get.size.width,
+                                margin: EdgeInsets.all(10),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: GoogleMap(
+                                    initialCameraPosition: CameraPosition(
+                                      target: LatLng(
+                                        _propertyPosition!.latitude,
+                                        _propertyPosition!.longitude,
+                                      ),
+                                      zoom: 15.0,
                                     ),
-                                    zoom: 15.0,
+                                    markers: Set<Marker>.of(_markers),
+                                    mapType: MapType.normal,
+                                    myLocationEnabled: false,
+                                    compassEnabled: true,
+                                    zoomGesturesEnabled: true,
+                                    tiltGesturesEnabled: true,
+                                    zoomControlsEnabled: true,
+                                    onMapCreated: (controller) {
+                                      setState(() {
+                                        mapController = controller;
+                                      });
+                                    },
                                   ),
-                                  markers: Set<Marker>.of(_markers),
-                                  mapType: MapType.normal,
-                                  myLocationEnabled: true,
-                                  compassEnabled: true,
-                                  zoomGesturesEnabled: true,
-                                  tiltGesturesEnabled: true,
-                                  zoomControlsEnabled: true,
-                                  onMapCreated: (controller) {
-                                    setState(() {
-                                      mapController = controller;
-                                    });
-                                  },
+                                ),
+                                decoration: BoxDecoration(
+                                  color: notifire.getblackwhitecolor,
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      offset: const Offset(
+                                        0.5,
+                                        0.5,
+                                      ),
+                                      blurRadius: 2,
+                                    ),
+                                  ],
                                 ),
                               ),
-                              decoration: BoxDecoration(
-                                color: notifire.getblackwhitecolor,
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    offset: const Offset(
-                                      0.5,
-                                      0.5,
-                                    ),
-                                    blurRadius: 2,
+                            if (_propertyPosition != null)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(15, 0, 15, 10),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton.icon(
+                                    onPressed: _openDirections,
+                                    icon: const Icon(Icons.directions_outlined),
+                                    label: const Text('Get directions'),
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                            if (_propertyPosition == null)
+                              Padding(
+                                padding: const EdgeInsets.all(15),
+                                child: Text(
+                                  'Location is not available for this property.',
+                                  style:
+                                      TextStyle(color: notifire.getgreycolor),
+                                ),
+                              ),
                             homePageController
                                     .propetydetailsInfo!.reviewlist!.isNotEmpty
                                 ? reviewWidget(

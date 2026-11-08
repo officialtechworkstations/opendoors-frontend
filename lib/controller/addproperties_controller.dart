@@ -9,6 +9,7 @@ import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/Api/reels_api_service.dart';
 import 'package:opendoors/controller/listofproperti_controller.dart';
+import 'package:opendoors/controller/homepage_controller.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_compress/video_compress.dart';
@@ -33,6 +34,8 @@ class AddPropertiesController extends GetxController implements GetxService {
 
   String? path;
   String? base64Image;
+  final List<String> imagePaths = [];
+  final List<String> base64Images = [];
   String? reelVideoPath;
   String? reelThumbnailPath;
   String? existingReelId;
@@ -48,6 +51,36 @@ class AddPropertiesController extends GetxController implements GetxService {
   String status = "";
 
   String pImage = "";
+  bool _locationManuallySelected = false;
+  String? _confirmedAddressKey;
+
+  String get _addressKey =>
+      '${pAddress.text.trim()}|${pCityAndCountry.text.trim()}';
+
+  bool get _hasValidCoordinates {
+    final latitude = double.tryParse(lat?.toString() ?? '');
+    final longitude = double.tryParse(long?.toString() ?? '');
+    return latitude != null &&
+        longitude != null &&
+        latitude >= -90 &&
+        latitude <= 90 &&
+        longitude >= -180 &&
+        longitude <= 180 &&
+        !(latitude == 0 && longitude == 0);
+  }
+
+  Future<bool> _resolvePropertyCoordinates({bool editing = false}) async {
+    if (_hasValidCoordinates &&
+        (_locationManuallySelected && _confirmedAddressKey == _addressKey ||
+            editing &&
+                pAddress.text.trim() == eAddress.trim() &&
+                pCityAndCountry.text.trim() == eCityAndCountry.trim())) {
+      return true;
+    }
+    showToastMessage(
+        'Pin the property on the map, or use Current Location if you are there.');
+    return false;
+  }
 
   final Rx<bool> isBusy = false.obs;
   // bool isBusy = false;
@@ -153,6 +186,8 @@ class AddPropertiesController extends GetxController implements GetxService {
   getCurrentLatAndLong(double latitude, double longitude) {
     lat = latitude;
     long = longitude;
+    _locationManuallySelected = true;
+    _confirmedAddressKey = _addressKey;
     update();
   }
 
@@ -172,10 +207,14 @@ class AddPropertiesController extends GetxController implements GetxService {
     pCaution.text = "";
     path = null;
     base64Image = "";
+    imagePaths.clear();
+    base64Images.clear();
     pbuySell = "1";
     status = "";
     lat = null;
     long = null;
+    _locationManuallySelected = false;
+    _confirmedAddressKey = null;
     pImage = "";
     reelVideoPath = null;
     reelThumbnailPath = null;
@@ -188,6 +227,7 @@ class AddPropertiesController extends GetxController implements GetxService {
   }
 
   addPropertyApi() async {
+    if (!await _resolvePropertyCoordinates()) return;
     String str = selectedIndexes.toSet().toList().join(",");
     try {
       Map map = {
@@ -242,7 +282,7 @@ class AddPropertiesController extends GetxController implements GetxService {
             return;
           }
           createdPropertyId = newPropertyId;
-          await _uploadReelAndFinish(propertyId: newPropertyId);
+          await _uploadMediaAndFinish(propertyId: newPropertyId);
         } else {
           showToastMessage(result["ResponseMsg"]);
         }
@@ -274,7 +314,7 @@ class AddPropertiesController extends GetxController implements GetxService {
     if (createdPropertyId != null) {
       setBusy(true);
       try {
-        await _uploadReelAndFinish(propertyId: createdPropertyId!);
+        await _uploadMediaAndFinish(propertyId: createdPropertyId!);
       } finally {
         setBusy(false);
       }
@@ -320,47 +360,91 @@ class AddPropertiesController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> _uploadReelAndFinish({
+  Future<void> _uploadMediaAndFinish({
     required String propertyId,
     bool isEdit = false,
   }) async {
     final videoPath = reelVideoPath;
-    if (videoPath == null) return;
     try {
-      reelUploadStage = 'Uploading reel';
-      reelUploadProgress = 0;
-      update();
-      void onProgress(int sent, int total) {
-        reelUploadProgress = total == 0 ? 0 : sent / total;
+      if (videoPath != null) {
+        reelUploadStage = 'Uploading reel';
+        reelUploadProgress = 0;
         update();
-      }
+        void onProgress(int sent, int total) {
+          reelUploadProgress = total == 0 ? 0 : sent / total;
+          update();
+        }
 
-      if (isEdit && existingReelId?.isNotEmpty == true) {
-        await reelsApiService.update(
-          reelId: existingReelId!,
-          videoPath: videoPath,
-          thumbnailPath: reelThumbnailPath!,
-          onProgress: onProgress,
-        );
-      } else {
-        await reelsApiService.create(
-          propertyId: propertyId,
-          videoPath: videoPath,
-          thumbnailPath: reelThumbnailPath,
-          onProgress: onProgress,
-        );
+        if (isEdit && existingReelId?.isNotEmpty == true) {
+          await reelsApiService.update(
+            reelId: existingReelId!,
+            videoPath: videoPath,
+            thumbnailPath: reelThumbnailPath!,
+            onProgress: onProgress,
+          );
+        } else {
+          await reelsApiService.create(
+            propertyId: propertyId,
+            videoPath: videoPath,
+            thumbnailPath: reelThumbnailPath,
+            onProgress: onProgress,
+          );
+        }
       }
+      await _uploadAdditionalImages(propertyId);
       await listOfPropertiController.getPropertiList();
-      const message = 'Property and reel saved successfully.';
+      if (Get.isRegistered<HomePageController>()) {
+        await Get.find<HomePageController>().getHomeDataApi();
+      }
+      final message = isEdit
+          ? 'Property updated successfully.'
+          : 'Property added successfully.';
       emptyAllDetails();
       showToastMessage(message);
       Get.back();
     } on ReelsApiException catch (error) {
+      await listOfPropertiController.getPropertiList();
+      if (Get.isRegistered<HomePageController>()) {
+        await Get.find<HomePageController>().getHomeDataApi();
+      }
       showToastMessage(
         isEdit
             ? 'Property updated, but the reel upload failed: ${error.message}.'
             : 'Property created, but the reel upload failed: ${error.message}. Tap submit to retry.',
       );
+    } catch (error, stackTrace) {
+      AppLogger.error('PropertyUpload', 'Additional photo upload failed',
+          error: error,
+          stackTrace: stackTrace,
+          data: {'property_id': propertyId});
+      await listOfPropertiController.getPropertiList();
+      if (Get.isRegistered<HomePageController>()) {
+        await Get.find<HomePageController>().getHomeDataApi();
+      }
+      showToastMessage(
+          'Property saved, but one or more additional photos failed to upload.');
+      Get.back();
+    }
+  }
+
+  Future<void> _uploadAdditionalImages(String propertyId) async {
+    for (final image in base64Images.skip(1)) {
+      final response = await http.post(
+        Uri.parse(Config.path + Config.addExtraImage),
+        body: jsonEncode({
+          'uid': getData.read('UserLogin')['id'],
+          'prop_id': propertyId,
+          'img': image,
+          'status': '1',
+          'is_panorama': '0',
+        }),
+      );
+      final result = response.statusCode == 200
+          ? jsonDecode(response.body) as Map<String, dynamic>
+          : const <String, dynamic>{};
+      if (result['Result']?.toString() != 'true') {
+        throw Exception('One of the additional photos could not be uploaded.');
+      }
     }
   }
 
@@ -384,6 +468,7 @@ class AddPropertiesController extends GetxController implements GetxService {
   }
 
   editPropertyApi() async {
+    if (!await _resolvePropertyCoordinates(editing: true)) return;
     if (reelVideoPath != null && reelThumbnailPath == null) {
       setBusy(true);
       try {
@@ -447,13 +532,7 @@ class AddPropertiesController extends GetxController implements GetxService {
           'property_id': propId,
         });
         if (result["Result"] == "true") {
-          if (reelVideoPath != null) {
-            await _uploadReelAndFinish(propertyId: propId, isEdit: true);
-          } else {
-            await listOfPropertiController.getPropertiList();
-            showToastMessage(result["ResponseMsg"]);
-            Get.back();
-          }
+          await _uploadMediaAndFinish(propertyId: propId, isEdit: true);
         } else {
           showToastMessage(result["ResponseMsg"]);
         }

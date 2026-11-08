@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/login_controller.dart';
 import 'package:opendoors/controller/selectcountry_controller.dart';
 import 'package:opendoors/model/appbaner_model.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/login_screen.dart';
+import 'package:opendoors/screen/widgets/social_auth_section.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
@@ -46,7 +48,7 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
   }
 
   Future getStorage() async {
-    final storagePermissionStatus = await Permission.storage.request();
+    await Permission.storage.request();
   }
 
   Future getLocation() async {
@@ -65,6 +67,8 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
   HomePageController homePageController = Get.find();
   SearchPropertyController searchController = Get.find();
   SelectCountryController selectCountryController = Get.find();
+  LoginController loginController = Get.find();
+  String? socialLoadingProvider;
 
   int countrySelected = 0;
   late ColorNotifire notifire;
@@ -165,15 +169,11 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                Text(
-                  "OR".tr,
-                  style: TextStyle(
-                    fontFamily: FontFamily.gilroyMedium,
-                    color: notifire.getwhiteblackcolor,
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
+                SocialAuthSection(
+                  notifire: notifire,
+                  loadingProvider: socialLoadingProvider,
+                  onGoogleTap: () => _startSocialSignIn("google"),
+                  onAppleTap: () => _startSocialSignIn("apple"),
                 ),
                 GestButton(
                   Width: Get.size.width,
@@ -253,6 +253,49 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _startSocialSignIn(String provider) async {
+    setState(() => socialLoadingProvider = provider);
+    try {
+      final socialAuth = provider == "google"
+          ? await loginController.signUpWithGoogle()
+          : await loginController.signUpWithApple();
+      if (socialAuth == null || !mounted) return;
+
+      final response = await loginController.loginWithSocial(
+        socialAuth.provider,
+        socialAuth.token,
+        context,
+        email: socialAuth.email,
+        name: socialAuth.name,
+      );
+      if (!mounted) return;
+      if (response?["Result"] == "true") {
+        _saveSelectedCountry();
+        await homePageController.getHomeDataApi(
+            countryId: getData.read("countryId"));
+        Get.offAllNamed(Routes.bottoBarScreen);
+      } else if (response?["ResponseCode"] == "404") {
+        Get.toNamed(Routes.socialPhoneScreen, arguments: socialAuth);
+      } else {
+        showToastMessage(response?["ResponseMsg"] ??
+            "Unable to continue with ${provider.capitalizeFirst}.");
+      }
+    } catch (_) {
+      showToastMessage("Unable to continue with ${provider.capitalizeFirst}.");
+    } finally {
+      if (mounted) setState(() => socialLoadingProvider = null);
+    }
+  }
+
+  void _saveSelectedCountry() {
+    final countries = selectCountryController.countryInfo?.countryData;
+    if (countries == null || countries.isEmpty) return;
+    final selected = countries[countrySelected.clamp(0, countries.length - 1)];
+    save("countryId", selected.id ?? "");
+    save("countryName", selected.title ?? "");
+    selectCountryController.changeCountryIndex(countrySelected);
   }
 }
 

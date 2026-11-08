@@ -93,7 +93,7 @@ showToastMessage(message, [ToastGravity gravity = ToastGravity.BOTTOM]) {
     msg: message,
     gravity: gravity,
     timeInSecForIosWeb: 1,
-    backgroundColor: BlackColor.withOpacity(0.9),
+    backgroundColor: BlackColor.withValues(alpha: 0.9),
     textColor: Colors.white,
     fontSize: 14.0,
   );

@@ -217,7 +217,7 @@ class KYCController extends GetxController implements GetxService {
       Get.snackbar(
         'Success',
         'Document uploaded successfully',
-        backgroundColor: primaryColor.withOpacity(0.9),
+        backgroundColor: primaryColor.withValues(alpha: 0.9),
         colorText: Colors.white,
       );
 

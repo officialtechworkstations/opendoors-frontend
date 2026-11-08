@@ -1110,7 +1110,7 @@ class _AddWalletScreenState extends State<AddWalletScreen> {
                         height: Get.height / 85,
                         width: Get.width / 5,
                         decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.4),
+                            color: Colors.grey.withValues(alpha: 0.4),
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(20))),
                       ),

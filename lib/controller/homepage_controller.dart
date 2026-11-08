@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -23,9 +24,28 @@ import 'package:http/http.dart' as http;
 import '../screen/home_screen.dart';
 
 class HomePageController extends GetxController implements GetxService {
+  bool _updateAfterFrameScheduled = false;
+
+  void _notifyViews() {
+    if (isClosed) return;
+    if (WidgetsBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      if (_updateAfterFrameScheduled) return;
+      _updateAfterFrameScheduled = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateAfterFrameScheduled = false;
+        if (!isClosed) update();
+      });
+    } else {
+      update();
+    }
+  }
+
   HomeDatatInfo? homeDatatInfo;
   PropetydetailsInfo? propetydetailsInfo;
   FavouriteInfo? favouriteInfo;
+  String? favouriteLoadError;
+  int _favouriteRequestVersion = 0;
 
   List<MapInfo> mapInfo = [];
 
@@ -87,31 +107,31 @@ class HomePageController extends GetxController implements GetxService {
   chnageObjectIndex(int index) {
     currentIndex = 0;
     currentIndex = index;
-    update();
+    _notifyViews();
   }
 
   changeCategoryIndex(int index) {
     catCurrentIndex = 0;
     catCurrentIndex = index;
-    update();
+    _notifyViews();
   }
 
   changeOurCurrentIndex(int index) {
     ourCurrentIndex = index;
-    update();
+    _notifyViews();
   }
 
   getChangeLocation(String location) {
     searchLocation = location;
     Get.back();
 
-    update();
+    _notifyViews();
   }
 
   updateMapPosition({int? index}) {
     pageController.animateToPage(index ?? 0,
         duration: Duration(seconds: 1), curve: Curves.decelerate);
-    update();
+    _notifyViews();
   }
 
   String addProp = "";
@@ -129,6 +149,7 @@ class HomePageController extends GetxController implements GetxService {
       Uri uri = Uri.parse(Config.path + Config.homeDataApi);
       var response = await http.post(
         uri,
+        headers: const {'Content-Type': 'application/json'},
         body: jsonEncode(map),
       );
       if (response.statusCode == 200) {
@@ -145,10 +166,10 @@ class HomePageController extends GetxController implements GetxService {
         homeDatatInfo = HomeDatatInfo.fromJson(result);
         addProp = homeDatatInfo?.homeData?.showAddProperty ?? "";
         currency = homeDatatInfo?.homeData?.currency ?? "";
-        update();
+        _notifyViews();
       }
       isLoading = true;
-      update();
+      _notifyViews();
     } catch (error, stackTrace) {
       AppLogger.error('HomeApi', 'Home data request failed',
           error: error, stackTrace: stackTrace);
@@ -184,7 +205,7 @@ class HomePageController extends GetxController implements GetxService {
       }
 
       isProperty = true;
-      update();
+      _notifyViews();
     } catch (e) {
       print("IPL 2025 ${e.toString()}");
     }
@@ -216,7 +237,7 @@ class HomePageController extends GetxController implements GetxService {
         appSetting = appSDetup;
       }
 
-      update();
+      _notifyViews();
     } catch (e) {
       print("Err Getting chat Notice: ${e.toString()}");
     }
@@ -243,34 +264,50 @@ class HomePageController extends GetxController implements GetxService {
         getFavouriteList(countryId: getData.read("countryId"));
         showToastMessage(fevMsg);
       }
-      update();
+      _notifyViews();
     } catch (e) {
       print(e.toString());
     }
   }
 
   getFavouriteList({String? countryId}) async {
+    final requestVersion = ++_favouriteRequestVersion;
+    isfevorite = false;
+    favouriteLoadError = null;
+    _notifyViews();
     try {
       Map map = {
         "uid": getData.read("UserLogin")["id"].toString(),
         "property_type": "0",
-        "country_id": countryId,
+        "country_id": countryId ?? getData.read('countryId')?.toString() ?? '1',
       };
-      print("AAAAAAAAAAAAAAA" + map.toString());
       Uri uri = Uri.parse(Config.path + Config.favouriteList);
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
-      print("-------==========" + response.body);
+      var response = await http
+          .post(
+            uri,
+            headers: const {'Content-Type': 'application/json'},
+            body: jsonEncode(map),
+          )
+          .timeout(const Duration(seconds: 15));
+      if (requestVersion != _favouriteRequestVersion) return;
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
         favouriteInfo = FavouriteInfo.fromJson(result);
+      } else {
+        favouriteInfo = null;
+        favouriteLoadError = 'Could not load favorites. Please try again.';
       }
-      isfevorite = true;
-      update();
     } catch (e) {
-      print(e.toString());
+      if (requestVersion != _favouriteRequestVersion) return;
+      AppLogger.warning('Favorites', 'Unable to load favorites',
+          data: {'error': e.toString()});
+      favouriteInfo = null;
+      favouriteLoadError = 'Could not load favorites. Please try again.';
+    } finally {
+      if (requestVersion == _favouriteRequestVersion) {
+        isfevorite = true;
+        _notifyViews();
+      }
     }
   }
 
@@ -304,7 +341,7 @@ class HomePageController extends GetxController implements GetxService {
       }
       catWiseInfo = CatWiseInfo.fromJson(result);
       isCatWise = true;
-      update();
+      _notifyViews();
     }
   }
 
@@ -326,9 +363,9 @@ class HomePageController extends GetxController implements GetxService {
         print("+++++++++++++++" + result.toString());
         enquiry = result["Result"];
         showToastMessage(result["ResponseMsg"].toString());
-        update();
+        _notifyViews();
       }
-      update();
+      _notifyViews();
     } catch (e) {
       print(e.toString());
     }

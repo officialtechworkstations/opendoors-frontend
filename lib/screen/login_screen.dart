@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   FocusNode focusNode = FocusNode();
 
-  String cuntryCode = "";
+  String cuntryCode = "+234";
 
   late ColorNotifire notifire;
 
@@ -48,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future getCountryData() async {
     selectCountryController.getCountryApi().then((value) {
+      if (!mounted) return;
       for (int a = 0;
           a < selectCountryController.countryInfo!.countryData!.length;
           a++) {
@@ -73,20 +74,16 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    loginController.number.text = "";
-    loginController.password.text = "";
-    getCountryData();
-    selectCountryController.getCountryApi().then((value) {
-      for (int a = 0;
-          a < selectCountryController.countryInfo!.countryData!.length;
-          a++) {
-        if (selectCountryController.countryInfo?.countryData![a].dCon == "1") {
-          setState(() {
-            countrySelected = a;
-          });
-        }
-      }
+    // These controllers belong to the shared GetX controller and may still be
+    // attached to the previous route while this screen is being mounted.
+    // Mutating them during build notifies TextFormField and triggers
+    // "setState() or markNeedsBuild() called during build".
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      loginController.number.clear();
+      loginController.password.clear();
     });
+    getCountryData();
   }
 
   bool isLogin = false;
@@ -414,64 +411,63 @@ class _LoginScreenState extends State<LoginScreen> {
                                   "Please enter valid phone number".tr);
                             }
                             initPlatformState();
-                            loginController
-                                .getLoginApiData(cuntryCode, context)
-                                .then(
-                              (value) {
-                                if (value["Result"] == "true") {
-                                  if (getData.read("userType") == "admin") {
-                                    dashBoardController.getDashBoardData().then(
-                                      (value) {
-                                        Get.offAndToNamed(
-                                            Routes.membershipScreen);
-                                      },
-                                    );
-                                  } else {
-                                    setState(() {
-                                      save(
-                                          "countryId",
-                                          selectCountryController
-                                                  .countryInfo
-                                                  ?.countryData![
-                                                      countrySelected]
-                                                  .id ??
-                                              "");
-                                      save(
-                                          "countryName",
-                                          selectCountryController
-                                                  .countryInfo
-                                                  ?.countryData![
-                                                      countrySelected]
-                                                  .title ??
-                                              "");
-                                    });
-
-                                    selectCountryController
-                                        .changeCountryIndex(countrySelected);
-
-                                    homePageController.getCatWiseData(
-                                        countryId: getData.read("countryId"),
-                                        cId: "0");
-                                    searchController
-                                        .getSearchData(
-                                            countryId:
-                                                getData.read("countryId"))
-                                        .then(
-                                      (value) {
-                                        Get.offAndToNamed(
-                                            Routes.bottoBarScreen);
-                                        isLogin = false;
-                                        setState(() {});
-                                      },
-                                    );
-                                  }
+                            try {
+                              final value = await loginController
+                                  .getLoginApiData(cuntryCode, context);
+                              if (value["Result"] == "true") {
+                                if (getData.read("userType") == "admin") {
+                                  dashBoardController.getDashBoardData().then(
+                                    (value) {
+                                      Get.offAndToNamed(
+                                          Routes.membershipScreen);
+                                    },
+                                  );
                                 } else {
-                                  isLogin = false;
-                                  setState(() {});
-                                  showToastMessage(value["ResponseMsg"]);
+                                  setState(() {
+                                    save(
+                                        "countryId",
+                                        selectCountryController
+                                                .countryInfo
+                                                ?.countryData![countrySelected]
+                                                .id ??
+                                            "");
+                                    save(
+                                        "countryName",
+                                        selectCountryController
+                                                .countryInfo
+                                                ?.countryData![countrySelected]
+                                                .title ??
+                                            "");
+                                  });
+
+                                  selectCountryController
+                                      .changeCountryIndex(countrySelected);
+
+                                  homePageController.getCatWiseData(
+                                      countryId: getData.read("countryId"),
+                                      cId: "0");
+                                  searchController
+                                      .getSearchData(
+                                          countryId: getData.read("countryId"))
+                                      .then(
+                                    (value) {
+                                      Get.offAndToNamed(Routes.bottoBarScreen);
+                                      isLogin = false;
+                                      setState(() {});
+                                    },
+                                  );
                                 }
-                              },
-                            );
+                              } else {
+                                isLogin = false;
+                                setState(() {});
+                                showToastMessage(value["ResponseMsg"]);
+                              }
+                            } catch (_) {
+                              showToastMessage(
+                                  "Unable to sign in. Please try again.".tr);
+                            } finally {
+                              if (mounted) setState(() => isLogin = false);
+                            }
                           } else {
                             isLogin = false;
                             setState(() {});
@@ -590,6 +586,7 @@ class _LoginScreenState extends State<LoginScreen> {
           : await loginController.signUpWithApple();
 
       if (socialAuth != null) {
+        if (!mounted) return;
         final loginRes = await loginController.loginWithSocial(
           socialAuth.provider,
           socialAuth.token,

@@ -19,6 +19,7 @@ import 'package:opendoors/screen/splesh_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:opendoors/utils/localstring.dart';
+import 'package:opendoors/utils/property_deep_links.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
@@ -44,6 +45,8 @@ void main() async {
 
   await GetStorage.init();
   await di.init();
+
+  PropertyDeepLinks.instance.start();
 
   runApp(const MyApp());
 }

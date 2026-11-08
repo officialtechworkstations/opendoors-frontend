@@ -24,6 +24,8 @@ class SocialAuthSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final showAppleSignIn = Theme.of(context).platform == TargetPlatform.iOS;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
@@ -57,16 +59,18 @@ class SocialAuthSection extends StatelessWidget {
                   onTap: loadingProvider == null ? onGoogleTap : null,
                 ),
               ),
-              SizedBox(width: 12),
-              Expanded(
-                child: _SocialAuthButton(
-                  label: "Apple".tr,
-                  asset: "assets/svg/apple_logo.svg",
-                  notifire: notifire,
-                  isLoading: loadingProvider == "apple",
-                  onTap: loadingProvider == null ? onAppleTap : null,
+              if (showAppleSignIn) ...[
+                SizedBox(width: 12),
+                Expanded(
+                  child: _SocialAuthButton(
+                    label: "Apple".tr,
+                    asset: "assets/svg/apple_logo.svg",
+                    notifire: notifire,
+                    isLoading: loadingProvider == "apple",
+                    onTap: loadingProvider == null ? onAppleTap : null,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ],

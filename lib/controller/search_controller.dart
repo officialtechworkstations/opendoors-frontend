@@ -12,6 +12,7 @@ import 'package:opendoors/model/search_info.dart';
 import 'package:http/http.dart' as http;
 
 class SearchPropertyController extends GetxController implements GetxService {
+  int _requestVersion = 0;
   TextEditingController search = TextEditingController();
 
   List<SearchInfo> searchData = [];
@@ -30,18 +31,21 @@ class SearchPropertyController extends GetxController implements GetxService {
       {String? countryId,
       List<String>? facility,
       int? price,
+      int? rooms,
       int? minPrice,
       int? maxPrice}) async {
+    final requestVersion = ++_requestVersion;
     try {
       // List<dynamic>? savedAmenities = getData.read('selected_amenities');
       // getData.read('selected_budget');
 
       Map map = {
-        "keyword": search.text,
+        "keyword": search.text.trim(),
         "uid": getData.read("UserLogin")?["id"]?.toString() ?? "0",
-        "country_id": countryId,
+        "country_id": countryId ?? getData.read('countryId')?.toString() ?? '1',
         "facility": facility ?? [],
         "price": price ?? 0,
+        "rooms": rooms ?? 0,
         "min_price": minPrice ?? 0,
         "max_price": maxPrice ?? 0,
       };
@@ -54,6 +58,7 @@ class SearchPropertyController extends GetxController implements GetxService {
         uri,
         body: jsonEncode(map),
       );
+      if (requestVersion != _requestVersion) return;
       log("response::::::::::::::::: {${response.body}}");
 
       if (response.statusCode == 200) {
@@ -81,10 +86,11 @@ class SearchPropertyController extends GetxController implements GetxService {
       isLoading = true;
       update();
     } catch (e) {
+      if (requestVersion != _requestVersion) return;
       print("RRRRRRR");
       print(e.toString());
     } finally {
-      update();
+      if (requestVersion == _requestVersion) update();
     }
   }
 }

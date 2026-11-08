@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/homepage_controller.dart';
-import 'package:opendoors/controller/signup_controller.dart';
 import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/home_screen.dart';
@@ -22,8 +21,6 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
-  SignUpController signUpController = Get.find();
-
   HomePageController homePageController = Get.find();
 
   List<String> list = ["All", "House", "Villa", "Apartment"];
@@ -43,8 +40,11 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      homePageController.getFavouriteList(countryId: getData.read("countryId"));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        homePageController.getFavouriteList(
+            countryId: getData.read("countryId"));
+      }
     });
   }
 
@@ -76,8 +76,29 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       body: Column(
         children: [
           GetBuilder<HomePageController>(builder: (context) {
+            if (homePageController.isfevorite &&
+                homePageController.favouriteLoadError != null) {
+              return Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(homePageController.favouriteLoadError!,
+                          style: TextStyle(color: notifire.getwhiteblackcolor)),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () => homePageController.getFavouriteList(
+                            countryId: getData.read('countryId')),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
             return homePageController.isfevorite
-                ? homePageController.favouriteInfo!.propetylist!.isNotEmpty
+                ? (homePageController.favouriteInfo?.propetylist?.isNotEmpty ??
+                        false)
                     ? Expanded(
                         flex: 1,
                         child: ListView.builder(

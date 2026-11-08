@@ -407,7 +407,7 @@ class KYC2Controller extends GetxController {
         Get.snackbar(
           'Success',
           'All documents uploaded successfully!',
-          backgroundColor: Colors.green.withOpacity(0.9),
+          backgroundColor: Colors.green.withValues(alpha: 0.9),
           colorText: Colors.white,
           duration: const Duration(seconds: 3),
           icon: const Icon(Icons.check_circle, color: Colors.white),

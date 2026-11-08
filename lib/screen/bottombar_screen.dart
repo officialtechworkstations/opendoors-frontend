@@ -46,8 +46,6 @@ class _BottoBarScreenState extends State<BottoBarScreen>
 
   List<Widget> myChilders = [
     HomeScreen(),
-    MapScreen(),
-    ReelsFeedScreen(),
     ProfileScreen(),
   ];
 
@@ -70,9 +68,23 @@ class _BottoBarScreenState extends State<BottoBarScreen>
 
     isLogin = getData.read("UserLogin");
     tabController = TabController(length: 4, vsync: this);
+    tabController.addListener(_syncSelectedTab);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       handleFCMNavigation();
     });
+  }
+
+  void _syncSelectedTab() {
+    if (mounted && _currentIndex != tabController.index) {
+      setState(() => _currentIndex = tabController.index);
+    }
+  }
+
+  @override
+  void dispose() {
+    tabController.removeListener(_syncSelectedTab);
+    tabController.dispose();
+    super.dispose();
   }
 
   DateTime? lastBackPressed;
@@ -106,6 +118,16 @@ class _BottoBarScreenState extends State<BottoBarScreen>
     });
   }
 
+  double _tabShift(int index, bool hasCreate, double navWidth) {
+    if (!hasCreate) return 0;
+    return switch (index) {
+      0 => -navWidth * 0.025,
+      1 => -navWidth * 0.075,
+      2 => navWidth * 0.075,
+      _ => navWidth * 0.025,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
@@ -120,206 +142,270 @@ class _BottoBarScreenState extends State<BottoBarScreen>
           body: TabBarView(
             physics: const NeverScrollableScrollPhysics(),
             controller: tabController,
-            children: myChilders,
+            children: [
+              myChilders[0],
+              MapScreen(active: _currentIndex == 1),
+              ReelsFeedScreen(active: _currentIndex == 2),
+              myChilders[1],
+            ],
           ),
           bottomNavigationBar: SafeArea(
             child: Container(
               margin: const EdgeInsets.only(left: 16, right: 16),
-              decoration: BoxDecoration(
+              child: PhysicalShape(
+                clipper: _CenterConvexNavClipper(
+                  bumpHeight: homePageController.addProp == "Yes" ? 7 : 0,
+                ),
                 color: notifire.getbgcolor,
-                borderRadius: BorderRadius.circular(40),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
-                  )
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(40),
-                child: BottomAppBar(
-                  color: Colors.transparent,
-                  elevation: 0,
-                  height: 80,
-                  padding: EdgeInsets.zero,
+                elevation: 8,
+                shadowColor: Colors.black.withValues(alpha: 0.12),
+                child: SizedBox(
+                  height: homePageController.addProp == "Yes" ? 79 : 72,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      TabBar(
-                        onTap: (index) async {
-                          setState(() {});
+                      Positioned.fill(
+                        top: homePageController.addProp == "Yes" ? 7 : 0,
+                        child: TabBar(
+                          onTap: (index) async {
+                            setState(() {});
 
-                          if (isLogin != null) {
-                            _currentIndex = index;
-                            if (index == 1) {
-                              LocationPermission permission;
-                              permission = await Geolocator.checkPermission();
-                              permission = await Geolocator.requestPermission();
-                              if (permission == LocationPermission.denied) {
-                                lat = 0.0;
-                                long = 0.0;
-                              }
-                            }
-                          } else {
-                            if (index == 0) {
+                            if (isLogin != null || index <= 2) {
                               _currentIndex = index;
+                              if (index == 1) {
+                                LocationPermission permission;
+                                permission = await Geolocator.checkPermission();
+                                permission =
+                                    await Geolocator.requestPermission();
+                                if (permission == LocationPermission.denied) {
+                                  lat = 0.0;
+                                  long = 0.0;
+                                }
+                              }
                             } else {
                               Get.to(() => LoginScreen());
                             }
-                          }
-                        },
-                        indicator: UnderlineTabIndicator(
-                          insets: EdgeInsets.only(bottom: 52),
-                          borderSide:
-                              BorderSide(color: notifire.getbgcolor, width: 2),
+                          },
+                          indicator: UnderlineTabIndicator(
+                            insets: EdgeInsets.only(bottom: 52),
+                            borderSide: BorderSide(
+                                color: notifire.getbgcolor, width: 2),
+                          ),
+                          labelColor: Colors.blueAccent,
+                          indicatorSize: TabBarIndicatorSize.label,
+                          unselectedLabelColor: Colors.grey,
+                          controller: tabController,
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          tabs: [
+                            Tab(
+                              child: Transform.translate(
+                                offset: Offset(
+                                  _tabShift(
+                                      0,
+                                      homePageController.addProp == "Yes",
+                                      MediaQuery.sizeOf(context).width - 32),
+                                  0,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Center(
+                                        child: Icon(
+                                          _currentIndex == 0
+                                              ? Icons.house_rounded
+                                              : Icons.house_outlined,
+                                          size: 24,
+                                          color: _currentIndex == 0
+                                              ? Darkblue
+                                              : notifire.getwhiteblackcolor,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    SizedBox(
+                                      height: 18,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          "Home".tr,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            color: _currentIndex == 0
+                                                ? Darkblue
+                                                : Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Transform.translate(
+                                offset: Offset(
+                                  _tabShift(
+                                      1,
+                                      homePageController.addProp == "Yes",
+                                      MediaQuery.sizeOf(context).width - 32),
+                                  0,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Center(
+                                        child: Icon(
+                                          _currentIndex == 1
+                                              ? Icons.explore_rounded
+                                              : Icons.explore_outlined,
+                                          size: 24,
+                                          color: _currentIndex == 1
+                                              ? Darkblue
+                                              : notifire.getwhiteblackcolor,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    SizedBox(
+                                      height: 18,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          "Nearby".tr,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            color: _currentIndex == 1
+                                                ? Darkblue
+                                                : Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Transform.translate(
+                                offset: Offset(
+                                  _tabShift(
+                                      2,
+                                      homePageController.addProp == "Yes",
+                                      MediaQuery.sizeOf(context).width - 32),
+                                  0,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Center(
+                                        child: Icon(
+                                          _currentIndex == 2
+                                              ? Icons.smart_display_rounded
+                                              : Icons.smart_display_outlined,
+                                          size: 24,
+                                          color: _currentIndex == 2
+                                              ? Darkblue
+                                              : notifire.getwhiteblackcolor,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    SizedBox(
+                                      height: 18,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          "Reels".tr,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            color: _currentIndex == 2
+                                                ? Darkblue
+                                                : Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Transform.translate(
+                                offset: Offset(
+                                  _tabShift(
+                                      3,
+                                      homePageController.addProp == "Yes",
+                                      MediaQuery.sizeOf(context).width - 32),
+                                  0,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Center(
+                                        child: Icon(
+                                          _currentIndex == 3
+                                              ? Icons.account_circle_rounded
+                                              : Icons.account_circle_outlined,
+                                          size: 24,
+                                          color: _currentIndex == 3
+                                              ? Darkblue
+                                              : notifire.getwhiteblackcolor,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    SizedBox(
+                                      height: 18,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          "Profile".tr,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: FontFamily.gilroyMedium,
+                                            color: _currentIndex == 3
+                                                ? Darkblue
+                                                : Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        labelColor: Colors.blueAccent,
-                        indicatorSize: TabBarIndicatorSize.label,
-                        unselectedLabelColor: Colors.grey,
-                        controller: tabController,
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        tabs: [
-                          Tab(
-                            child: Column(
-                              children: [
-                                Image.asset(
-                                  "assets/images/${_currentIndex == 0 ? "HomeBold.png" : "Home.png"}",
-                                  scale: 21,
-                                  color: _currentIndex == 0
-                                      ? Darkblue
-                                      : notifire.getwhiteblackcolor,
-                                ),
-                                SizedBox(height: 3),
-                                Text(
-                                  "Home".tr,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    color: _currentIndex == 0
-                                        ? Darkblue
-                                        : Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            height: 50,
-                            width: 80,
-                            margin: EdgeInsets.only(
-                                left: homePageController.addProp == "Yes"
-                                    ? 0
-                                    : 9),
-                            alignment: getData.read("lCode") == "ar_IN"
-                                ? Alignment.topRight
-                                : Alignment.topLeft,
-                            child: Tab(
-                              child: Column(
-                                children: [
-                                  Image.asset(
-                                    "assets/images/${_currentIndex == 1 ? "mapbold.png" : "map.png"}",
-                                    scale: 3.7,
-                                    color: _currentIndex == 1
-                                        ? Darkblue
-                                        : notifire.getwhiteblackcolor,
-                                  ),
-                                  SizedBox(height: 2),
-                                  Text(
-                                    "Nearby".tr,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontFamily: FontFamily.gilroyMedium,
-                                      color: _currentIndex == 1
-                                          ? Darkblue
-                                          : Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Container(
-                            height: 50,
-                            width: 80,
-                            margin: EdgeInsets.only(
-                                right: homePageController.addProp == "Yes"
-                                    ? 0
-                                    : 9),
-                            alignment: getData.read("lCode") == "ar_IN"
-                                ? Alignment.topLeft
-                                : Alignment.topRight,
-                            child: Tab(
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 2,
-                                  ),
-                                  Icon(
-                                    _currentIndex == 2
-                                        ? Icons.video_collection
-                                        : Icons.video_collection_outlined,
-                                    size: 24,
-                                    color: _currentIndex == 2
-                                        ? Darkblue
-                                        : notifire.getwhiteblackcolor,
-                                  ),
-                                  SizedBox(height: 3),
-                                  Text(
-                                    "Reels".tr,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontFamily: FontFamily.gilroyMedium,
-                                      color: _currentIndex == 2
-                                          ? Darkblue
-                                          : Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Tab(
-                            child: Column(
-                              children: [
-                                Image.asset(
-                                  "assets/images/${_currentIndex == 3 ? "userBold.png" : "userline.png"}",
-                                  scale: 21,
-                                  color: _currentIndex == 3
-                                      ? Darkblue
-                                      : notifire.getwhiteblackcolor,
-                                ),
-                                SizedBox(height: 3),
-                                Text(
-                                  "Account".tr,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: FontFamily.gilroyMedium,
-                                    color: _currentIndex == 3
-                                        ? Darkblue
-                                        : Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
                       if (homePageController.addProp == "Yes")
-                        Material(
-                          color: Darkblue,
-                          elevation: 3,
-                          shape: const CircleBorder(),
-                          child: InkWell(
-                            onTap: _openAddProperty,
-                            customBorder: const CircleBorder(),
-                            child: const SizedBox(
-                              width: 46,
-                              height: 46,
-                              child: Icon(
-                                Icons.add_rounded,
-                                color: Colors.white,
-                                size: 30,
+                        Positioned(
+                          top: 12,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Material(
+                              color: Darkblue,
+                              elevation: 3,
+                              shape: const CircleBorder(),
+                              child: InkWell(
+                                onTap: _openAddProperty,
+                                customBorder: const CircleBorder(),
+                                child: const SizedBox(
+                                  width: 42,
+                                  height: 42,
+                                  child: Icon(
+                                    Icons.add_rounded,
+                                    color: Colors.white,
+                                    size: 26,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -334,4 +420,49 @@ class _BottoBarScreenState extends State<BottoBarScreen>
       }),
     );
   }
+}
+
+class _CenterConvexNavClipper extends CustomClipper<Path> {
+  const _CenterConvexNavClipper({required this.bumpHeight});
+
+  final double bumpHeight;
+
+  @override
+  Path getClip(Size size) {
+    const radius = 40.0;
+    final center = size.width / 2;
+    final shoulder = (size.width * 0.105).clamp(34.0, 38.0);
+    final top = bumpHeight;
+    final path = Path()..moveTo(radius, top);
+
+    if (bumpHeight > 0) {
+      path
+        ..lineTo(center - shoulder, top)
+        ..cubicTo(center - shoulder * .86, top, center - shoulder * .72,
+            top * .74, center - shoulder * .52, top * .38)
+        ..cubicTo(center - shoulder * .32, top * .02, center - shoulder * .18,
+            0, center, 0)
+        ..cubicTo(center + shoulder * .18, 0, center + shoulder * .32,
+            top * .02, center + shoulder * .52, top * .38)
+        ..cubicTo(center + shoulder * .72, top * .74, center + shoulder * .86,
+            top, center + shoulder, top);
+    }
+
+    path
+      ..lineTo(size.width - radius, top)
+      ..quadraticBezierTo(size.width, top, size.width, top + radius)
+      ..lineTo(size.width, size.height - radius)
+      ..quadraticBezierTo(
+          size.width, size.height, size.width - radius, size.height)
+      ..lineTo(radius, size.height)
+      ..quadraticBezierTo(0, size.height, 0, size.height - radius)
+      ..lineTo(0, top + radius)
+      ..quadraticBezierTo(0, top, radius, top)
+      ..close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant _CenterConvexNavClipper oldClipper) =>
+      oldClipper.bumpHeight != bumpHeight;
 }

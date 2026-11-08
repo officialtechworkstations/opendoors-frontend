@@ -75,6 +75,25 @@ void main() {
     expect(reel.ownerImage, 'images/users/amina.jpg');
   });
 
+  test('uses a real owner ID rather than the reel ID for chat', () {
+    final reel = Reel.fromJson({
+      'id': 99,
+      'reel_id': 10,
+      'prop_id': 42,
+      'reel_status': 1,
+      'property': {'user_id': 7, 'owner_name': 'Amina'},
+    });
+
+    expect(reel.ownerId, '7');
+    expect(reel.property?.ownerId, '7');
+    expect(Reel.fromJson({
+      'id': 99,
+      'reel_id': 10,
+      'prop_id': 42,
+      'reel_status': 1,
+    }).ownerId, isNull);
+  });
+
   test('extracts a property image path from image records', () {
     final reel = Reel.fromJson({
       'reel_id': '10',

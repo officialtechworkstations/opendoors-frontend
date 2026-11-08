@@ -38,17 +38,17 @@ class PropetydetailsInfo {
   factory PropetydetailsInfo.fromJson(Map<String, dynamic> json) {
     final propertyData = json['PropertyData'];
     final propertyDetails = json['propetydetails'];
+    final details = propertyDetails is Map
+        ? Propetydetails.fromJson(Map<String, dynamic>.from(propertyDetails))
+        : null;
+    details?.shareUrl ??= _shareUrl(json) ??
+        (propertyData is Map ? _shareUrl(propertyData) : null);
     final reelJson = json['reel'] ??
         (propertyData is Map ? propertyData['reel'] : null) ??
         (propertyDetails is Map ? propertyDetails['reel'] : null);
     return PropetydetailsInfo(
-      propetydetails: json["propetydetails"] == null
-          ? null
-          : Propetydetails.fromJson(json["propetydetails"]),
-      facility: json["facility"] == null
-          ? []
-          : List<Facility>.from(
-              json["facility"]!.map((x) => Facility.fromJson(x))),
+      propetydetails: details,
+      facility: _uniqueFacilities(json["facility"]),
       gallery: json["gallery"] == null
           ? []
           : List<String>.from(json["gallery"]!.map((x) => x)),
@@ -64,6 +64,34 @@ class PropetydetailsInfo {
           ? Reel.fromJson(Map<String, dynamic>.from(reelJson))
           : null,
     );
+  }
+
+  static List<Facility> _uniqueFacilities(dynamic value) {
+    if (value is! List) return [];
+    final seen = <String>{};
+    return value
+        .whereType<Map>()
+        .map((item) => Facility.fromJson(Map<String, dynamic>.from(item)))
+        .where((facility) {
+      final key = (facility.title ?? '')
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'[^a-z0-9]'), '');
+      return key.isNotEmpty && seen.add(key);
+    }).toList();
+  }
+
+  static String? _shareUrl(Map json) {
+    for (final key in ['share_url', 'share_link', 'property_url']) {
+      final value = json[key]?.toString().trim();
+      final uri = value == null ? null : Uri.tryParse(value);
+      if (uri != null &&
+          (uri.scheme == 'https' || uri.scheme == 'http') &&
+          uri.host.isNotEmpty) {
+        return value;
+      }
+    }
+    return null;
   }
 
   Map<String, dynamic> toJson() => {
@@ -130,6 +158,7 @@ class Propetydetails {
   String? partyAllowed;
   String? partyCost;
   String? cautionFee;
+  String? shareUrl;
 
   Propetydetails(
       {this.id,
@@ -157,7 +186,8 @@ class Propetydetails {
       this.isFavourite,
       this.partyAllowed,
       this.partyCost,
-      this.cautionFee});
+      this.cautionFee,
+      this.shareUrl});
 
   factory Propetydetails.fromJson(Map<String, dynamic> json) {
     log(json.toString());
@@ -190,7 +220,8 @@ class Propetydetails {
         isFavourite: json["IS_FAVOURITE"],
         partyAllowed: json["party_allowed"],
         partyCost: json["party_cost"],
-        cautionFee: json["caution_fee"]);
+        cautionFee: json["caution_fee"],
+        shareUrl: PropetydetailsInfo._shareUrl(json));
   }
 
   Map<String, dynamic> toJson() => {
@@ -221,7 +252,8 @@ class Propetydetails {
         "IS_FAVOURITE": isFavourite,
         "party_allowed": partyAllowed,
         "party_cost": partyCost,
-        "caution_fee": cautionFee
+        "caution_fee": cautionFee,
+        "share_url": shareUrl
       };
 }
 

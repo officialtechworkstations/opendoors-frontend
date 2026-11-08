@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables, prefer_is_empty, unnecessary_brace_in_string_interps, avoid_print
 
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
@@ -27,6 +27,7 @@ class HomeSearchScreen extends StatefulWidget {
 }
 
 class _HomeSearchScreenState extends State<HomeSearchScreen> {
+  Timer? _searchDebounce;
   SearchPropertyController searchController = Get.find();
 
   HomePageController homePageController = Get.find();
@@ -47,12 +48,21 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
   @override
   void initState() {
     super.initState();
-    searchController.searchText = "";
-    searchController.search.text = "";
-    searchController.searchData = [];
-    searchController.homesearchData?.searchPropety = [];
+    if (searchController.search.text.trim().isEmpty) {
+      searchController.searchText = "";
+      searchController.searchData = [];
+      searchController.homesearchData?.searchPropety = [];
+    } else {
+      searchController.searchText = searchController.search.text.trim();
+    }
     // searchController.getSearchData(countryId: getData.read("countryId"));
     filterController.getAmenity(countryId: getData.read("countryId"));
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -105,20 +115,24 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                   fontFamily: FontFamily.gilroyMedium,
                                 ),
                                 onSubmitted: (value) {
+                                  _searchDebounce?.cancel();
                                   searchController.getSearchData(
                                       countryId: getData.read("countryId"));
                                 },
                                 onChanged: (value) {
-                                  setState(() {
-                                    searchController.changeValueUpdate(value);
-                                    searchController.getSearchData(
-                                        countryId: getData.read("countryId"));
-                                    if (value == "") {
-                                      setState(() {
-                                        searchController.searchData = [];
-                                      });
-                                    }
-                                  });
+                                  _searchDebounce?.cancel();
+                                  searchController.changeValueUpdate(value);
+                                  if (value.trim().isEmpty) {
+                                    searchController.searchData = [];
+                                    searchController
+                                        .homesearchData?.searchPropety = [];
+                                    return;
+                                  }
+                                  _searchDebounce = Timer(
+                                    const Duration(milliseconds: 350),
+                                    () => searchController.getSearchData(
+                                        countryId: getData.read("countryId")),
+                                  );
                                 },
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.symmetric(

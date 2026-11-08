@@ -15,6 +15,7 @@ import 'package:opendoors/screen/bottombar_screen.dart';
 import 'package:opendoors/screen/login_screen.dart';
 import 'package:opendoors/screen/onbording_screen.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
+import 'package:opendoors/utils/property_deep_links.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,23 +88,24 @@ class _SpleshScreenState extends State<SpleshScreen> {
   setScreen() async {
     final prefs = await SharedPreferences.getInstance();
     print("OPERN DOOORS ###");
-    Timer(
-        const Duration(seconds: 3),
-        () => prefs.getBool('Firstuser') != true
-            ? Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => OnBordingScreen()))
-            : getData.read("UserLogin") == null
-                ? Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()))
-                : getData.read("userType") == "admin"
-                    ? Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MembershipScreen()))
-                    : Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => BottoBarScreen())));
+    Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      final Widget destination;
+      if (prefs.getBool('Firstuser') != true) {
+        destination = OnBordingScreen();
+      } else if (getData.read("UserLogin") == null) {
+        destination = LoginScreen();
+      } else if (getData.read("userType") == "admin") {
+        destination = MembershipScreen();
+      } else {
+        destination = BottoBarScreen();
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => destination),
+      );
+      PropertyDeepLinks.instance.markReady();
+    });
   }
 
   appUpdateCheck() async {

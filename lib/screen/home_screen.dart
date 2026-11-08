@@ -15,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:opendoors/Api/config.dart';
 import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/homepage_controller.dart';
+import 'package:opendoors/controller/property_filter_controller.dart';
 import 'package:opendoors/controller/search_controller.dart';
 import 'package:opendoors/controller/signup_controller.dart';
 import 'package:opendoors/firebase/chat_screen.dart';
@@ -47,6 +48,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   HomePageController homePageController = Get.find();
   SignUpController signUpController = Get.find();
+  final SearchFilterController filterController =
+      Get.put(SearchFilterController());
   bool isLoding = false;
   Position? currentLocation;
   String fevId = "";
@@ -67,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
     homePageController.getHomeDataApi(countryId: getData.read("countryId"));
     homePageController.getCatWiseData(
         countryId: getData.read("countryId"), cId: "0");
+    filterController.getAmenity(countryId: getData.read("countryId"));
     getdarkmodepreviousstate();
     if (getData.read("UserLogin") != null) {
       isUserOnlie(getData.read("UserLogin")["id"], false);
@@ -251,18 +255,28 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             actions: [
-              IconButton(
-                tooltip: 'Favorites',
-                onPressed: () {
-                  if (getData.read("UserLogin") != null) {
-                    Get.to(() => FavoriteScreen());
-                  } else {
-                    Get.toNamed(Routes.login);
-                  }
-                },
-                icon: Icon(
-                  Icons.favorite_border,
-                  color: notifire.getwhiteblackcolor,
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {
+                    if (getData.read("UserLogin") != null) {
+                      Get.to(() => FavoriteScreen());
+                    } else {
+                      Get.toNamed(Routes.login);
+                    }
+                  },
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 24,
+                      backgroundColor: notifire.getblackwhitecolor,
+                      child: Icon(
+                        Icons.favorite_border,
+                        size: 25,
+                        color: notifire.getwhiteblackcolor,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               InkWell(
@@ -375,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         SizedBox(
                           height: 10,
                         ),
-                        searchWidget(),
+                        _homeSearchHero(),
                         SizedBox(
                           height: 20,
                         ),
@@ -402,8 +416,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                           .homeData!.catlist![index].id,
                                       countryId: getData.read("countryId"),
                                     );
-                                    print(
-                                        "IMEA ${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img}");
                                   },
                                   child: Container(
                                     height: 50,
@@ -414,24 +426,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        FadeInImage.assetNetwork(
-                                          height: 25,
-                                          width: 25,
-                                          fit: BoxFit.cover,
-                                          imageErrorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Center(
-                                              child: Image.asset(
-                                                "assets/images/ezgif.com-crop.gif",
-                                                fit: BoxFit.cover,
-                                                height: Get.height,
-                                              ),
-                                            );
-                                          },
-                                          image:
-                                              "${Config.imageUrl}${homePageController.homeDatatInfo?.homeData!.catlist![index].img ?? ""}",
-                                          placeholder:
-                                              "assets/images/ezgif.com-crop.gif",
+                                        Container(
+                                          height: 30,
+                                          width: 30,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: homePageController
+                                                        .catCurrentIndex ==
+                                                    index
+                                                ? WhiteColor.withValues(
+                                                    alpha: 0.18)
+                                                : blueColor.withValues(
+                                                    alpha: 0.10),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            _listingCategoryIcon(
+                                              homePageController
+                                                      .homeDatatInfo
+                                                      ?.homeData
+                                                      ?.catlist?[index]
+                                                      .title ??
+                                                  '',
+                                            ),
+                                            size: 20,
+                                            color: homePageController
+                                                        .catCurrentIndex ==
+                                                    index
+                                                ? WhiteColor
+                                                : blueColor,
+                                          ),
                                         ),
                                         SizedBox(
                                           width: 5,
@@ -475,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     .catWiseInfo!.propertyCat!.isNotEmpty
                                 ? Padding(
                                     padding: const EdgeInsets.only(
-                                        left: 10, right: 10, bottom: 10),
+                                        left: 8, right: 8, bottom: 10),
                                     child: GridView.builder(
                                       itemCount: homePageController
                                           .catWiseInfo?.propertyCat!.length,
@@ -902,11 +926,209 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _homeSearchHero() {
+    return Container(
+      height: 265,
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(10, 4, 10, 0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        image: const DecorationImage(
+          image: AssetImage("assets/images/OpenDoor Picture 1.png"),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Color(0xB3000000)],
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Find a place that feels like home",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 23,
+                fontFamily: FontFamily.gilroyBold,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: _showHomeSearchForm,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                  child: Row(
+                    children: [
+                      Icon(Icons.search_rounded, color: Darkblue),
+                      const SizedBox(width: 10),
+                      const Expanded(child: Text("Where do you want to stay?")),
+                      Icon(Icons.tune_rounded, color: Darkblue),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showHomeSearchForm() async {
+    final searchController = Get.find<SearchPropertyController>();
+    int? rooms;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+          child: Container(
+            constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * .76),
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+            decoration: BoxDecoration(
+              color: notifire.getbgcolor,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 42,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text("Find your stay",
+                      style: TextStyle(
+                          fontSize: 22,
+                          color: notifire.getwhiteblackcolor,
+                          fontFamily: FontFamily.gilroyBold)),
+                  const SizedBox(height: 18),
+                  TextField(
+                    controller: searchController.search,
+                    textInputAction: TextInputAction.next,
+                    decoration: const InputDecoration(
+                      labelText: "Where?",
+                      hintText: "Type a location",
+                      prefixIcon: Icon(Icons.location_on_outlined),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  DropdownButtonFormField<int>(
+                    initialValue: rooms,
+                    decoration: const InputDecoration(
+                      labelText: "Rooms?",
+                      prefixIcon: Icon(Icons.bed_outlined),
+                      border: OutlineInputBorder(),
+                    ),
+                    items: List.generate(
+                      6,
+                      (index) => DropdownMenuItem(
+                          value: index + 1,
+                          child: Text(index == 5
+                              ? "6+ rooms"
+                              : "${index + 1} room${index == 0 ? '' : 's'}")),
+                    ),
+                    onChanged: (value) => setSheetState(() => rooms = value),
+                  ),
+                  const SizedBox(height: 18),
+                  Text("What would you need?",
+                      style: TextStyle(
+                          color: notifire.getwhiteblackcolor,
+                          fontFamily: FontFamily.gilroyBold)),
+                  const SizedBox(height: 8),
+                  GetBuilder<SearchFilterController>(
+                    builder: (filters) => filters.amenityOptions.isEmpty
+                        ? const LinearProgressIndicator()
+                        : Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: filters.amenityOptions
+                                .map((amenity) => FilterChip(
+                                      label: Text(amenity.name),
+                                      selected: filters.selectedAmenities
+                                          .contains(amenity.name),
+                                      onSelected: (_) => filters.toggleAmenity(
+                                          amenity.name, amenity.id),
+                                    ))
+                                .toList(),
+                          ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () {
+                        Navigator.pop(sheetContext);
+                        searchController.changeValueUpdate(
+                            searchController.search.text.trim());
+                        searchController.getSearchData(
+                          countryId: getData.read("countryId"),
+                          rooms: rooms,
+                          facility: filterController.selectedAmenitiesIds,
+                        );
+                        Get.toNamed(Routes.homeSearchScreen);
+                      },
+                      icon: const Icon(Icons.search),
+                      label: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 13),
+                        child: Text("Search properties"),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _listingCategoryIcon(String title) {
+    final category = title.toLowerCase().replaceAll('-', ' ');
+    if (category.contains('self contained') ||
+        category.contains('self contain')) {
+      return Icons.meeting_room_rounded;
+    }
+    if (category.contains('bungalow')) return Icons.cottage_rounded;
+    if (category.contains('flat') || category.contains('apartment')) {
+      return Icons.apartment_rounded;
+    }
+    if (category.contains('house')) return Icons.house_rounded;
+    return Icons.home_work_rounded;
+  }
+
   Widget categoryAndSeeAllWidget(String name, String buttonName) {
     return Row(
       children: [
         SizedBox(
-          width: 15,
+          width: 16,
         ),
         Text(
           name,
@@ -951,6 +1173,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: homePageController
                 .homeDatatInfo!.homeData!.featuredProperty!.isNotEmpty
             ? ListView.builder(
+                padding: const EdgeInsets.only(left: 6),
                 itemCount: homePageController
                     .homeDatatInfo?.homeData!.featuredProperty!.length,
                 scrollDirection: Axis.horizontal,
@@ -1019,8 +1242,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   stops: [0.6, 0.8, 1.5],
                                   colors: [
                                     Colors.transparent,
-                                    Colors.black.withOpacity(0.5),
-                                    Colors.black.withOpacity(0.5),
+                                    Colors.black.withValues(alpha: 0.5),
+                                    Colors.black.withValues(alpha: 0.5),
                                   ],
                                 ),
                               ),

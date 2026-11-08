@@ -142,8 +142,7 @@ class DashBoardController extends GetxController implements GetxService {
           },
         );
         dashBoardInfo = DashBoardInfo.fromJson(result);
-        print(
-            "USEWRLOGIN OR NOT > <> <> <> <> <> <> <> <> <> $dashBoardInfo");
+        print("USEWRLOGIN OR NOT > <> <> <> <> <> <> <> <> <> $dashBoardInfo");
       }
     } catch (e) {
       isLoading = true;
@@ -181,6 +180,15 @@ class DashBoardController extends GetxController implements GetxService {
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
         facilityInfo = FacilityInfo.fromJson(result);
+        final seen = <String>{};
+        facilityInfo!.facilitylist =
+            facilityInfo!.facilitylist?.where((facility) {
+          final key = (facility.title ?? '')
+              .trim()
+              .toLowerCase()
+              .replaceAll(RegExp(r'[^a-z0-9]'), '');
+          return key.isNotEmpty && seen.add(key);
+        }).toList();
       }
       isLoading = true;
       update();

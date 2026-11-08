@@ -146,7 +146,6 @@ class ReelsApiService {
   }
 
   Future<ReelsPage> list({int cursor = 0, int limit = 10}) async {
-    _requireAccessToken();
     final response = await _request(
       () => _dio.get(
         '${Config.path}${Config.reelsList}',
@@ -166,10 +165,11 @@ class ReelsApiService {
   Future<ReelsPage> _filteredFeed(
       String endpoint, int cursor, int limit) async {
     _requireAccessToken();
-    final response = await _request(() => _dio.get(
+    final response = await _request(() => _dio.post(
           '${Config.path}$endpoint',
-          queryParameters: {'last_id': cursor, 'limit': limit},
-          options: _authenticatedOptions,
+          data: {'last_id': cursor, 'limit': limit},
+          options: _authenticatedOptions.copyWith(
+              contentType: Headers.formUrlEncodedContentType),
         ));
     return _parsePage(response!);
   }

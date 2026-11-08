@@ -129,7 +129,26 @@ class SearchFilterController extends GetxController implements GetxService {
             .toList()
           ..sort((a, b) => a.name.compareTo(b.name));
 
-        amenityOptions = activeOptions;
+        final uniqueOptions = <String, AmenityOption>{};
+        for (final option in activeOptions) {
+          final key = option.name.trim().toLowerCase();
+          uniqueOptions.putIfAbsent(key, () => option);
+        }
+        amenityOptions = uniqueOptions.values.toList();
+        if (selectedAmenities.isNotEmpty) {
+          final selectedKeys = selectedAmenities
+              .map((name) => name.trim().toLowerCase())
+              .toSet();
+          selectedAmenities.assignAll(amenityOptions
+              .where((option) =>
+                  selectedKeys.contains(option.name.trim().toLowerCase()))
+              .map((option) => option.name));
+          selectedAmenitiesIds = amenityOptions
+              .where((option) =>
+                  selectedKeys.contains(option.name.trim().toLowerCase()))
+              .map((option) => option.id)
+              .toList();
+        }
       }
       update();
     } catch (e) {
