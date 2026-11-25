@@ -92,10 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         backgroundColor: notifire.getbgcolor,
         resizeToAvoidBottomInset: false,
@@ -480,8 +478,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 SocialAuthSection(
                   notifire: notifire,
                   loadingProvider: socialLoadingProvider,
-                  onGoogleTap: () => _startSocialSignup("google"),
-                  onAppleTap: () => _startSocialSignup("apple"),
+                  onGoogleTap: () => _startSocialLogin("google"),
+                  onAppleTap: () => _startSocialLogin("apple"),
                 ),
                 SizedBox(
                   height: 20,
@@ -575,7 +573,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _startSocialSignup(String provider) async {
+  Future<void> _startSocialLogin(String provider) async {
     setState(() {
       socialLoadingProvider = provider;
     });
@@ -628,8 +626,12 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             );
           }
-        } else if (loginRes != null && loginRes["ResponseCode"] == "404") {
-          Get.toNamed(Routes.socialPhoneScreen, arguments: socialAuth);
+        } else if (loginRes != null &&
+            loginRes["ResponseCode"]?.toString() == "404") {
+          showToastMessage(
+            "No account found for this ${provider.capitalizeFirst} account. Please sign up."
+                .tr,
+          );
         } else {
           showToastMessage(loginRes?["ResponseMsg"] ??
               "We could not verify your ${provider.capitalizeFirst} sign-in. Please try again.");

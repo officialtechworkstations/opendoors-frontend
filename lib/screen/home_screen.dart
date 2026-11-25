@@ -24,6 +24,7 @@ import 'package:opendoors/model/fontfamily_model.dart';
 import 'package:opendoors/model/routes_helper.dart';
 import 'package:opendoors/screen/favorite_screen.dart';
 import 'package:opendoors/utils/Colors.dart';
+import 'package:opendoors/utils/Custom_widget.dart';
 import 'package:opendoors/utils/Dark_lightmode.dart';
 import 'package:http/http.dart' as http;
 import 'package:opendoors/utils/formaters.dart';
@@ -989,121 +990,269 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _showHomeSearchForm() async {
     final searchController = Get.find<SearchPropertyController>();
-    int? rooms;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (sheetContext) => StatefulBuilder(
-        builder: (context, setSheetState) => Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-          child: Container(
-            constraints: BoxConstraints(
-                maxHeight: MediaQuery.sizeOf(context).height * .76),
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-            decoration: BoxDecoration(
-              color: notifire.getbgcolor,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(sheetContext).bottom),
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(sheetContext).height * .82,
+          ),
+          decoration: BoxDecoration(
+            color: notifire.getbgcolor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 12, 8),
+                child: Column(
+                  children: [
+                    Container(
                       width: 42,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade400,
+                        color: notifire.getgreycolor.withValues(alpha: .45),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 18),
-                  Text("Find your stay",
-                      style: TextStyle(
-                          fontSize: 22,
-                          color: notifire.getwhiteblackcolor,
-                          fontFamily: FontFamily.gilroyBold)),
-                  const SizedBox(height: 18),
-                  TextField(
-                    controller: searchController.search,
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                      labelText: "Where?",
-                      hintText: "Type a location",
-                      prefixIcon: Icon(Icons.location_on_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  DropdownButtonFormField<int>(
-                    initialValue: rooms,
-                    decoration: const InputDecoration(
-                      labelText: "Rooms?",
-                      prefixIcon: Icon(Icons.bed_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                    items: List.generate(
-                      6,
-                      (index) => DropdownMenuItem(
-                          value: index + 1,
-                          child: Text(index == 5
-                              ? "6+ rooms"
-                              : "${index + 1} room${index == 0 ? '' : 's'}")),
-                    ),
-                    onChanged: (value) => setSheetState(() => rooms = value),
-                  ),
-                  const SizedBox(height: 18),
-                  Text("What would you need?",
-                      style: TextStyle(
-                          color: notifire.getwhiteblackcolor,
-                          fontFamily: FontFamily.gilroyBold)),
-                  const SizedBox(height: 8),
-                  GetBuilder<SearchFilterController>(
-                    builder: (filters) => filters.amenityOptions.isEmpty
-                        ? const LinearProgressIndicator()
-                        : Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: filters.amenityOptions
-                                .map((amenity) => FilterChip(
-                                      label: Text(amenity.name),
-                                      selected: filters.selectedAmenities
-                                          .contains(amenity.name),
-                                      onSelected: (_) => filters.toggleAmenity(
-                                          amenity.name, amenity.id),
-                                    ))
-                                .toList(),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Find your stay",
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: notifire.getwhiteblackcolor,
+                              fontFamily: FontFamily.gilroyBold,
+                            ),
                           ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: () {
-                        Navigator.pop(sheetContext);
-                        searchController.changeValueUpdate(
-                            searchController.search.text.trim());
-                        searchController.getSearchData(
-                          countryId: getData.read("countryId"),
-                          rooms: rooms,
-                          facility: filterController.selectedAmenitiesIds,
-                        );
-                        Get.toNamed(Routes.homeSearchScreen);
-                      },
-                      icon: const Icon(Icons.search),
-                      label: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 13),
-                        child: Text("Search properties"),
-                      ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(sheetContext),
+                          icon: Icon(
+                            Icons.close_rounded,
+                            color: notifire.getwhiteblackcolor,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              Divider(height: 1, color: notifire.getborderColor),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Location",
+                        style: TextStyle(
+                          color: notifire.getwhiteblackcolor,
+                          fontFamily: FontFamily.gilroyBold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: searchController.search,
+                        textInputAction: TextInputAction.done,
+                        style: TextStyle(
+                          color: notifire.getwhiteblackcolor,
+                          fontFamily: FontFamily.gilroyMedium,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "Area, city or property name",
+                          hintStyle: TextStyle(color: notifire.getgreycolor),
+                          prefixIcon: Icon(
+                            Icons.location_on_outlined,
+                            color: Darkblue,
+                          ),
+                          filled: true,
+                          fillColor: notifire.getblackwhitecolor,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 15,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                BorderSide(color: notifire.getborderColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Darkblue, width: 1.5),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+                      Text(
+                        "Bedrooms",
+                        style: TextStyle(
+                          color: notifire.getwhiteblackcolor,
+                          fontFamily: FontFamily.gilroyBold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Obx(
+                        () => Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _homeFilterChoice(
+                              label: "Any",
+                              selected:
+                                  filterController.selectedRooms.value == null,
+                              onTap: () =>
+                                  filterController.selectedRooms.value = null,
+                            ),
+                            ...List.generate(
+                              6,
+                              (index) => _homeFilterChoice(
+                                label: "${index + 1}",
+                                selected:
+                                    filterController.selectedRooms.value ==
+                                        index + 1,
+                                onTap: () => filterController
+                                    .selectedRooms.value = index + 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+                      Text(
+                        "Amenities",
+                        style: TextStyle(
+                          color: notifire.getwhiteblackcolor,
+                          fontFamily: FontFamily.gilroyBold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Choose only what matters for this stay",
+                        style: TextStyle(
+                          color: notifire.getgreycolor,
+                          fontFamily: FontFamily.gilroyMedium,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      GetBuilder<SearchFilterController>(
+                        builder: (filters) => filters.amenityOptions.isEmpty
+                            ? LinearProgressIndicator(color: Darkblue)
+                            : Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: filters.amenityOptions
+                                    .map(
+                                      (amenity) => _homeFilterChoice(
+                                        label: amenity.name,
+                                        icon: amenity.icon,
+                                        selected: filters.selectedAmenities
+                                            .contains(amenity.name),
+                                        onTap: () => filters.toggleAmenity(
+                                          amenity.name,
+                                          amenity.id,
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
+                decoration: BoxDecoration(
+                  color: notifire.getbgcolor,
+                  border: Border(
+                    top: BorderSide(color: notifire.getborderColor),
+                  ),
+                ),
+                child: GestButton(
+                  Width: double.infinity,
+                  height: 52,
+                  buttoncolor: Darkblue,
+                  buttontext: "Search properties",
+                  style: TextStyle(
+                    color: WhiteColor,
+                    fontFamily: FontFamily.gilroyBold,
+                    fontSize: 16,
+                  ),
+                  onclick: () {
+                    Navigator.pop(sheetContext);
+                    searchController.changeValueUpdate(
+                      searchController.search.text.trim(),
+                    );
+                    searchController.getSearchData(
+                      countryId: getData.read("countryId"),
+                      rooms: filterController.selectedRooms.value,
+                      facility: filterController.selectedAmenitiesIds,
+                      minPrice: filterController.effectiveMinPrice,
+                      maxPrice: filterController.effectiveMaxPrice,
+                    );
+                    Get.toNamed(Routes.homeSearchScreen);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _homeFilterChoice({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+    IconData? icon,
+  }) {
+    return Material(
+      color: selected ? Darkblue : notifire.getblackwhitecolor,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: selected ? Darkblue : notifire.getborderColor,
             ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: 16,
+                  color: selected ? WhiteColor : Darkblue,
+                ),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  color: selected ? WhiteColor : notifire.getwhiteblackcolor,
+                  fontFamily: FontFamily.gilroyMedium,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -30,6 +30,7 @@ class SignUpController extends GetxController implements GetxService {
   String userMessage = "";
   String resultCheck = "";
   String signUpMsg = "";
+  String challengeId = "";
 
   showOfPassword() {
     showPassword = !showPassword;
@@ -63,10 +64,10 @@ class SignUpController extends GetxController implements GetxService {
 
   Future smstype() async {
     try {
-      var response =
-          await http.get(Uri.parse(Config.path + Config.smstype), headers: {
-        'Content-Type': 'application/json',
-      });
+      var response = await http.get(
+        Uri.parse(Config.path + Config.smstype),
+        headers: {'Content-Type': 'application/json'},
+      );
 
       print('=======================smstype======================');
       print(response.body.toString());
@@ -77,7 +78,8 @@ class SignUpController extends GetxController implements GetxService {
         update();
         print(response.body.toString());
         print(
-            " SMS CODE TYPE >>>>>>>>>>>>>> : : : : : :${smsdecode["SMS_TYPE"]}");
+          " SMS CODE TYPE >>>>>>>>>>>>>> : : : : : :${smsdecode["SMS_TYPE"]}",
+        );
         return smsdecode;
       }
     } catch (e) {
@@ -88,6 +90,12 @@ class SignUpController extends GetxController implements GetxService {
 
   ensureNoZeroInitial(String number) {
     String localNumber = number.trim();
+    if (localNumber.startsWith('+')) {
+      localNumber = localNumber.substring(1);
+    }
+    if (localNumber.startsWith('234')) {
+      localNumber = localNumber.substring(3);
+    }
     if (localNumber.startsWith('0')) {
       localNumber = localNumber.substring(1);
     }
@@ -100,15 +108,9 @@ class SignUpController extends GetxController implements GetxService {
     try {
       final nb = ensureNoZeroInitial(number.text);
 
-      Map map = {
-        "mobile": nb,
-        "ccode": cuntryCode,
-      };
+      Map map = {"mobile": nb, "ccode": cuntryCode};
       Uri uri = Uri.parse(Config.path + Config.mobileChack);
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
+      var response = await http.post(uri, body: jsonEncode(map));
 
       print('=======================checkMobileNumber======================');
       print(response.body.toString());
@@ -128,8 +130,10 @@ class SignUpController extends GetxController implements GetxService {
     }
   }
 
-  Future checkMobileInResetPassword(
-      {String? number, String? cuntryCode}) async {
+  Future checkMobileInResetPassword({
+    String? number,
+    String? cuntryCode,
+  }) async {
     log('-----------------');
     log('number : $number');
     log('cuntryCode : $cuntryCode');
@@ -137,15 +141,9 @@ class SignUpController extends GetxController implements GetxService {
 
     final nb = ensureNoZeroInitial(number ?? '');
     try {
-      Map map = {
-        "mobile": nb,
-        "ccode": cuntryCode,
-      };
+      Map map = {"mobile": nb, "ccode": cuntryCode};
       Uri uri = Uri.parse(Config.path + Config.mobileChack);
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
+      var response = await http.post(uri, body: jsonEncode(map));
 
       log('response status code : ${response.statusCode}');
       log('response body : ${response.body}');
@@ -164,16 +162,15 @@ class SignUpController extends GetxController implements GetxService {
   }
 
   MsgotpModel? msgotpData;
-  String otpCode = "";
   Future sendOtp(cuntryCode, number) async {
     final nb = ensureNoZeroInitial(number);
-    Map body = {"mobile": cuntryCode + nb};
+    Map body = {"mobile": nb, "ccode": cuntryCode};
 
-    var response = await http.post(Uri.parse(Config.path + Config.msgotp),
-        body: jsonEncode(body),
-        headers: {
-          'Content-Type': 'application/json',
-        });
+    var response = await http.post(
+      Uri.parse(Config.path + Config.msgotp),
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
     print("><<<<<<<<<<<<<<<<<<$body");
 
     if (response.statusCode == 200) {
@@ -181,8 +178,7 @@ class SignUpController extends GetxController implements GetxService {
 
       if (msgdecode["Result"] == "true") {
         msgotpData = msgotpModelFromJson(response.body);
-        otpCode = msgotpData!.otp.toString();
-        print("><<<<<<<<<<<<<<<<<<$otpCode");
+        challengeId = msgotpData?.challengeId?.toString() ?? "";
         update();
         return msgdecode;
       } else {
@@ -197,13 +193,13 @@ class SignUpController extends GetxController implements GetxService {
   Future twilloOtp(cuntryCode, number) async {
     final nb = ensureNoZeroInitial(number);
 
-    Map body = {"mobile": cuntryCode + nb};
+    Map body = {"mobile": nb, "ccode": cuntryCode};
 
-    var response = await http.post(Uri.parse(Config.path + Config.twillotp),
-        body: jsonEncode(body),
-        headers: {
-          'Content-Type': 'application/json',
-        });
+    var response = await http.post(
+      Uri.parse(Config.path + Config.twillotp),
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
     print("><<<<<<<<<<<<<<<<<<$body");
 
     if (response.statusCode == 200) {
@@ -224,28 +220,31 @@ class SignUpController extends GetxController implements GetxService {
 
   Future termiOtp(cuntryCode, number) async {
     final nb = ensureNoZeroInitial(number);
-    Map body = {"mobile": cuntryCode + nb};
+    Map body = {"mobile": nb, "ccode": cuntryCode};
 
-    var response = await http.post(Uri.parse(Config.path + Config.termiotp),
-        body: jsonEncode(body),
-        headers: {
-          'Content-Type': 'application/json',
-        });
+    var response = await http.post(
+      Uri.parse(Config.path + Config.termiotp),
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
     print("><<<<<<<<<<<<<<<<<<$body");
 
-    if (response.statusCode == 200) {
+    try {
       var msgdecode = jsonDecode(response.body);
       print(" OTP CODE : >>> ${response.body}");
 
-      if (msgdecode["Result"] == "true") {
+      if (response.statusCode == 200 && msgdecode["Result"] == "true") {
+        challengeId = msgdecode["challenge_id"]?.toString() ?? "";
         update();
         showToastMessage(msgdecode["ResponseMsg"]);
-        return msgdecode;
-      } else {
-        showToastMessage(msgdecode["ResponseMsg"]);
       }
-    } else {
-      showToastMessage("Something went wrong!");
+      return msgdecode;
+    } catch (_) {
+      return {
+        "Result": "false",
+        "ResponseCode": response.statusCode.toString(),
+        "ResponseMsg": "Unable to send OTP. Please try again.",
+      };
     }
   }
 
@@ -253,11 +252,10 @@ class SignUpController extends GetxController implements GetxService {
     Map body = {"email": email};
 
     var response = await http.post(
-        Uri.parse(Config.path + Config.sendEmailSmsApi),
-        body: jsonEncode(body),
-        headers: {
-          'Content-Type': 'application/json',
-        });
+      Uri.parse(Config.path + Config.sendEmailSmsApi),
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
     print("><<<<<<<<<<<<<<<<<<$body");
 
     if (response.statusCode == 200) {
@@ -276,7 +274,11 @@ class SignUpController extends GetxController implements GetxService {
     }
   }
 
-  Future setUserApiData(String cuntryCode) async {
+  Future setUserApiData(
+    String cuntryCode, {
+    required String challengeId,
+    required String otp,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final nb = ensureNoZeroInitial(number.text);
@@ -286,21 +288,26 @@ class SignUpController extends GetxController implements GetxService {
         "mobile": nb,
         "ccode": cuntryCode,
         "password": password.text,
-        "accept_newsletter": newsletter ? "1" : "0",
+        "challenge_id": challengeId,
+        "otp": otp,
+        "refercode": referralCode.text,
+        "accept_newsletter": newsletter ? 1 : 0,
+        "accept_privacy_policy": chack ? 1 : 0,
+        "accept_terms_condition": chack ? 1 : 0,
       };
       log('-----------------------------------');
-      // log(map.toString());
       log('-----------------------------------');
 
       Uri uri = Uri.parse(Config.path + Config.registerUser);
       var response = await http.post(
         uri,
         body: jsonEncode(map),
+        headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
+      try {
         var result = jsonDecode(response.body);
-        if (result["Result"] == "true") {
+        if (response.statusCode == 200 && result["Result"] == "true") {
           await prefs.setBool('Firstuser', true);
           signUpMsg = result["ResponseMsg"];
           showToastMessage(signUpMsg);
@@ -322,17 +329,19 @@ class SignUpController extends GetxController implements GetxService {
           update();
         }
         return result;
+      } catch (_) {
+        return {
+          "Result": "false",
+          "ResponseCode": response.statusCode.toString(),
+          "ResponseMsg":
+              "Unable to sign up (HTTP ${response.statusCode}). Please try again.",
+        };
       }
-      return {
-        "Result": "false",
-        "ResponseMsg":
-            "Unable to sign up (HTTP ${response.statusCode}). Please try again."
-      };
     } catch (e) {
       print("setUserApiData error: $e");
       return {
         "Result": "false",
-        "ResponseMsg": "Unable to sign up. Please try again."
+        "ResponseMsg": "Unable to sign up. Please try again.",
       };
     }
   }
@@ -342,9 +351,10 @@ class SignUpController extends GetxController implements GetxService {
     // final authService = Provider.of<AuthService>(context, listen: false);
     try {
       await authService.singUpAndStore(
-          proPicPath: getData.read("UserLogin")["pro_pic"],
-          email: name.text,
-          uid: getData.read("UserLogin")["id"]);
+        proPicPath: getData.read("UserLogin")["pro_pic"],
+        email: name.text,
+        uid: getData.read("UserLogin")["id"],
+      );
     } catch (e) {
       print(e);
     }
@@ -361,10 +371,7 @@ class SignUpController extends GetxController implements GetxService {
 
       Uri uri = Uri.parse(Config.path + Config.editProfileApi);
 
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
+      var response = await http.post(uri, body: jsonEncode(map));
       print("jsonEncode(map)" + jsonEncode(map));
       print("uri" + uri.toString());
       if (response.statusCode == 200) {
@@ -407,27 +414,41 @@ class SignUpController extends GetxController implements GetxService {
         map["name"] = name.trim();
       }
 
-      log(map.toString(), name: 'map ');
+      log(
+        {
+          "provider": provider,
+          "has_email": email?.trim().isNotEmpty == true,
+          "has_name": name?.trim().isNotEmpty == true,
+          "mobile_length": nb.length,
+        }.toString(),
+        name: "Social register init request",
+      );
 
       Uri uri = Uri.parse(Config.path + Config.socialRegisterInit);
       var response = await http.post(
         uri,
         body: jsonEncode(map),
+        headers: {'Content-Type': 'application/json'},
       );
-      log(uri.path.toString());
-      log(response.body.toString());
-
-      if (response.statusCode == 200) {
-        var result = jsonDecode(response.body);
-        return result;
+      final result = jsonDecode(response.body);
+      log(
+        {
+          "status": response.statusCode,
+          "result": result["Result"],
+          "response_code": result["ResponseCode"],
+        }.toString(),
+        name: "Social register init response",
+      );
+      if (result["Result"] == "true") {
+        challengeId = result["challenge_id"]?.toString() ?? "";
+        update();
       }
-
-      return jsonDecode(response.body);
+      return result;
     } catch (e) {
       print("socialRegisterInit error: ${e.toString()}");
       return {
         "Result": "false",
-        "ResponseMsg": "Something went wrong. Please try again."
+        "ResponseMsg": "Something went wrong. Please try again.",
       };
     }
   }
@@ -437,6 +458,8 @@ class SignUpController extends GetxController implements GetxService {
     required String token,
     required String mobile,
     required String ccode,
+    required String challengeId,
+    required String otp,
     required String name,
     String? email,
     required String refercode,
@@ -453,6 +476,8 @@ class SignUpController extends GetxController implements GetxService {
         "mobile": nb,
         "name": name,
         "ccode": ccode,
+        "challenge_id": challengeId,
+        "otp": otp,
         "refercode": refercode,
         "accept_newsletter": acceptNewsletter,
         "accept_privacy_policy": acceptPrivacyPolicy,
@@ -466,22 +491,49 @@ class SignUpController extends GetxController implements GetxService {
       //   map["name"] = name.trim();
       // }
 
-      log(map.toString(), name: 'map ');
+      log(
+        {
+          "provider": provider,
+          "has_email": email?.trim().isNotEmpty == true,
+          "has_name": name.trim().isNotEmpty,
+          "mobile_length": nb.length,
+        }.toString(),
+        name: "Social register request",
+      );
       Uri uri = Uri.parse(Config.path + Config.socialRegister);
       var response = await http.post(
         uri,
         body: jsonEncode(map),
+        headers: {'Content-Type': 'application/json'},
       );
 
-      log(uri.path.toString());
-      log(response.body.toString());
+      final result = jsonDecode(response.body);
+      log(
+        {
+          "status": response.statusCode,
+          "result": result["Result"],
+          "response_code": result["ResponseCode"],
+        }.toString(),
+        name: "Social register response",
+      );
 
       if (response.statusCode == 200) {
-        var result = jsonDecode(response.body);
         if (result["Result"] == "true") {
           await prefs.setBool('Firstuser', true);
           signUpMsg = result["ResponseMsg"] ?? "Sign Up Done Successfully!";
           save("UserLogin", result["UserLogin"]);
+          final accessToken = result["access_token"]?.toString();
+          if (accessToken != null && accessToken.isNotEmpty) {
+            final expiresIn =
+                int.tryParse(result["expires_in"]?.toString() ?? "") ?? 86400;
+            save("accessToken", accessToken);
+            save(
+              "accessTokenExpiresAt",
+              DateTime.now()
+                  .add(Duration(seconds: expiresIn))
+                  .millisecondsSinceEpoch,
+            );
+          }
 
           try {
             await firebaseNewuser();
@@ -495,12 +547,12 @@ class SignUpController extends GetxController implements GetxService {
         return result;
       }
 
-      return jsonDecode(response.body);
+      return result;
     } catch (e) {
       print("finalizeSocialRegister error: ${e.toString()}");
       return {
         "Result": "false",
-        "ResponseMsg": "Something went wrong. Please try again."
+        "ResponseMsg": "Something went wrong. Please try again.",
       };
     }
   }

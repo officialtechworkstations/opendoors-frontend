@@ -23,8 +23,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Api/data_store.dart';
 import '../controller/homepage_controller.dart';
 import '../controller/search_controller.dart';
+
 import 'package:opendoors/utils/fast_spinner.dart';
-import 'package:opendoors/utils/otp_code_tracker.dart';
 
 class OtpScreen extends StatefulWidget {
   @override
@@ -32,12 +32,9 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
-  late final OtpCodeTracker _otpCodes;
-
   @override
   void initState() {
     super.initState();
-    _otpCodes = OtpCodeTracker(Get.arguments["otpCode"]);
   }
 
   TextEditingController pinPutController = TextEditingController();
@@ -73,7 +70,8 @@ class _OtpScreenState extends State<OtpScreen> {
   Future getCountryData() async {
     selectCountryController.getCountryApi().then((value) {
       print(
-          "COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}");
+        "COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}",
+      );
       for (int a = 0;
           a < selectCountryController.countryInfo!.countryData!.length;
           a++) {
@@ -81,31 +79,36 @@ class _OtpScreenState extends State<OtpScreen> {
           setState(() {
             countrySelected = a;
             print(
-                "COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}");
+              "COUNTRY SELECTED $countrySelected -= ${selectCountryController.countryInfo?.countryData![countrySelected].title}",
+            );
             setState(() {
               save(
-                  "countryId",
-                  selectCountryController
-                          .countryInfo?.countryData![countrySelected].id ??
-                      "");
+                "countryId",
+                selectCountryController
+                        .countryInfo?.countryData![countrySelected].id ??
+                    "",
+              );
               save(
-                  "countryName",
-                  selectCountryController
-                          .countryInfo?.countryData![countrySelected].title ??
-                      "");
+                "countryName",
+                selectCountryController
+                        .countryInfo?.countryData![countrySelected].title ??
+                    "",
+              );
             });
           });
         } else {
           save(
-              "countryId",
-              selectCountryController
-                      .countryInfo?.countryData![countrySelected].id ??
-                  "");
+            "countryId",
+            selectCountryController
+                    .countryInfo?.countryData![countrySelected].id ??
+                "",
+          );
           save(
-              "countryName",
-              selectCountryController
-                      .countryInfo?.countryData![countrySelected].title ??
-                  "");
+            "countryName",
+            selectCountryController
+                    .countryInfo?.countryData![countrySelected].title ??
+                "",
+          );
         }
       }
       setState(() {
@@ -124,31 +127,34 @@ class _OtpScreenState extends State<OtpScreen> {
 
     setState(() => isResending = true);
     try {
-      final settings = await signUpController.smstype();
       dynamic response;
 
-      switch (settings?["SMS_TYPE"]) {
-        case "Msg91":
-          response = await signUpController.sendOtp(countryCode, phoneNumber);
-          break;
-        case "Twilio":
-          response = await signUpController.twilloOtp(countryCode, phoneNumber);
-          break;
-        case "Termii":
-          response = await signUpController.termiOtp(countryCode, phoneNumber);
-          break;
-        default:
-          showToastMessage("Unable to send OTP. Please try again.".tr);
-          return;
+      if (rout == "socialSignUpScreen") {
+        final refreshed = await loginController.refreshSocialIdToken(
+          Get.arguments["provider"],
+        );
+        final token = refreshed?.token ?? Get.arguments["token"];
+        response = await signUpController.socialRegisterInit(
+          provider: Get.arguments["provider"],
+          token: token,
+          mobile: phoneNumber,
+          ccode: countryCode,
+          email: Get.arguments["real_email"],
+          name: Get.arguments["real_name"],
+        );
+        Get.arguments["token"] = token;
+      } else {
+        response = await signUpController.termiOtp(countryCode, phoneNumber);
       }
 
-      final newCode = response?["otp"];
-      if (newCode == null) {
+      final newChallengeId = response?["challenge_id"]?.toString();
+      if (newChallengeId == null || newChallengeId.isEmpty) {
         showToastMessage("Unable to send OTP. Please try again.".tr);
         return;
       }
 
-      _otpCodes.add(newCode);
+      signUpController.challengeId = newChallengeId;
+      Get.arguments["challenge_id"] = newChallengeId;
       pinPutController.clear();
     } catch (error) {
       log("OTP resend failed: $error");
@@ -194,9 +200,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 15),
                     child: Text(
@@ -208,9 +212,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.only(left: 15),
                     child: Text(
@@ -225,46 +227,43 @@ class _OtpScreenState extends State<OtpScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: 30,
-                  ),
+                  SizedBox(height: 30),
                   Container(
                     alignment: Alignment.center,
                     child: Pinput(
-                        length: 6,
-                        keyboardType: TextInputType.number,
-                        obscureText: false,
-                        defaultPinTheme: PinTheme(
-                          width: 52,
-                          height: 52,
-                          textStyle: TextStyle(
-                            fontSize: 20,
-                            color: notifire.getwhiteblackcolor,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: notifire.getborderColor),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                      length: 6,
+                      keyboardType: TextInputType.number,
+                      obscureText: false,
+                      defaultPinTheme: PinTheme(
+                        width: 52,
+                        height: 52,
+                        textStyle: TextStyle(
+                          fontSize: 20,
+                          color: notifire.getwhiteblackcolor,
+                          fontWeight: FontWeight.w700,
                         ),
-                        pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-                        showCursor: true,
-                        controller: pinPutController,
-                        autofillHints: const [AutofillHints.oneTimeCode],
-                        onCompleted: (pin) => print(pin),
-                        onChanged: (value) {
-                          code = value;
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your otp'.tr;
-                          }
-                          return null;
-                        }),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: notifire.getborderColor),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+                      showCursor: true,
+                      controller: pinPutController,
+                      autofillHints: const [AutofillHints.oneTimeCode],
+                      onCompleted: (pin) => print(pin),
+                      onChanged: (value) {
+                        code = value;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your otp'.tr;
+                        }
+                        return null;
+                      },
+                    ),
                   ),
-                  SizedBox(
-                    height: 40,
-                  ),
+                  SizedBox(height: 40),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 15),
                     child: Row(
@@ -305,9 +304,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 60,
-                  ),
+                  SizedBox(height: 60),
                   GestButton(
                     Width: Get.size.width,
                     height: 50,
@@ -321,113 +318,130 @@ class _OtpScreenState extends State<OtpScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                     onclick: () {
-                      if (_otpCodes.accepts(code)) {
+                      if (code.trim().length == 6) {
                         setState(() {
                           isLoading = true;
                         });
-                        getCountryData().then(
-                          (value) {
-                            if (rout == "socialSignUpScreen") {
-                              setState(() {
-                                isLoading = true;
+                        getCountryData().then((value) async {
+                          if (rout == "socialSignUpScreen") {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            try {
+                              final refreshed =
+                                  await loginController.refreshSocialIdToken(
+                                Get.arguments["provider"],
+                              );
+                              final socialToken =
+                                  refreshed?.token ?? Get.arguments["token"];
+                              signUpController
+                                  .finalizeSocialRegister(
+                                provider: Get.arguments["provider"],
+                                token: socialToken,
+                                mobile: phoneNumber,
+                                ccode: countryCode,
+                                challengeId:
+                                    Get.arguments["challenge_id"]?.toString() ??
+                                        signUpController.challengeId,
+                                otp: code.trim(),
+                                name: Get.arguments["real_name"] ?? '',
+                                email: Get.arguments["real_email"],
+                                refercode: Get.arguments["refercode"],
+                                acceptNewsletter:
+                                    Get.arguments["accept_newsletter"],
+                                acceptPrivacyPolicy:
+                                    Get.arguments["accept_privacy_policy"],
+                                acceptTermsCondition:
+                                    Get.arguments["accept_terms_condition"],
+                              )
+                                  .then((value) {
+                                if (value["Result"] == "true") {
+                                  selectCountryController
+                                      .changeCountryIndex(countrySelected);
+                                  homePageController.getHomeDataApi(
+                                    countryId: getData.read("countryId"),
+                                  );
+                                  homePageController.getCatWiseData(
+                                    countryId: getData.read("countryId"),
+                                    cId: "0",
+                                  );
+                                  searchController.getSearchData(
+                                    countryId: getData.read("countryId"),
+                                  );
+                                  Get.offAndToNamed(Routes.bottoBarScreen);
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                } else {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  showToastMessage(value["ResponseMsg"]);
+                                }
                               });
-                              try {
-                                signUpController
-                                    .finalizeSocialRegister(
-                                  provider: Get.arguments["provider"],
-                                  token: Get.arguments["token"],
-                                  mobile: phoneNumber,
-                                  ccode: countryCode,
-                                  name: Get.arguments["real_name"] ?? '',
-                                  email: Get.arguments["real_email"],
-                                  refercode: Get.arguments["refercode"],
-                                  acceptNewsletter:
-                                      Get.arguments["accept_newsletter"],
-                                  acceptPrivacyPolicy:
-                                      Get.arguments["accept_privacy_policy"],
-                                  acceptTermsCondition:
-                                      Get.arguments["accept_terms_condition"],
-                                )
-                                    .then(
-                                  (value) {
-                                    if (value["Result"] == "true") {
-                                      selectCountryController
-                                          .changeCountryIndex(countrySelected);
-                                      homePageController.getHomeDataApi(
-                                          countryId: getData.read("countryId"));
-                                      homePageController.getCatWiseData(
-                                          countryId: getData.read("countryId"),
-                                          cId: "0");
-                                      searchController.getSearchData(
-                                          countryId: getData.read("countryId"));
-                                      Get.offAndToNamed(Routes.bottoBarScreen);
-                                      setState(() {
-                                        isLoading = false;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        isLoading = false;
-                                      });
-                                      showToastMessage(value["ResponseMsg"]);
-                                    }
-                                  },
-                                );
-                                initPlatformState();
-                              } catch (e) {
-                                setState(() {
-                                  isLoading = false;
-                                });
-                                print("Social signup error: $e");
-                              }
-                            } else if (rout == "signUpScreen") {
-                              setState(() {
-                                isLoading = true;
-                              });
-                              try {
-                                signUpController
-                                    .setUserApiData(countryCode)
-                                    .then(
-                                  (value) {
-                                    print(
-                                        ">>>>>>>>>>>>>>>>> >>>>>>>>>>>> >>>>>>>>>> >>>> ${value}");
-                                    if (value["Result"] == "true") {
-                                      selectCountryController
-                                          .changeCountryIndex(countrySelected);
-                                      homePageController.getHomeDataApi(
-                                          countryId: getData.read("countryId"));
-                                      homePageController.getCatWiseData(
-                                          countryId: getData.read("countryId"),
-                                          cId: "0");
-                                      searchController.getSearchData(
-                                          countryId: getData.read("countryId"));
-                                      Get.offAndToNamed(Routes.bottoBarScreen);
-                                      setState(() {
-                                        isLoading = false;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        isLoading = false;
-                                      });
-                                      showToastMessage(value["ResponseMsg"]);
-                                    }
-                                  },
-                                );
-                                initPlatformState();
-                                showToastMessage(signUpController.signUpMsg);
-                              } catch (e) {
-                                setState(() {
-                                  isLoading = false;
-                                });
-                                print("525 --- 525  --- 525 ${e}");
-                              }
-                            } else if (rout == "resetScreen") {
+                              initPlatformState();
+                            } catch (e) {
                               setState(() {
                                 isLoading = false;
                               });
-                              forgetPasswordBottomSheet();
+                              print("Social signup error: $e");
                             }
-                          },
-                        );
+                          } else if (rout == "signUpScreen") {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            try {
+                              signUpController
+                                  .setUserApiData(
+                                countryCode,
+                                challengeId:
+                                    Get.arguments["challenge_id"]?.toString() ??
+                                        signUpController.challengeId,
+                                otp: code.trim(),
+                              )
+                                  .then((value) {
+                                print(
+                                  ">>>>>>>>>>>>>>>>> >>>>>>>>>>>> >>>>>>>>>> >>>> ${value}",
+                                );
+                                if (value["Result"] == "true") {
+                                  selectCountryController
+                                      .changeCountryIndex(countrySelected);
+                                  homePageController.getHomeDataApi(
+                                    countryId: getData.read("countryId"),
+                                  );
+                                  homePageController.getCatWiseData(
+                                    countryId: getData.read("countryId"),
+                                    cId: "0",
+                                  );
+                                  searchController.getSearchData(
+                                    countryId: getData.read("countryId"),
+                                  );
+                                  Get.offAndToNamed(Routes.bottoBarScreen);
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                } else {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  showToastMessage(value["ResponseMsg"]);
+                                }
+                              });
+                              initPlatformState();
+                              showToastMessage(signUpController.signUpMsg);
+                            } catch (e) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                              print("525 --- 525  --- 525 ${e}");
+                            }
+                          } else if (rout == "resetScreen") {
+                            setState(() {
+                              isLoading = false;
+                            });
+                            forgetPasswordBottomSheet();
+                          }
+                        });
                       } else {
                         showToastMessage("Please enter your valid OTP".tr);
                       }
@@ -437,12 +451,7 @@ class _OtpScreenState extends State<OtpScreen> {
               ),
             ),
           ),
-          isLoading
-              ? Center(
-                  child: FastSpinner(
-                  color: Darkblue,
-                ))
-              : SizedBox()
+          isLoading ? Center(child: FastSpinner(color: Darkblue)) : SizedBox(),
         ],
       ),
     );
@@ -451,252 +460,238 @@ class _OtpScreenState extends State<OtpScreen> {
   Future<void> initPlatformState() async {
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     OneSignal.initialize(Config.oneSignel);
-    OneSignal.Notifications.requestPermission(true).then(
-      (value) {
-        print("Signal value:- $value");
-      },
-    );
+    OneSignal.Notifications.requestPermission(true).then((value) {
+      print("Signal value:- $value");
+    });
   }
 
   Future forgetPasswordBottomSheet() {
     return Get.bottomSheet(
-      GetBuilder<LoginController>(builder: (context) {
-        return SingleChildScrollView(
-          child: Container(
-            height: 350,
-            width: Get.size.width,
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 15,
-                ),
-                Text(
-                  "Forgot Password".tr,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontFamily: FontFamily.gilroyBold,
-                    color: notifire.getwhiteblackcolor,
-                  ),
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
-                  child: Divider(
-                    color: notifire.getgreycolor,
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  alignment: Alignment.topLeft,
-                  padding: EdgeInsets.only(top: 5, left: 15),
-                  child: Text(
-                    "Create Your New Password".tr,
+      GetBuilder<LoginController>(
+        builder: (context) {
+          return SingleChildScrollView(
+            child: Container(
+              height: 350,
+              width: Get.size.width,
+              child: Column(
+                children: [
+                  SizedBox(height: 15),
+                  Text(
+                    "Forgot Password".tr,
                     style: TextStyle(
-                      fontFamily: FontFamily.gilroyMedium,
+                      fontSize: 20,
+                      fontFamily: FontFamily.gilroyBold,
                       color: notifire.getwhiteblackcolor,
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: TextFormField(
-                    controller: loginController.newPassword,
-                    obscureText: loginController.newShowPassword,
-                    cursorColor: notifire.getwhiteblackcolor,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: FontFamily.gilroyMedium,
-                      color: notifire.getwhiteblackcolor,
+                  SizedBox(height: 15),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Divider(color: notifire.getgreycolor),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.only(top: 5, left: 15),
+                    child: Text(
+                      "Create Your New Password".tr,
+                      style: TextStyle(
+                        fontFamily: FontFamily.gilroyMedium,
+                        color: notifire.getwhiteblackcolor,
+                      ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password'.tr;
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
+                  ),
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: TextFormField(
+                      controller: loginController.newPassword,
+                      obscureText: loginController.newShowPassword,
+                      cursorColor: notifire.getwhiteblackcolor,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: FontFamily.gilroyMedium,
+                        color: notifire.getwhiteblackcolor,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
-                      ),
-                      suffixIcon: InkWell(
-                        onTap: () {
-                          loginController.newShowOfPassword();
-                        },
-                        child: !loginController.newShowPassword
-                            ? Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Image.asset(
-                                  "assets/images/showpassowrd.png",
-                                  height: 10,
-                                  width: 10,
-                                  color: notifire.getgreycolor,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password'.tr;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        suffixIcon: InkWell(
+                          onTap: () {
+                            loginController.newShowOfPassword();
+                          },
+                          child: !loginController.newShowPassword
+                              ? Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    "assets/images/showpassowrd.png",
+                                    height: 10,
+                                    width: 10,
+                                    color: notifire.getgreycolor,
+                                  ),
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    "assets/images/HidePassword.png",
+                                    height: 10,
+                                    width: 10,
+                                    color: notifire.getgreycolor,
+                                  ),
                                 ),
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Image.asset(
-                                  "assets/images/HidePassword.png",
-                                  height: 10,
-                                  width: 10,
-                                  color: notifire.getgreycolor,
-                                ),
-                              ),
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Image.asset(
-                          "assets/images/Unlock.png",
-                          height: 10,
-                          width: 10,
+                        ),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Image.asset(
+                            "assets/images/Unlock.png",
+                            height: 10,
+                            width: 10,
+                            color: notifire.getgreycolor,
+                          ),
+                        ),
+                        labelText: "Password".tr,
+                        labelStyle: TextStyle(
                           color: notifire.getgreycolor,
+                          fontFamily: FontFamily.gilroyMedium,
                         ),
                       ),
-                      labelText: "Password".tr,
-                      labelStyle: TextStyle(
-                        color: notifire.getgreycolor,
-                        fontFamily: FontFamily.gilroyMedium,
-                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: TextFormField(
-                    controller: loginController.newConformPassword,
-                    obscureText: loginController.conformPassword,
-                    cursorColor: notifire.getwhiteblackcolor,
-                    style: TextStyle(
-                      fontFamily: FontFamily.gilroyMedium,
-                      fontSize: 14,
-                      color: notifire.getwhiteblackcolor,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password'.tr;
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: TextFormField(
+                      controller: loginController.newConformPassword,
+                      obscureText: loginController.conformPassword,
+                      cursorColor: notifire.getwhiteblackcolor,
+                      style: TextStyle(
+                        fontFamily: FontFamily.gilroyMedium,
+                        fontSize: 14,
+                        color: notifire.getwhiteblackcolor,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
-                      ),
-                      suffixIcon: InkWell(
-                        onTap: () {
-                          loginController.newConformShowOfPassword();
-                        },
-                        child: !loginController.conformPassword
-                            ? Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Image.asset(
-                                  "assets/images/showpassowrd.png",
-                                  height: 10,
-                                  width: 10,
-                                  color: notifire.getgreycolor,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password'.tr;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        suffixIcon: InkWell(
+                          onTap: () {
+                            loginController.newConformShowOfPassword();
+                          },
+                          child: !loginController.conformPassword
+                              ? Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    "assets/images/showpassowrd.png",
+                                    height: 10,
+                                    width: 10,
+                                    color: notifire.getgreycolor,
+                                  ),
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    "assets/images/HidePassword.png",
+                                    height: 10,
+                                    width: 10,
+                                    color: notifire.getgreycolor,
+                                  ),
                                 ),
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Image.asset(
-                                  "assets/images/HidePassword.png",
-                                  height: 10,
-                                  width: 10,
-                                  color: notifire.getgreycolor,
-                                ),
-                              ),
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Image.asset(
-                          "assets/images/Unlock.png",
-                          height: 10,
-                          width: 10,
+                        ),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Image.asset(
+                            "assets/images/Unlock.png",
+                            height: 10,
+                            width: 10,
+                            color: notifire.getgreycolor,
+                          ),
+                        ),
+                        labelText: "Conform Password".tr,
+                        labelStyle: TextStyle(
                           color: notifire.getgreycolor,
+                          fontFamily: FontFamily.gilroyMedium,
                         ),
                       ),
-                      labelText: "Conform Password".tr,
-                      labelStyle: TextStyle(
-                        color: notifire.getgreycolor,
-                        fontFamily: FontFamily.gilroyMedium,
-                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                GestButton(
-                  Width: Get.size.width,
-                  height: 50,
-                  buttoncolor: blueColor,
-                  margin: EdgeInsets.only(top: 15, left: 30, right: 30),
-                  buttontext: "Continue".tr,
-                  isLoading: loginController.isSending ? true : false,
-                  style: TextStyle(
-                    fontFamily: "Gilroy Bold",
-                    color: WhiteColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  onclick: loginController.isSending
-                      ? null
-                      : () {
-                          log('message');
-                          if (loginController.newPassword.text ==
-                              loginController.newConformPassword.text) {
+                  SizedBox(height: 20),
+                  GestButton(
+                    Width: Get.size.width,
+                    height: 50,
+                    buttoncolor: blueColor,
+                    margin: EdgeInsets.only(top: 15, left: 30, right: 30),
+                    buttontext: "Continue".tr,
+                    isLoading: loginController.isSending ? true : false,
+                    style: TextStyle(
+                      fontFamily: "Gilroy Bold",
+                      color: WhiteColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onclick: loginController.isSending
+                        ? null
+                        : () {
                             log('message');
-                            loginController.setForgetPasswordApi(
-                              ccode: countryCode,
-                              mobile: phoneNumber,
-                              // email: email
-                            );
-                          } else {
-                            showToastMessage("Please Enter Valid Password".tr,
-                                ToastGravity.TOP);
-                          }
-                        },
+                            if (loginController.newPassword.text ==
+                                loginController.newConformPassword.text) {
+                              log('message');
+                              loginController.setForgetPasswordApi(
+                                ccode: countryCode,
+                                mobile: phoneNumber,
+                                // email: email
+                              );
+                            } else {
+                              showToastMessage(
+                                "Please Enter Valid Password".tr,
+                                ToastGravity.TOP,
+                              );
+                            }
+                          },
+                  ),
+                ],
+              ),
+              decoration: BoxDecoration(
+                color: notifire.getbgcolor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
                 ),
-              ],
-            ),
-            decoration: BoxDecoration(
-              color: notifire.getbgcolor,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }

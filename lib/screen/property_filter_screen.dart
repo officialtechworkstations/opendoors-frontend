@@ -342,9 +342,6 @@ class FilterBottomSheet extends StatelessWidget {
 
   Widget _buildPriceSection(BuildContext context) {
     final notifire = Provider.of<ColorNotifire>(context, listen: true);
-    final isDark = notifire.isDark;
-    final sheetBgColor =
-        isDark ? const Color.fromARGB(255, 41, 41, 43) : Colors.white;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -358,11 +355,11 @@ class FilterBottomSheet extends StatelessWidget {
         const SizedBox(
           height: 6,
         ),
-        const Text(
-          'select the price range for your budget',
+        Text(
+          'Choose a nightly price range',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey,
+            color: notifire.getgreycolor,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -445,7 +442,7 @@ class FilterBottomSheet extends StatelessWidget {
               RangeSlider(
                 values: controller.priceRange.value,
                 min: 0,
-                max: 3000000,
+                max: SearchFilterController.maximumPrice,
                 divisions: 60,
                 labels: RangeLabels(
                   '₦${_formatNumber(controller.priceRange.value.start.round())}',
@@ -542,9 +539,6 @@ class FilterBottomSheet extends StatelessWidget {
 
   Widget _buildAmenitiesSection(BuildContext context) {
     final notifire = Provider.of<ColorNotifire>(context, listen: true);
-    final isDark = notifire.isDark;
-    final sheetBgColor =
-        isDark ? const Color.fromARGB(255, 183, 183, 186) : Colors.white;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -558,11 +552,11 @@ class FilterBottomSheet extends StatelessWidget {
         const SizedBox(
           height: 6,
         ),
-        const Text(
-          'select the amenities you want in your search property  ',
+        Text(
+          'Choose only what matters for this stay',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey,
+            color: notifire.getgreycolor,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -583,7 +577,7 @@ class FilterBottomSheet extends StatelessWidget {
                           color: controller.selectedAmenities
                                   .contains(amenity.name)
                               ? Colors.white
-                              : amenity.color,
+                              : Darkblue,
                         ),
                         const SizedBox(width: 6),
                         Text(amenity.name),
@@ -591,10 +585,23 @@ class FilterBottomSheet extends StatelessWidget {
                     ),
                     onSelected: (selected) =>
                         controller.toggleAmenity(amenity.name, amenity.id),
-                    selectedColor: amenity.color,
+                    labelStyle: TextStyle(
+                      color: controller.selectedAmenities.contains(amenity.name)
+                          ? WhiteColor
+                          : notifire.getwhiteblackcolor,
+                      fontFamily: FontFamily.gilroyMedium,
+                    ),
+                    selectedColor: Darkblue,
                     checkmarkColor: Colors.white,
-                    backgroundColor:
-                        isDark ? const Color(0xFFeef4ff) : Colors.grey.shade300,
+                    backgroundColor: notifire.getblackwhitecolor,
+                    side: BorderSide(
+                      color: controller.selectedAmenities.contains(amenity.name)
+                          ? Darkblue
+                          : notifire.getborderColor,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   )))
               .toList(),
         ),

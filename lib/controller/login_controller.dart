@@ -62,11 +62,12 @@ class LoginController extends GetxController implements GetxService {
 
   bool isSending = false;
 
-// observable variables
+  // observable variables
   Rx<bool> hasNewsletter = false.obs;
 
-  SelectCountryController selectCountryController =
-      Get.put(SelectCountryController());
+  SelectCountryController selectCountryController = Get.put(
+    SelectCountryController(),
+  );
 
   switchNewsletter(bool value) {
     hasNewsletter.value = value;
@@ -102,8 +103,12 @@ class LoginController extends GetxController implements GetxService {
       update();
       Get.back();
     } catch (error, stackTrace) {
-      AppLogger.error('Profile', 'Image selection failed',
-          error: error, stackTrace: stackTrace);
+      AppLogger.error(
+        'Profile',
+        'Image selection failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -121,11 +126,15 @@ class LoginController extends GetxController implements GetxService {
     final normalizedNumber = ensureNoZeroInitial(enteredNumber);
     Uri uri = Uri.parse(Config.path + Config.loginApi);
     final stopwatch = Stopwatch()..start();
-    AppLogger.info('Auth', 'Password login request started', data: {
-      'country_code': cuntryCode,
-      'has_mobile': normalizedNumber.isNotEmpty,
-      'mobile_length': normalizedNumber.length,
-    });
+    AppLogger.info(
+      'Auth',
+      'Password login request started',
+      data: {
+        'country_code': cuntryCode,
+        'has_mobile': normalizedNumber.isNotEmpty,
+        'mobile_length': normalizedNumber.length,
+      },
+    );
 
     Future<http.Response> sendLoginRequest(String mobile) {
       return http.post(
@@ -135,49 +144,77 @@ class LoginController extends GetxController implements GetxService {
           "ccode": cuntryCode,
           "password": password.text,
         }),
+        headers: {'Content-Type': 'application/json'},
       );
     }
 
-    var response = await sendLoginRequest(normalizedNumber);
-    var result = jsonDecode(response.body);
+    try {
+      var response = await sendLoginRequest(normalizedNumber);
+      var result = _decodeLoginResponse(response.body);
 
-    // Older accounts were stored before registration began removing the
-    // national trunk prefix. Retry the 0-prefixed value for those records,
-    // even when the user entered the newer 10-digit local format.
-    final legacyNumber = normalizedNumber.isEmpty ||
-            normalizedNumber.startsWith('0') ||
-            cuntryCode != '+234'
-        ? enteredNumber
-        : '0$normalizedNumber';
-    if (response.statusCode == 200 &&
-        result["Result"] != "true" &&
-        result["ResponseCode"].toString() == "401" &&
-        legacyNumber != normalizedNumber) {
-      AppLogger.info('Auth', 'Retrying password login for legacy mobile format',
-          data: {'mobile_length': legacyNumber.length});
-      response = await sendLoginRequest(legacyNumber);
-      result = jsonDecode(response.body);
-    }
+      // Older accounts were stored before registration began removing the
+      // national trunk prefix. Retry the 0-prefixed value for those records,
+      // even when the user entered the newer 10-digit local format.
+      final legacyNumber = normalizedNumber.isEmpty ||
+              normalizedNumber.startsWith('0') ||
+              cuntryCode != '+234'
+          ? enteredNumber
+          : '0$normalizedNumber';
+      if ((response.statusCode == 200 || response.statusCode == 401) &&
+          result["Result"] != "true" &&
+          result["ResponseCode"]?.toString() == "401" &&
+          legacyNumber != normalizedNumber) {
+        AppLogger.info(
+          'Auth',
+          'Retrying password login for legacy mobile format',
+          data: {'mobile_length': legacyNumber.length},
+        );
+        response = await sendLoginRequest(legacyNumber);
+        result = _decodeLoginResponse(response.body);
+      }
 
-    if (response.statusCode == 200) {
-      AppLogger.info('Auth', 'Password login response received', data: {
-        'status': response.statusCode,
-        'duration_ms': stopwatch.elapsedMilliseconds,
-        'result': result['Result'],
-        'response_code': result['ResponseCode'],
-      });
-      userMessage = result["ResponseMsg"];
-      resultCheck = result["Result"];
+      AppLogger.info(
+        'Auth',
+        'Password login response received',
+        data: {
+          'status': response.statusCode,
+          'duration_ms': stopwatch.elapsedMilliseconds,
+          'result': result['Result'],
+          'response_code': result['ResponseCode'],
+        },
+      );
+      userMessage = result["ResponseMsg"]?.toString() ??
+          "Unable to sign in. Please try again.";
+      resultCheck = result["Result"]?.toString() ?? "false";
       showToastMessage(userMessage);
 
-      if (resultCheck == "true") {
+      if (response.statusCode == 200 && resultCheck == "true") {
+        final user = result["UserLogin"];
+        if (user is! Map || user["id"] == null) {
+          AppLogger.warning(
+            'Auth',
+            'Login success response is missing user identity',
+            data: {'response_code': result["ResponseCode"]},
+          );
+          resultCheck = "false";
+          userMessage = "Unable to sign in. Please try again.";
+          return {
+            ...result,
+            "Result": "false",
+            "ResponseMsg": userMessage,
+          };
+        }
+
         await prefs.setBool('Firstuser', true);
         save("homeCall", true);
-        save("UserLogin", result["UserLogin"]);
+        save("UserLogin", user);
         await _saveAccessToken(result);
         save("userType", result["type"]);
-        OneSignal.User.addTags({"user_id": getData.read("UserLogin")["id"]});
-        setfirebaselogin(email: result["UserLogin"]["name"], context: context);
+        OneSignal.User.addTags({"user_id": user["id"].toString()});
+        setfirebaselogin(
+          email: user["name"]?.toString() ?? "",
+          context: context,
+        );
         save("currency", result["currency"]);
         currency = result["currency"];
         isChecked = false;
@@ -185,18 +222,30 @@ class LoginController extends GetxController implements GetxService {
         return result;
       }
       update();
-      showToastMessage(result["ResponseMsg"]);
       return result;
-    }
-    try {
-      return jsonDecode(response.body);
-    } catch (_) {
-      return {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Auth',
+        'Password login request failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: {'duration_ms': stopwatch.elapsedMilliseconds},
+      );
+      final failure = {
         "Result": "false",
-        "ResponseCode": response.statusCode.toString(),
-        "ResponseMsg": "Unable to sign in. Please try again."
+        "ResponseMsg": "Unable to sign in. Please try again.",
       };
+      userMessage = failure["ResponseMsg"]!;
+      resultCheck = "false";
+      update();
+      return failure;
     }
+  }
+
+  Map<String, dynamic> _decodeLoginResponse(String body) {
+    final decoded = jsonDecode(body);
+    if (decoded is Map<String, dynamic>) return decoded;
+    throw const FormatException('Login response must be a JSON object');
   }
 
   void setfirebaselogin({context, required String email}) async {
@@ -205,12 +254,17 @@ class LoginController extends GetxController implements GetxService {
     try {
       AppLogger.debug('Auth', 'Firebase session synchronization started');
       await authService.singInAndStoreData(
-          proPicPath: getData.read("UserLogin")["pro_pic"].toString(),
-          email: email,
-          uid: getData.read("UserLogin")["id"]);
+        proPicPath: getData.read("UserLogin")["pro_pic"].toString(),
+        email: email,
+        uid: getData.read("UserLogin")["id"],
+      );
     } catch (error, stackTrace) {
-      AppLogger.error('Auth', 'Firebase session synchronization failed',
-          error: error, stackTrace: stackTrace);
+      AppLogger.error(
+        'Auth',
+        'Firebase session synchronization failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -232,10 +286,7 @@ class LoginController extends GetxController implements GetxService {
       update();
 
       Uri uri = Uri.parse(Config.path + Config.forgetPassword);
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
+      var response = await http.post(uri, body: jsonEncode(map));
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
         forgetPasswprdResult = result["Result"];
@@ -252,8 +303,12 @@ class LoginController extends GetxController implements GetxService {
         update();
       }
     } catch (error, stackTrace) {
-      AppLogger.error('Auth', 'Password reset request failed',
-          error: error, stackTrace: stackTrace);
+      AppLogger.error(
+        'Auth',
+        'Password reset request failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
       isSending = false;
       update();
     }
@@ -266,33 +321,31 @@ class LoginController extends GetxController implements GetxService {
         "img": base64image,
       };
       Uri uri = Uri.parse(Config.path + Config.updateProfilePic);
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
+      var response = await http.post(uri, body: jsonEncode(map));
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
         save("UserLogin", result["UserLogin"]);
-        isUserOnlie(getData.read("UserLogin")["id"],
-            getData.read("UserLogin")["pro_pic"]);
+        isUserOnlie(
+          getData.read("UserLogin")["id"],
+          getData.read("UserLogin")["pro_pic"],
+        );
       }
       update();
     } catch (error, stackTrace) {
-      AppLogger.error('Profile', 'Profile image update failed',
-          error: error, stackTrace: stackTrace);
+      AppLogger.error(
+        'Profile',
+        'Profile image update failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
   fetchProfileData() async {
     try {
-      Map map = {
-        "uid": getData.read("UserLogin")["id"].toString(),
-      };
+      Map map = {"uid": getData.read("UserLogin")["id"].toString()};
       Uri uri = Uri.parse(Config.path + Config.fetchUserData);
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
+      var response = await http.post(uri, body: jsonEncode(map));
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
 
@@ -301,21 +354,20 @@ class LoginController extends GetxController implements GetxService {
       }
       update();
     } catch (error, stackTrace) {
-      AppLogger.error('Profile', 'Profile fetch failed',
-          error: error, stackTrace: stackTrace);
+      AppLogger.error(
+        'Profile',
+        'Profile fetch failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
   toggleProfileData() async {
     try {
-      Map map = {
-        "uid": getData.read("UserLogin")["id"].toString(),
-      };
+      Map map = {"uid": getData.read("UserLogin")["id"].toString()};
       Uri uri = Uri.parse(Config.path + Config.toggleNewsletter);
-      var response = await http.post(
-        uri,
-        body: jsonEncode(map),
-      );
+      var response = await http.post(uri, body: jsonEncode(map));
       if (response.statusCode == 200) {
         var result = jsonDecode(response.body);
 
@@ -331,18 +383,22 @@ class LoginController extends GetxController implements GetxService {
       }
       update();
     } catch (error, stackTrace) {
-      AppLogger.error('Profile', 'Newsletter preference update failed',
-          error: error, stackTrace: stackTrace);
+      AppLogger.error(
+        'Profile',
+        'Newsletter preference update failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
   Future<dynamic> isUserOnlie(String uid, String proPic) async {
     CollectionReference collectionReference =
         FirebaseFirestore.instance.collection('opendoors_users');
-    await collectionReference.doc(uid).set(
-      {"uid": uid, "pro_pic": proPic},
-      SetOptions(merge: true),
-    );
+    await collectionReference.doc(uid).set({
+      "uid": uid,
+      "pro_pic": proPic,
+    }, SetOptions(merge: true));
   }
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -358,10 +414,14 @@ class LoginController extends GetxController implements GetxService {
 
       final googleAuth = await googleUser.authentication;
 
-      AppLogger.debug('Auth', 'Google sign-in credentials received', data: {
-        'has_access_token': googleAuth.accessToken != null,
-        'has_id_token': googleAuth.idToken != null,
-      });
+      AppLogger.debug(
+        'Auth',
+        'Google sign-in credentials received',
+        data: {
+          'has_access_token': googleAuth.accessToken != null,
+          'has_id_token': googleAuth.idToken != null,
+        },
+      );
 
       final json = {
         'accessToken': googleAuth.accessToken,
@@ -381,6 +441,27 @@ class LoginController extends GetxController implements GetxService {
     }
   }
 
+  Future<SocialAuthResult?> refreshSocialIdToken(String provider) async {
+    if (provider == "google") {
+      final googleUser = await _googleSignIn.signInSilently();
+      if (googleUser == null) return null;
+      final authentication = await googleUser.authentication;
+      if (authentication.idToken == null || authentication.idToken!.isEmpty) {
+        return null;
+      }
+      return SocialAuthResult(
+        provider: "google",
+        token: authentication.idToken!,
+        email: googleUser.email,
+        name: googleUser.displayName,
+      );
+    }
+    if (provider == "apple") {
+      return signUpWithApple();
+    }
+    return null;
+  }
+
   Future<SocialAuthResult?> signUpWithGoogle() async {
     try {
       await _googleSignIn.signOut();
@@ -392,15 +473,20 @@ class LoginController extends GetxController implements GetxService {
       final idToken = googleAuth.idToken;
       final accessToken = googleAuth.accessToken;
 
-      AppLogger.debug('Auth', 'Google authentication completed', data: {
-        'has_access_token': accessToken != null,
-        'has_id_token': idToken != null,
-        'provider': 'google',
-      });
+      AppLogger.debug(
+        'Auth',
+        'Google authentication completed',
+        data: {
+          'has_access_token': accessToken != null,
+          'has_id_token': idToken != null,
+          'provider': 'google',
+        },
+      );
 
       if (idToken == null || idToken.isEmpty) {
         showToastMessage(
-            "Unable to authenticate with Google. Please try again.");
+          "Unable to authenticate with Google. Please try again.",
+        );
         return null;
       }
 
@@ -477,11 +563,15 @@ class LoginController extends GetxController implements GetxService {
         return null;
       }
 
-      AppLogger.debug('Auth', 'Apple credentials received', data: {
-        'has_email': credential.email?.isNotEmpty == true,
-        'has_given_name': credential.givenName?.isNotEmpty == true,
-        'has_family_name': credential.familyName?.isNotEmpty == true,
-      });
+      AppLogger.debug(
+        'Auth',
+        'Apple credentials received',
+        data: {
+          'has_email': credential.email?.isNotEmpty == true,
+          'has_given_name': credential.givenName?.isNotEmpty == true,
+          'has_family_name': credential.familyName?.isNotEmpty == true,
+        },
+      );
 
       final appleName = [
         credential.givenName,
@@ -499,9 +589,11 @@ class LoginController extends GetxController implements GetxService {
           await prefs.setString("apple_email_$userId", cachedEmail);
         } else {
           cachedEmail = prefs.getString("apple_email_$userId");
-          AppLogger.debug('Auth', 'Reading cached Apple relay email', data: {
-            'email_found': cachedEmail?.isNotEmpty == true,
-          });
+          AppLogger.debug(
+            'Auth',
+            'Reading cached Apple relay email',
+            data: {'email_found': cachedEmail?.isNotEmpty == true},
+          );
         }
 
         if (cachedName != null && cachedName.isNotEmpty) {
@@ -524,13 +616,14 @@ class LoginController extends GetxController implements GetxService {
   }
 
   Future<dynamic> loginWithSocial(
-      String provider, String token, BuildContext context,
-      {String? email, String? name}) async {
+    String provider,
+    String token,
+    BuildContext context, {
+    String? email,
+    String? name,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    Map map = {
-      "provider": provider,
-      "token": token,
-    };
+    Map map = {"provider": provider, "token": token};
     if (email != null && email.isNotEmpty && provider == "apple") {
       map["email"] = email;
     }
@@ -539,32 +632,44 @@ class LoginController extends GetxController implements GetxService {
     }
 
     Uri uri = Uri.parse(Config.path + Config.socialLogin);
-    AppLogger.info('Auth', 'Social login request started', data: {
-      'url': uri.toString(),
-      'provider': provider,
-      'has_email': email?.isNotEmpty == true,
-      'has_name': name?.isNotEmpty == true,
-    });
+    AppLogger.info(
+      'Auth',
+      'Social login request started',
+      data: {
+        'url': uri.toString(),
+        'provider': provider,
+        'has_email': email?.isNotEmpty == true,
+        'has_name': name?.isNotEmpty == true,
+      },
+    );
     final stopwatch = Stopwatch()..start();
     var response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(map),
     );
-    AppLogger.info('Auth', 'Social login response received', data: {
-      'provider': provider,
-      'status': response.statusCode,
-      'duration_ms': stopwatch.elapsedMilliseconds,
-    });
+    AppLogger.info(
+      'Auth',
+      'Social login response received',
+      data: {
+        'provider': provider,
+        'status': response.statusCode,
+        'duration_ms': stopwatch.elapsedMilliseconds,
+      },
+    );
 
     if (response.statusCode == 200) {
       var result = jsonDecode(response.body);
-      AppLogger.debug('Auth', 'Social login response parsed', data: {
-        'provider': provider,
-        'result': result['Result'],
-        'response_code': result['ResponseCode'],
-        'type': result['type'],
-      });
+      AppLogger.debug(
+        'Auth',
+        'Social login response parsed',
+        data: {
+          'provider': provider,
+          'result': result['Result'],
+          'response_code': result['ResponseCode'],
+          'type': result['type'],
+        },
+      );
 
       if (result["Result"] == "true") {
         await prefs.setBool('Firstuser', true);
@@ -597,7 +702,7 @@ class LoginController extends GetxController implements GetxService {
       return {
         "Result": "false",
         "ResponseCode": response.statusCode.toString(),
-        "ResponseMsg": "Server error. Please try again."
+        "ResponseMsg": "Server error. Please try again.",
       };
     }
   }
@@ -647,9 +752,10 @@ class LoginController extends GetxController implements GetxService {
       'accessTokenExpiresAt',
       DateTime.now().add(Duration(seconds: expiresIn)).millisecondsSinceEpoch,
     );
-    AppLogger.info('Auth', 'API access token stored', data: {
-      'expires_in_seconds': expiresIn,
-      'token': normalizedToken,
-    });
+    AppLogger.info(
+      'Auth',
+      'API access token stored',
+      data: {'expires_in_seconds': expiresIn},
+    );
   }
 }

@@ -48,7 +48,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
   @override
   void initState() {
     super.initState();
-    if (searchController.search.text.trim().isEmpty) {
+    if (searchController.search.text.trim().isEmpty &&
+        !filterController.hasActiveFilters) {
       searchController.searchText = "";
       searchController.searchData = [];
       searchController.homesearchData?.searchPropety = [];
@@ -64,6 +65,14 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
     _searchDebounce?.cancel();
     super.dispose();
   }
+
+  Future<void> _runFilteredSearch() => searchController.getSearchData(
+        countryId: getData.read("countryId"),
+        rooms: filterController.selectedRooms.value,
+        facility: filterController.selectedAmenitiesIds,
+        minPrice: filterController.effectiveMinPrice,
+        maxPrice: filterController.effectiveMaxPrice,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -116,8 +125,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                 ),
                                 onSubmitted: (value) {
                                   _searchDebounce?.cancel();
-                                  searchController.getSearchData(
-                                      countryId: getData.read("countryId"));
+                                  _runFilteredSearch();
                                 },
                                 onChanged: (value) {
                                   _searchDebounce?.cancel();
@@ -130,8 +138,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                   }
                                   _searchDebounce = Timer(
                                     const Duration(milliseconds: 350),
-                                    () => searchController.getSearchData(
-                                        countryId: getData.read("countryId")),
+                                    _runFilteredSearch,
                                   );
                                 },
                                 decoration: InputDecoration(

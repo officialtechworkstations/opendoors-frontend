@@ -108,11 +108,14 @@ class DashBoardController extends GetxController implements GetxService {
   // ======================================
 
   Future getDashBoardData() async {
+    final user = getData.read("UserLogin");
+    if (user is! Map || user["id"] == null) return;
+
     try {
       isLoading = false;
       update();
       Map map = {
-        "uid": getData.read("UserLogin")["id"],
+        "uid": user["id"],
       };
       Uri uri = Uri.parse(Config.path + Config.dashboardApi);
       print(" SD:JSLDJSLJLSJDLSJDLSJDLSJDLSJDSLJDSLDJ");
@@ -198,9 +201,12 @@ class DashBoardController extends GetxController implements GetxService {
   }
 
   getSubScribeDetails() async {
+    final user = getData.read("UserLogin");
+    if (user is! Map || user["id"] == null) return;
+
     try {
       Map map = {
-        "uid": getData.read("UserLogin")["id"],
+        "uid": user["id"],
       };
       Uri uri = Uri.parse(Config.path + Config.subScribeDetails);
       var response = await http.post(

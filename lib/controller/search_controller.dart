@@ -57,6 +57,7 @@ class SearchPropertyController extends GetxController implements GetxService {
       var response = await http.post(
         uri,
         body: jsonEncode(map),
+        headers: {'Content-Type': 'application/json'},
       );
       if (requestVersion != _requestVersion) return;
       log("response::::::::::::::::: {${response.body}}");

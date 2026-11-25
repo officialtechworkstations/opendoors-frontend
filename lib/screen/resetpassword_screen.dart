@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../controller/login_controller.dart';
+
 import 'package:opendoors/utils/fast_spinner.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -81,9 +82,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.only(left: 15),
                 child: Text(
@@ -95,9 +94,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 15,
-              ),
+              SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.only(left: 15),
                 child: Text(
@@ -111,9 +108,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.always,
@@ -184,7 +179,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         keyboardType: TextInputType.number,
                         cursorColor: notifire.getwhiteblackcolor,
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
                         initialCountryCode: 'NG',
                         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -221,14 +216,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           counterText: '',
                           helperText: '',
                           labelText: "Mobile Number".tr,
-                          labelStyle: TextStyle(
-                            color: notifire.getborderColor,
-                          ),
+                          labelStyle: TextStyle(color: notifire.getborderColor),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
                             borderSide: BorderSide(
-                              color:
-                                  isvalidate ? Colors.red.shade700 : blueColor,
+                              color: isvalidate
+                                  ? Colors.red.shade700
+                                  : blueColor,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
@@ -259,18 +253,15 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ],
                 ),
               ),
-              SizedBox(
-                height: 30,
-              ),
+              SizedBox(height: 30),
               isLoading
                   ? Center(
                       child: SizedBox(
-                      height: 30,
-                      width: 30,
-                      child: FastSpinner(
-                        color: Darkblue,
+                        height: 30,
+                        width: 30,
+                        child: FastSpinner(color: Darkblue),
                       ),
-                    ))
+                    )
                   : GestButton(
                       Width: Get.size.width,
                       height: 50,
@@ -287,7 +278,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         if (_formKey.currentState?.validate() ?? false) {
                           if (number.text.isEmpty) {
                             return showToastMessage(
-                                "Please enter valid phone number".tr);
+                              "Please enter valid phone number".tr,
+                            );
                           }
                           setState(() {
                             isLoading = true;
@@ -315,80 +307,98 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                             signUpController
                                 .checkMobileInResetPassword(
-                                    number: number.text, cuntryCode: cuntryCode)
+                                  number: number.text,
+                                  cuntryCode: cuntryCode,
+                                )
                                 .then((value) {
-                              if (value == "false") {
-                                if (msgType["otp_auth"] == "No") {
-                                  forgetPasswordBottomSheet();
-                                  turnOffLoading();
-                                } else {
-                                  if (msgType["SMS_TYPE"] == "Msg91") {
-                                    signUpController
-                                        .sendOtp(cuntryCode, number.text)
-                                        .then((value) {
-                                      if (value["Result"] == "true") {
-                                        Get.toNamed(Routes.otpScreen,
-                                            arguments: {
-                                              "number": number.text,
-                                              "cuntryCode": cuntryCode,
-                                              "route": "resetScreen",
-                                              "otpCode":
-                                                  value["otp"].toString(),
+                                  if (value == "false") {
+                                    if (msgType["otp_auth"] == "No") {
+                                      forgetPasswordBottomSheet();
+                                      turnOffLoading();
+                                    } else {
+                                      if (msgType["SMS_TYPE"] == "Msg91") {
+                                        signUpController
+                                            .sendOtp(cuntryCode, number.text)
+                                            .then((value) {
+                                              if (value["Result"] == "true") {
+                                                Get.toNamed(
+                                                  Routes.otpScreen,
+                                                  arguments: {
+                                                    "number": number.text,
+                                                    "cuntryCode": cuntryCode,
+                                                    "route": "resetScreen",
+                                                    "challenge_id":
+                                                        value["challenge_id"]
+                                                            ?.toString(),
+                                                  },
+                                                );
+                                                turnOffLoading();
+                                              } else {
+                                                showToastMessage(
+                                                  'Invalid Mobile Number'.tr,
+                                                );
+                                                turnOffLoading();
+                                              }
                                             });
-                                        turnOffLoading();
-                                      } else {
-                                        showToastMessage(
-                                            'Invalid Mobile Number'.tr);
-                                        turnOffLoading();
-                                      }
-                                    });
-                                  } else if (msgType["SMS_TYPE"] == "Twilio") {
-                                    signUpController
-                                        .twilloOtp(cuntryCode, number.text)
-                                        .then((value) {
-                                      if (value != null &&
-                                          value["Result"] == "true") {
-                                        Get.toNamed(Routes.otpScreen,
-                                            arguments: {
-                                              "number": number.text,
-                                              "cuntryCode": cuntryCode,
-                                              "route": "resetScreen",
-                                              "otpCode":
-                                                  value["otp"].toString(),
+                                      } else if (msgType["SMS_TYPE"] ==
+                                          "Twilio") {
+                                        signUpController
+                                            .twilloOtp(cuntryCode, number.text)
+                                            .then((value) {
+                                              if (value != null &&
+                                                  value["Result"] == "true") {
+                                                Get.toNamed(
+                                                  Routes.otpScreen,
+                                                  arguments: {
+                                                    "number": number.text,
+                                                    "cuntryCode": cuntryCode,
+                                                    "route": "resetScreen",
+                                                    "challenge_id":
+                                                        value["challenge_id"]
+                                                            ?.toString(),
+                                                  },
+                                                );
+                                              } else {
+                                                showToastMessage(
+                                                  'Invalid Mobile Number'.tr,
+                                                );
+                                                turnOffLoading();
+                                              }
                                             });
-                                      } else {
-                                        showToastMessage(
-                                            'Invalid Mobile Number'.tr);
-                                        turnOffLoading();
-                                      }
-                                    });
-                                  } else if (msgType["SMS_TYPE"] == "Termii") {
-                                    signUpController
-                                        .termiOtp(cuntryCode, number.text)
-                                        .then((value) {
-                                      if (value?["Result"] == "true") {
-                                        Get.toNamed(Routes.otpScreen,
-                                            arguments: {
-                                              "number": number.text,
-                                              "cuntryCode": cuntryCode,
-                                              "route": "resetScreen",
-                                              "otpCode":
-                                                  value["otp"].toString(),
+                                      } else if (msgType["SMS_TYPE"] ==
+                                          "Termii") {
+                                        signUpController
+                                            .termiOtp(cuntryCode, number.text)
+                                            .then((value) {
+                                              if (value?["Result"] == "true") {
+                                                Get.toNamed(
+                                                  Routes.otpScreen,
+                                                  arguments: {
+                                                    "number": number.text,
+                                                    "cuntryCode": cuntryCode,
+                                                    "route": "resetScreen",
+                                                    "challenge_id":
+                                                        value["challenge_id"]
+                                                            ?.toString(),
+                                                  },
+                                                );
+                                                turnOffLoading();
+                                              } else {
+                                                showToastMessage(
+                                                  'Invalid Mobile Number'.tr,
+                                                );
+                                                turnOffLoading();
+                                              }
                                             });
-                                        turnOffLoading();
-                                      } else {
-                                        showToastMessage(
-                                            'Invalid Mobile Number'.tr);
-                                        turnOffLoading();
                                       }
-                                    });
+                                    }
+                                  } else {
+                                    showToastMessage(
+                                      'Invalid Mobile Number'.tr,
+                                    );
+                                    turnOffLoading();
                                   }
-                                }
-                              } else {
-                                showToastMessage('Invalid Mobile Number'.tr);
-                                turnOffLoading();
-                              }
-                            });
+                                });
                           });
                         } else {
                           isvalidate = true;
@@ -428,7 +438,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -444,234 +454,222 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   Future forgetPasswordBottomSheet() {
     return Get.bottomSheet(
-      GetBuilder<LoginController>(builder: (context) {
-        return SingleChildScrollView(
-          child: Container(
-            height: 350,
-            width: Get.size.width,
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 15,
-                ),
-                Text(
-                  "Forgot Password".tr,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontFamily: FontFamily.gilroyBold,
-                    color: notifire.getwhiteblackcolor,
-                  ),
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
-                  child: Divider(
-                    color: notifire.getgreycolor,
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  alignment: Alignment.topLeft,
-                  padding: EdgeInsets.only(top: 5, left: 15),
-                  child: Text(
-                    "Create Your New Password".tr,
+      GetBuilder<LoginController>(
+        builder: (context) {
+          return SingleChildScrollView(
+            child: Container(
+              height: 350,
+              width: Get.size.width,
+              child: Column(
+                children: [
+                  SizedBox(height: 15),
+                  Text(
+                    "Forgot Password".tr,
                     style: TextStyle(
-                      fontFamily: FontFamily.gilroyMedium,
+                      fontSize: 20,
+                      fontFamily: FontFamily.gilroyBold,
                       color: notifire.getwhiteblackcolor,
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: TextFormField(
-                    controller: loginController.newPassword,
-                    obscureText: loginController.newShowPassword,
-                    cursorColor: notifire.getwhiteblackcolor,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: FontFamily.gilroyMedium,
-                      color: notifire.getwhiteblackcolor,
+                  SizedBox(height: 15),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Divider(color: notifire.getgreycolor),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.only(top: 5, left: 15),
+                    child: Text(
+                      "Create Your New Password".tr,
+                      style: TextStyle(
+                        fontFamily: FontFamily.gilroyMedium,
+                        color: notifire.getwhiteblackcolor,
+                      ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password'.tr;
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
+                  ),
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: TextFormField(
+                      controller: loginController.newPassword,
+                      obscureText: loginController.newShowPassword,
+                      cursorColor: notifire.getwhiteblackcolor,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: FontFamily.gilroyMedium,
+                        color: notifire.getwhiteblackcolor,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
-                      ),
-                      suffixIcon: InkWell(
-                        onTap: () {
-                          loginController.newShowOfPassword();
-                        },
-                        child: !loginController.newShowPassword
-                            ? Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Image.asset(
-                                  "assets/images/showpassowrd.png",
-                                  height: 10,
-                                  width: 10,
-                                  color: notifire.getgreycolor,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password'.tr;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        suffixIcon: InkWell(
+                          onTap: () {
+                            loginController.newShowOfPassword();
+                          },
+                          child: !loginController.newShowPassword
+                              ? Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    "assets/images/showpassowrd.png",
+                                    height: 10,
+                                    width: 10,
+                                    color: notifire.getgreycolor,
+                                  ),
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    "assets/images/HidePassword.png",
+                                    height: 10,
+                                    width: 10,
+                                    color: notifire.getgreycolor,
+                                  ),
                                 ),
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Image.asset(
-                                  "assets/images/HidePassword.png",
-                                  height: 10,
-                                  width: 10,
-                                  color: notifire.getgreycolor,
-                                ),
-                              ),
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Image.asset(
-                          "assets/images/Unlock.png",
-                          height: 10,
-                          width: 10,
+                        ),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Image.asset(
+                            "assets/images/Unlock.png",
+                            height: 10,
+                            width: 10,
+                            color: notifire.getgreycolor,
+                          ),
+                        ),
+                        labelText: "Password".tr,
+                        labelStyle: TextStyle(
                           color: notifire.getgreycolor,
+                          fontFamily: FontFamily.gilroyMedium,
                         ),
                       ),
-                      labelText: "Password".tr,
-                      labelStyle: TextStyle(
-                        color: notifire.getgreycolor,
-                        fontFamily: FontFamily.gilroyMedium,
-                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: TextFormField(
-                    controller: loginController.newConformPassword,
-                    obscureText: loginController.conformPassword,
-                    cursorColor: notifire.getwhiteblackcolor,
-                    style: TextStyle(
-                      fontFamily: FontFamily.gilroyMedium,
-                      fontSize: 14,
-                      color: notifire.getwhiteblackcolor,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password'.tr;
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: TextFormField(
+                      controller: loginController.newConformPassword,
+                      obscureText: loginController.conformPassword,
+                      cursorColor: notifire.getwhiteblackcolor,
+                      style: TextStyle(
+                        fontFamily: FontFamily.gilroyMedium,
+                        fontSize: 14,
+                        color: notifire.getwhiteblackcolor,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: greycolor),
-                      ),
-                      suffixIcon: InkWell(
-                        onTap: () {
-                          loginController.newConformShowOfPassword();
-                        },
-                        child: !loginController.conformPassword
-                            ? Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Image.asset(
-                                  "assets/images/showpassowrd.png",
-                                  height: 10,
-                                  width: 10,
-                                  color: notifire.getgreycolor,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password'.tr;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: greycolor),
+                        ),
+                        suffixIcon: InkWell(
+                          onTap: () {
+                            loginController.newConformShowOfPassword();
+                          },
+                          child: !loginController.conformPassword
+                              ? Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    "assets/images/showpassowrd.png",
+                                    height: 10,
+                                    width: 10,
+                                    color: notifire.getgreycolor,
+                                  ),
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    "assets/images/HidePassword.png",
+                                    height: 10,
+                                    width: 10,
+                                    color: notifire.getgreycolor,
+                                  ),
                                 ),
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Image.asset(
-                                  "assets/images/HidePassword.png",
-                                  height: 10,
-                                  width: 10,
-                                  color: notifire.getgreycolor,
-                                ),
-                              ),
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Image.asset(
-                          "assets/images/Unlock.png",
-                          height: 10,
-                          width: 10,
+                        ),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Image.asset(
+                            "assets/images/Unlock.png",
+                            height: 10,
+                            width: 10,
+                            color: notifire.getgreycolor,
+                          ),
+                        ),
+                        labelText: "Conform Password".tr,
+                        labelStyle: TextStyle(
                           color: notifire.getgreycolor,
+                          fontFamily: FontFamily.gilroyMedium,
                         ),
                       ),
-                      labelText: "Conform Password".tr,
-                      labelStyle: TextStyle(
-                        color: notifire.getgreycolor,
-                        fontFamily: FontFamily.gilroyMedium,
-                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                GestButton(
-                  Width: Get.size.width,
-                  height: 50,
-                  buttoncolor: blueColor,
-                  margin: EdgeInsets.only(top: 15, left: 30, right: 30),
-                  buttontext: "Continue".tr,
-                  style: TextStyle(
-                    fontFamily: "Gilroy Bold",
-                    color: WhiteColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  SizedBox(height: 20),
+                  GestButton(
+                    Width: Get.size.width,
+                    height: 50,
+                    buttoncolor: blueColor,
+                    margin: EdgeInsets.only(top: 15, left: 30, right: 30),
+                    buttontext: "Continue".tr,
+                    style: TextStyle(
+                      fontFamily: "Gilroy Bold",
+                      color: WhiteColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onclick: () {
+                      if (loginController.newPassword.text ==
+                          loginController.newConformPassword.text) {
+                        loginController.setForgetPasswordApi(
+                          ccode: cuntryCode,
+                          mobile: number.text,
+                        );
+                      } else {
+                        showToastMessage("Please Enter Valid Password".tr);
+                      }
+                    },
                   ),
-                  onclick: () {
-                    if (loginController.newPassword.text ==
-                        loginController.newConformPassword.text) {
-                      loginController.setForgetPasswordApi(
-                          ccode: cuntryCode, mobile: number.text);
-                    } else {
-                      showToastMessage("Please Enter Valid Password".tr);
-                    }
-                  },
+                ],
+              ),
+              decoration: BoxDecoration(
+                color: notifire.getbgcolor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
                 ),
-              ],
-            ),
-            decoration: BoxDecoration(
-              color: notifire.getbgcolor,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }

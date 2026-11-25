@@ -276,8 +276,11 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
         await homePageController.getHomeDataApi(
             countryId: getData.read("countryId"));
         Get.offAllNamed(Routes.bottoBarScreen);
-      } else if (response?["ResponseCode"] == "404") {
-        Get.toNamed(Routes.socialPhoneScreen, arguments: socialAuth);
+      } else if (response?["ResponseCode"]?.toString() == "404") {
+        showToastMessage(
+          "No account found for this ${provider.capitalizeFirst} account. Please sign up."
+              .tr,
+        );
       } else {
         showToastMessage(response?["ResponseMsg"] ??
             "Unable to continue with ${provider.capitalizeFirst}.");

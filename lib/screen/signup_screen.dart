@@ -20,12 +20,12 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Api/config.dart';
-import '../Api/data_store.dart';
 import '../controller/dashboard_controller.dart';
 import '../controller/homepage_controller.dart';
 import '../controller/search_controller.dart';
 import '../controller/selectcountry_controller.dart';
 import '../model/routes_helper.dart';
+
 import 'package:opendoors/utils/fast_spinner.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -131,9 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          height: 20,
-                        ),
+                        SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.only(left: 15),
                           child: GestureDetector(
@@ -152,9 +150,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
                         Padding(
                           padding: const EdgeInsets.only(left: 15),
                           child: Text(
@@ -165,9 +161,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        SizedBox(height: 20),
 
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -194,8 +188,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               border: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: notifire.getborderColor),
+                                borderSide: BorderSide(
+                                  color: notifire.getborderColor,
+                                ),
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               prefixIcon: Padding(
@@ -220,9 +215,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             },
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: TextFormField(
@@ -243,8 +236,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
-                                borderSide:
-                                    BorderSide(color: notifire.getborderColor),
+                                borderSide: BorderSide(
+                                  color: notifire.getborderColor,
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -271,17 +265,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 return 'Please enter your email'.tr;
                               }
                               if (!RegExp(
-                                      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                                  .hasMatch(value.trim())) {
+                                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                              ).hasMatch(value.trim())) {
                                 return 'Please enter a valid email address';
                               }
                               return null;
                             },
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: IntlPhoneField(
@@ -290,7 +282,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             keyboardType: TextInputType.number,
                             cursorColor: notifire.getwhiteblackcolor,
                             inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
+                              FilteringTextInputFormatter.digitsOnly,
                             ],
                             controller: signUpController.number,
                             autovalidateMode:
@@ -353,91 +345,91 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         // SizedBox(
                         //   height: 20,
                         // ),
-                        GetBuilder<SignUpController>(builder: (context) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: TextFormField(
-                              controller: signUpController.password,
-                              obscureText: signUpController.showPassword,
-                              cursorColor: notifire.getwhiteblackcolor,
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
-                              style: TextStyle(
-                                fontFamily: FontFamily.gilroyBold,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: notifire.getwhiteblackcolor,
+                        GetBuilder<SignUpController>(
+                          builder: (context) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 15,
                               ),
-                              onChanged: (value) {},
-                              decoration: InputDecoration(
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                  borderSide: BorderSide(
-                                    color: blueColor,
-                                  ),
+                              child: TextFormField(
+                                controller: signUpController.password,
+                                obscureText: signUpController.showPassword,
+                                cursorColor: notifire.getwhiteblackcolor,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.gilroyBold,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: notifire.getwhiteblackcolor,
                                 ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: notifire.getborderColor,
+                                onChanged: (value) {},
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(color: blueColor),
                                   ),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                  borderSide: BorderSide(
-                                    color: notifire.getborderColor,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: notifire.getborderColor,
+                                    ),
+                                    borderRadius: BorderRadius.circular(15),
                                   ),
-                                ),
-                                suffixIcon: InkWell(
-                                  onTap: () {
-                                    signUpController.showOfPassword();
-                                  },
-                                  child: !signUpController.showPassword
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Image.asset(
-                                            "assets/images/showpassowrd.png",
-                                            height: 10,
-                                            width: 10,
-                                            color: notifire.getgreycolor,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: notifire.getborderColor,
+                                    ),
+                                  ),
+                                  suffixIcon: InkWell(
+                                    onTap: () {
+                                      signUpController.showOfPassword();
+                                    },
+                                    child: !signUpController.showPassword
+                                        ? Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Image.asset(
+                                              "assets/images/showpassowrd.png",
+                                              height: 10,
+                                              width: 10,
+                                              color: notifire.getgreycolor,
+                                            ),
+                                          )
+                                        : Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Image.asset(
+                                              "assets/images/HidePassword.png",
+                                              height: 10,
+                                              width: 10,
+                                              color: notifire.getgreycolor,
+                                            ),
                                           ),
-                                        )
-                                      : Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Image.asset(
-                                            "assets/images/HidePassword.png",
-                                            height: 10,
-                                            width: 10,
-                                            color: notifire.getgreycolor,
-                                          ),
-                                        ),
-                                ),
-                                prefixIcon: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Image.asset(
-                                    "assets/images/Unlock.png",
-                                    height: 10,
-                                    width: 10,
+                                  ),
+                                  prefixIcon: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Image.asset(
+                                      "assets/images/Unlock.png",
+                                      height: 10,
+                                      width: 10,
+                                      color: notifire.getgreycolor,
+                                    ),
+                                  ),
+                                  labelText: "Password".tr,
+                                  labelStyle: TextStyle(
                                     color: notifire.getgreycolor,
                                   ),
                                 ),
-                                labelText: "Password".tr,
-                                labelStyle: TextStyle(
-                                  color: notifire.getgreycolor,
-                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your password'.tr;
+                                  }
+                                  return null;
+                                },
                               ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your password'.tr;
-                                }
-                                return null;
-                              },
-                            ),
-                          );
-                        }),
-                        SizedBox(
-                          height: 20,
+                            );
+                          },
                         ),
+                        SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: TextFormField(
@@ -454,9 +446,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             decoration: InputDecoration(
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
-                                borderSide: BorderSide(
-                                  color: blueColor,
-                                ),
+                                borderSide: BorderSide(color: blueColor),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -477,222 +467,231 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        GetBuilder<SignUpController>(builder: (ctx) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Transform.scale(
-                                    scale: 1,
-                                    child: Checkbox(
-                                      value: signUpController.chack,
-                                      side: const BorderSide(
-                                          color: Color(0xffC5CAD4)),
-                                      activeColor: blueColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      onChanged: (newbool) async {
-                                        signUpController
-                                            .checkTermsAndCondition(newbool);
-                                        final prefs = await SharedPreferences
-                                            .getInstance();
-                                        await prefs.setBool('Remember', true);
-                                      },
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "By creating an account,you agree to our"
-                                                .tr,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: notifire.getgreycolor,
-                                              fontFamily:
-                                                  FontFamily.gilroyMedium,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              WebviewPage(
-                                                                  url:
-                                                                      "https://opendoors-tc.netlify.app/")));
-                                                },
-                                                child: Text(
-                                                  "Terms and Condition".tr,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: blueColor,
-                                                    fontFamily:
-                                                        FontFamily.gilroyBold,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                ' & ',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontFamily:
-                                                      FontFamily.gilroyBold,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              WebviewPage(
-                                                                  url:
-                                                                      "https://superb-meerkat-f0d4da.netlify.app/")));
-                                                },
-                                                child: Text(
-                                                  "Our Privacy Policy".tr,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: blueColor,
-                                                    fontFamily:
-                                                        FontFamily.gilroyBold,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              // SizedBox(
-                              //   height: 5,
-                              // ),
-                              // Row(
-                              //   mainAxisAlignment: MainAxisAlignment.start,
-                              //   children: [
-                              //     SizedBox(
-                              //       width: 10,
-                              //     ),
-                              //     Transform.scale(
-                              //       scale: 1,
-                              //       child: Checkbox(
-                              //         value: signUpController.chack,
-                              //         side: const BorderSide(
-                              //             color: Color(0xffC5CAD4)),
-                              //         activeColor: blueColor,
-                              //         shape: RoundedRectangleBorder(
-                              //             borderRadius:
-                              //                 BorderRadius.circular(5)),
-                              //         onChanged: (newbool) async {
-                              //           signUpController
-                              //               .checkTermsAndCondition(newbool);
-                              //           final prefs = await SharedPreferences
-                              //               .getInstance();
-                              //           await prefs.setBool('Remember', true);
-                              //         },
-                              //       ),
-                              //     ),
-                              //     GestureDetector(
-                              //       onTap: () {
-                              //         Navigator.push(
-                              //             context,
-                              //             MaterialPageRoute(
-                              //                 builder: (context) => WebviewPage(
-                              //                     url:
-                              //                         "https://superb-meerkat-f0d4da.netlify.app/")));
-                              //       },
-                              //       child: Column(
-                              //         crossAxisAlignment:
-                              //             CrossAxisAlignment.start,
-                              //         children: [
-                              //           Text(
-                              //             "Our Privacy Policy".tr,
-                              //             style: TextStyle(
-                              //               fontSize: 12,
-                              //               color: blueColor,
-                              //               fontFamily: FontFamily.gilroyBold,
-                              //               overflow: TextOverflow.ellipsis,
-                              //             ),
-                              //           )
-                              //         ],
-                              //       ),
-                              //     ),
-                              //   ],
-                              // ),
-                              // SizedBox(
-                              //   height: 5,
-                              // ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Transform.scale(
-                                    scale: 1,
-                                    child: Checkbox(
-                                      value: signUpController.newsletter,
-                                      side: const BorderSide(
-                                          color: Color(0xffC5CAD4)),
-                                      activeColor: blueColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      onChanged: (newbool) async {
-                                        signUpController
-                                            .newsLetterCheck(newbool);
-                                      },
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Subscribe to Our Newsletter".tr,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color:
-                                              (notifire.getblackblue as Color)
-                                                  .withValues(alpha: 0.6),
-                                          fontFamily: FontFamily.gilroyBold,
-                                          overflow: TextOverflow.ellipsis,
+                        SizedBox(height: 10),
+                        GetBuilder<SignUpController>(
+                          builder: (ctx) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(width: 10),
+                                    Transform.scale(
+                                      scale: 1,
+                                      child: Checkbox(
+                                        value: signUpController.chack,
+                                        side: const BorderSide(
+                                          color: Color(0xffC5CAD4),
                                         ),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          );
-                        }),
+                                        activeColor: blueColor,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            5,
+                                          ),
+                                        ),
+                                        onChanged: (newbool) async {
+                                          signUpController
+                                              .checkTermsAndCondition(newbool);
+                                          final prefs = await SharedPreferences
+                                              .getInstance();
+                                          await prefs.setBool('Remember', true);
+                                        },
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "By creating an account,you agree to our"
+                                                  .tr,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: notifire.getgreycolor,
+                                                fontFamily:
+                                                    FontFamily.gilroyMedium,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            WebviewPage(
+                                                          url:
+                                                              "https://opendoors-tc.netlify.app/",
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Text(
+                                                    "Terms and Condition".tr,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: blueColor,
+                                                      fontFamily:
+                                                          FontFamily.gilroyBold,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  ' & ',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontFamily:
+                                                        FontFamily.gilroyBold,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            WebviewPage(
+                                                          url:
+                                                              "https://superb-meerkat-f0d4da.netlify.app/",
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Text(
+                                                    "Our Privacy Policy".tr,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: blueColor,
+                                                      fontFamily:
+                                                          FontFamily.gilroyBold,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                // SizedBox(
+                                //   height: 5,
+                                // ),
+                                // Row(
+                                //   mainAxisAlignment: MainAxisAlignment.start,
+                                //   children: [
+                                //     SizedBox(
+                                //       width: 10,
+                                //     ),
+                                //     Transform.scale(
+                                //       scale: 1,
+                                //       child: Checkbox(
+                                //         value: signUpController.chack,
+                                //         side: const BorderSide(
+                                //             color: Color(0xffC5CAD4)),
+                                //         activeColor: blueColor,
+                                //         shape: RoundedRectangleBorder(
+                                //             borderRadius:
+                                //                 BorderRadius.circular(5)),
+                                //         onChanged: (newbool) async {
+                                //           signUpController
+                                //               .checkTermsAndCondition(newbool);
+                                //           final prefs = await SharedPreferences
+                                //               .getInstance();
+                                //           await prefs.setBool('Remember', true);
+                                //         },
+                                //       ),
+                                //     ),
+                                //     GestureDetector(
+                                //       onTap: () {
+                                //         Navigator.push(
+                                //             context,
+                                //             MaterialPageRoute(
+                                //                 builder: (context) => WebviewPage(
+                                //                     url:
+                                //                         "https://superb-meerkat-f0d4da.netlify.app/")));
+                                //       },
+                                //       child: Column(
+                                //         crossAxisAlignment:
+                                //             CrossAxisAlignment.start,
+                                //         children: [
+                                //           Text(
+                                //             "Our Privacy Policy".tr,
+                                //             style: TextStyle(
+                                //               fontSize: 12,
+                                //               color: blueColor,
+                                //               fontFamily: FontFamily.gilroyBold,
+                                //               overflow: TextOverflow.ellipsis,
+                                //             ),
+                                //           )
+                                //         ],
+                                //       ),
+                                //     ),
+                                //   ],
+                                // ),
+                                // SizedBox(
+                                //   height: 5,
+                                // ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(width: 10),
+                                    Transform.scale(
+                                      scale: 1,
+                                      child: Checkbox(
+                                        value: signUpController.newsletter,
+                                        side: const BorderSide(
+                                          color: Color(0xffC5CAD4),
+                                        ),
+                                        activeColor: blueColor,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            5,
+                                          ),
+                                        ),
+                                        onChanged: (newbool) async {
+                                          signUpController.newsLetterCheck(
+                                            newbool,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Subscribe to Our Newsletter".tr,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color:
+                                                (notifire.getblackblue as Color)
+                                                    .withValues(alpha: 0.6),
+                                            fontFamily: FontFamily.gilroyBold,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                         GestButton(
                           Width: Get.size.width,
                           height: 50,
@@ -717,249 +716,109 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 (signUpController.chack == true)) {
                               if (signUpController.number.text.isEmpty) {
                                 return showToastMessage(
-                                    "Please enter valid phone number".tr);
+                                  "Please enter valid phone number".tr,
+                                );
                               }
                               setState(() {
                                 isLoading = true;
                               });
 
-                              signUpController.smstype().then((msgtype) {
-                                if (msgtype is! Map) {
-                                  if (mounted) {
-                                    setState(() {
-                                      isLoading = false;
-                                    });
-                                  }
-                                  showToastMessage(
-                                      "Unable to start sign up. Please try again."
-                                          .tr);
-                                  return;
-                                }
-                                signUpController
-                                    .checkMobileNumber(cuntryCode)
-                                    .then((value) {
-                                  if (value == "true") {
-                                    // print(
-                                    //     '=======================signup======================');
-                                    // print('here now');
-                                    // print(
-                                    //     '=======================signup======================');
+                              signUpController
+                                  .checkMobileNumber(cuntryCode)
+                                  .then((
+                                value,
+                              ) {
+                                if (value == "true") {
+                                  // print(
+                                  //     '=======================signup======================');
+                                  // print('here now');
+                                  // print(
+                                  //     '=======================signup======================');
 
-                                    // print(
-                                    //     '=======================otp with email======================');
-                                    // signUpController
-                                    //     .emailOtp(
-                                    //         signUpController.email.text.trim())
-                                    //     .then((res) {
-                                    //   if (res["Result"] == "true") {
-                                    //     Get.toNamed(Routes.otpScreen, arguments: {
-                                    //       "number": signUpController.number.text,
-                                    //       "cuntryCode": cuntryCode,
-                                    //       "route": "signUpScreen",
-                                    //       "email":
-                                    //           signUpController.email.text.trim(),
-                                    //       "otpCode": res["otp"]
-                                    //     });
-                                    //     setState(() {
-                                    //       isLoading = false;
-                                    //     });
-                                    //   } else {
-                                    //     setState(() {
-                                    //       isLoading = false;
-                                    //     });
-                                    //     showToastMessage(
-                                    //         'Invalid Mobile Number'.tr);
-                                    //   }
-                                    // });
-                                    // print('=============otp with email============');
+                                  // print(
+                                  //     '=======================otp with email======================');
+                                  // signUpController
+                                  //     .emailOtp(
+                                  //         signUpController.email.text.trim())
+                                  //     .then((res) {
+                                  //   if (res["Result"] == "true") {
+                                  //     Get.toNamed(Routes.otpScreen, arguments: {
+                                  //       "number": signUpController.number.text,
+                                  //       "cuntryCode": cuntryCode,
+                                  //       "route": "signUpScreen",
+                                  //       "email":
+                                  //           signUpController.email.text.trim(),
+                                  //       "otpCode": res["otp"]
+                                  //     });
+                                  //     setState(() {
+                                  //       isLoading = false;
+                                  //     });
+                                  //   } else {
+                                  //     setState(() {
+                                  //       isLoading = false;
+                                  //     });
+                                  //     showToastMessage(
+                                  //         'Invalid Mobile Number'.tr);
+                                  //   }
+                                  // });
+                                  // print('=============otp with email============');
 
-                                    // print('=============otp with sms============');
-                                    if (msgtype["otp_auth"] == "No") {
-                                      signUpController
-                                          .setUserApiData(cuntryCode)
-                                          .then(
-                                        (value) {
-                                          if (value["Result"] == "true") {
-                                            setState(() {
-                                              save(
-                                                  "countryId",
-                                                  selectCountryController
-                                                          .countryInfo
-                                                          ?.countryData![
-                                                              countrySelected]
-                                                          .id ??
-                                                      "");
-                                              save(
-                                                  "countryName",
-                                                  selectCountryController
-                                                          .countryInfo
-                                                          ?.countryData![
-                                                              countrySelected]
-                                                          .title ??
-                                                      "");
-                                            });
-                                            selectCountryController
-                                                .changeCountryIndex(
-                                                    countrySelected);
-                                            homePageController.getHomeDataApi(
-                                                countryId:
-                                                    getData.read("countryId"));
-                                            homePageController.getCatWiseData(
-                                                countryId:
-                                                    getData.read("countryId"),
-                                                cId: "0");
-                                            searchController.getSearchData(
-                                                countryId:
-                                                    getData.read("countryId"));
-                                            Get.offAndToNamed(
-                                                Routes.bottoBarScreen);
-                                            initPlatformState();
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                          } else {
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                            showToastMessage(
-                                                value["ResponseMsg"]);
-                                          }
+                                  // print('=============otp with sms============');
+                                  signUpController
+                                      .termiOtp(
+                                    cuntryCode,
+                                    signUpController.number.text,
+                                  )
+                                      .then((value) {
+                                    if (value?["Result"] == "true" &&
+                                        value?["challenge_id"]
+                                                ?.toString()
+                                                .isNotEmpty ==
+                                            true) {
+                                      Get.toNamed(
+                                        Routes.otpScreen,
+                                        arguments: {
+                                          "number":
+                                              signUpController.number.text,
+                                          "cuntryCode": cuntryCode,
+                                          "route": "signUpScreen",
+                                          "challenge_id":
+                                              value["challenge_id"].toString(),
                                         },
                                       );
                                     } else {
-                                      if (msgtype["SMS_TYPE"] == "Msg91") {
-                                        signUpController
-                                            .sendOtp(cuntryCode,
-                                                signUpController.number.text)
-                                            .then((value) {
-                                          if (value == null) {
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                            showToastMessage(
-                                                'Unable to send OTP. Please try again.'
-                                                    .tr);
-                                            return;
-                                          }
-                                          if (value["Result"] == "true") {
-                                            Get.toNamed(Routes.otpScreen,
-                                                arguments: {
-                                                  "number": signUpController
-                                                      .number.text,
-                                                  "cuntryCode": cuntryCode,
-                                                  "route": "signUpScreen",
-                                                  "otpCode":
-                                                      value["otp"].toString(),
-                                                });
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                          } else {
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                            showToastMessage(
-                                                'Invalid Mobile Number'.tr);
-                                          }
-                                        });
-                                      } else if (msgtype["SMS_TYPE"] ==
-                                          "Twilio") {
-                                        signUpController
-                                            .twilloOtp(cuntryCode,
-                                                signUpController.number.text)
-                                            .then((value) {
-                                          if (value == null) {
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                            showToastMessage(
-                                                'Unable to send OTP. Please try again.'
-                                                    .tr);
-                                            return;
-                                          }
-                                          if (value["Result"] == "true") {
-                                            Get.toNamed(Routes.otpScreen,
-                                                arguments: {
-                                                  "number": signUpController
-                                                      .number.text,
-                                                  "cuntryCode": cuntryCode,
-                                                  "route": "signUpScreen",
-                                                  "otpCode": value["otp"]
-                                                });
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                          } else {
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                            showToastMessage(
-                                                'Invalid Mobile Number'.tr);
-                                          }
-                                        });
-                                      } else if (msgtype["SMS_TYPE"] ==
-                                          "Termii") {
-                                        signUpController
-                                            .termiOtp(cuntryCode,
-                                                signUpController.number.text)
-                                            .then((value) {
-                                          if (value == null) {
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                            return;
-                                          }
-
-                                          if (value?["Result"] == "true") {
-                                            Get.toNamed(Routes.otpScreen,
-                                                arguments: {
-                                                  "number": signUpController
-                                                      .number.text,
-                                                  "cuntryCode": cuntryCode,
-                                                  "route": "signUpScreen",
-                                                  "otpCode": value["otp"]
-                                                });
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                          } else {
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                            showToastMessage(
-                                                'Invalid Mobile Number'.tr);
-                                          }
-                                        });
-                                      } else {
-                                        setState(() {
-                                          isLoading = false;
-                                        });
-                                        showToastMessage(
-                                            "Sign up is temporarily unavailable. Please try again."
-                                                .tr);
-                                      }
+                                      showToastMessage(
+                                        value?["ResponseMsg"] ??
+                                            "Unable to send OTP. Please try again."
+                                                .tr,
+                                      );
                                     }
-                                    // print('=============otp with sms============');
-                                  } else {
-                                    showToastMessage(
-                                        signUpController.userMessage);
-                                    setState(() {
-                                      isLoading = false;
-                                    });
-                                  }
-                                });
+                                    if (mounted) {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    }
+                                  });
+                                  // print('=============otp with sms============');
+                                } else {
+                                  showToastMessage(
+                                    signUpController.userMessage,
+                                  );
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                }
                               });
                             } else {
                               if (signUpController.chack == false) {
                                 showToastMessage(
-                                    "Please select Terms and Condition".tr);
+                                  "Please select Terms and Condition".tr,
+                                );
                               }
                             }
                           },
                         ),
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
 
                         // =========
                         SocialAuthSection(
@@ -968,9 +827,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onGoogleTap: () => _startSocialSignup("google"),
                           onAppleTap: () => _startSocialSignup("apple"),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        SizedBox(height: 20),
                         // =========
                         Padding(
                           padding: const EdgeInsets.only(bottom: 45),
@@ -1006,12 +863,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
           ),
-          isLoading
-              ? Center(
-                  child: FastSpinner(
-                  color: Darkblue,
-                ))
-              : SizedBox()
+          isLoading ? Center(child: FastSpinner(color: Darkblue)) : SizedBox(),
         ],
       ),
     );

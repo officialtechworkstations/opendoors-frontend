@@ -13,6 +13,7 @@ import 'package:opendoors/Api/data_store.dart';
 import 'package:opendoors/controller/search_controller.dart';
 
 class SearchFilterController extends GetxController implements GetxService {
+  static const double maximumPrice = 3000000;
   static const Map<String, String> _amenityLabels = {
     'swimming pool': 'Swimming Pool',
     'ps5': 'PS5',
@@ -42,11 +43,13 @@ class SearchFilterController extends GetxController implements GetxService {
   var customMinPrice = RxnString();
   var customMaxPrice = RxnString();
   final priceRange = const RangeValues(0, 3000000).obs;
+  final selectedRooms = Rxn<int>();
   var selectedAmenities = <String>[].obs;
   var isUsingBudgetFilter = true.obs;
 
   List<AmenityOption> amenityOptions = [];
   List<String> selectedAmenitiesIds = [];
+  final Map<String, List<String>> _amenityIdsByName = {};
 
   // Budget options (in Naira)
   final List<int> budgetOptions = [
@@ -130,9 +133,11 @@ class SearchFilterController extends GetxController implements GetxService {
           ..sort((a, b) => a.name.compareTo(b.name));
 
         final uniqueOptions = <String, AmenityOption>{};
+        _amenityIdsByName.clear();
         for (final option in activeOptions) {
           final key = option.name.trim().toLowerCase();
           uniqueOptions.putIfAbsent(key, () => option);
+          _amenityIdsByName.putIfAbsent(key, () => []).add(option.id);
         }
         amenityOptions = uniqueOptions.values.toList();
         if (selectedAmenities.isNotEmpty) {
@@ -143,10 +148,11 @@ class SearchFilterController extends GetxController implements GetxService {
               .where((option) =>
                   selectedKeys.contains(option.name.trim().toLowerCase()))
               .map((option) => option.name));
-          selectedAmenitiesIds = amenityOptions
-              .where((option) =>
-                  selectedKeys.contains(option.name.trim().toLowerCase()))
-              .map((option) => option.id)
+          selectedAmenitiesIds = selectedAmenities
+              .expand<String>((name) =>
+                  _amenityIdsByName[name.trim().toLowerCase()] ??
+                  const <String>[])
+              .toSet()
               .toList();
         }
       }
@@ -161,6 +167,7 @@ class SearchFilterController extends GetxController implements GetxService {
     selectedBudget.value = getData.read('selected_budget');
     customMinPrice.value = getData.read('custom_min_price');
     customMaxPrice.value = getData.read('custom_max_price');
+    selectedRooms.value = getData.read<int>('selected_rooms');
     final savedMin = double.tryParse(customMinPrice.value ?? '');
     final savedMax = double.tryParse(customMaxPrice.value ?? '');
     if (savedMin != null || savedMax != null) {
@@ -189,6 +196,7 @@ class SearchFilterController extends GetxController implements GetxService {
     save('selected_budget', selectedBudget.value);
     save('selected_amenities', selectedAmenities.toList());
     save('selected_amenities_ids', selectedAmenitiesIds);
+    save('selected_rooms', selectedRooms.value);
 
     Get.back();
     // Get.snackbar(
@@ -206,8 +214,9 @@ class SearchFilterController extends GetxController implements GetxService {
 
     searchController.getSearchData(
       countryId: getData.read("countryId"),
-      minPrice: priceRange.value.start.round(),
-      maxPrice: priceRange.value.end.round(),
+      rooms: selectedRooms.value,
+      minPrice: effectiveMinPrice,
+      maxPrice: effectiveMaxPrice,
       facility: selectedAmenitiesIds,
     );
   }
@@ -219,6 +228,7 @@ class SearchFilterController extends GetxController implements GetxService {
     priceRange.value = const RangeValues(0, 3000000);
     selectedAmenities.clear();
     selectedAmenitiesIds.clear();
+    selectedRooms.value = null;
     isUsingBudgetFilter.value = true;
 
     getData.remove('selected_budget');
@@ -227,6 +237,7 @@ class SearchFilterController extends GetxController implements GetxService {
     getData.remove('is_using_budget_filter');
     getData.remove('selected_amenities');
     getData.remove('selected_amenities_ids');
+    getData.remove('selected_rooms');
 
     update();
   }
@@ -243,18 +254,28 @@ class SearchFilterController extends GetxController implements GetxService {
   }
 
   void toggleAmenity(String amenity, String amenityId) {
+    final ids = _amenityIdsByName[amenity.trim().toLowerCase()] ?? [amenityId];
     if (selectedAmenities.contains(amenity)) {
       selectedAmenities.remove(amenity);
-      selectedAmenitiesIds.remove(amenityId);
+      selectedAmenitiesIds.removeWhere(ids.contains);
     } else {
       selectedAmenities.add(amenity);
-      selectedAmenitiesIds.add(amenityId);
+      selectedAmenitiesIds.addAll(
+        ids.where((id) => !selectedAmenitiesIds.contains(id)),
+      );
     }
     update();
   }
 
+  int get effectiveMinPrice =>
+      priceRange.value.start <= 0 ? 0 : priceRange.value.start.round();
+
+  int get effectiveMaxPrice =>
+      priceRange.value.end >= maximumPrice ? 0 : priceRange.value.end.round();
+
   bool get hasActiveFilters =>
       selectedBudget.value != null ||
+      selectedRooms.value != null ||
       priceRange.value.start > 0 ||
       priceRange.value.end < 3000000 ||
       (customMinPrice.value != null && customMinPrice.value!.isNotEmpty) ||

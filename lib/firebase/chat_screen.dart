@@ -93,11 +93,9 @@ class _ChatPageState extends State<ChatPage> {
     CollectionReference collectionReference =
         FirebaseFirestore.instance.collection('opendoors_users');
 
-    print("AFA <F ${widget.resiverUserId}");
     collectionReference.doc(widget.resiverUserId).get().then((value) async {
       var fields;
 
-      print("FIELDS ${value.data()}");
       fields = value.data();
 
       if (fields != null && fields["isOnline"] == false) {
@@ -128,12 +126,10 @@ class _ChatPageState extends State<ChatPage> {
     collectionReference.doc(uid).get().then((value) {
       var fields;
       fields = value.data();
-      print("TOKEN HERE ${fields?["token"]}");
       if (!mounted) {
         return;
       }
       fmctoken = fields?["token"]?.toString() ?? "";
-      print("TOKEN ID > <> <> <> <> $fmctoken");
     });
   }
 
